@@ -1,0 +1,53 @@
+{
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+  "manifest_version": 2,
+  "name": "gg",
+  "homepage_url": "http://localhost:8080/",
+  "description": "A Vue Browser Extension",
+
+  
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+   
+    "default_title": "gg",
+    "default_icon": {
+      "19": "icons/19.png",
+      "38": "icons/38.png"
+    }
+  },
+ 
+  "version": "2.4.0",
+
+
+  
+    
+  "permissions": [
+      "declarativeContent",
+      "tabs",
+      "bookmarks",
+      "storage",
+      "identity",
+      "cookies", "activeTab","tabs",
+      
+    "<all_urls>",
+    "*://*/*"
+     
+  ],
+
+  
+
+  "options_ui": {
+      "page": "index.html",
+      "open_in_tab": true
+  }
+}

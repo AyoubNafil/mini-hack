@@ -1,0 +1,7 @@
+.idea
+node_modules
+# Vue Browser Extension Output
+*.pem
+*.pub
+*.zip
+/artifacts
