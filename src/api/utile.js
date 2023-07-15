@@ -8,8 +8,8 @@ async function ConnexionSFTest() {
 	const cc = await getDomainCookies();
 	console.log(cc);
 	conn = new jsforce.Connection({
-		instanceUrl: 'https://' + process.env.SALES_URL,
-		accessToken: process.env.ACCESS_TOKEN
+		instanceUrl: 'https://' + process.env.VUE_APP_SALES_URL,
+		accessToken: process.env.VUE_APP_ACCESS_TOKEN
 	});
 	return conn;
 
@@ -154,7 +154,7 @@ function checkPackageName(jsonData) {
 		const record = records[i];
 		const packageName = record.SubscriberPackage.Name;
 
-		if (packageName === process.env.PACKAGE_NAME) {
+		if (packageName === process.env.VUE_APP_PACKAGE_NAME) {
 
 			return true; // Package name found
 		}
