@@ -180,7 +180,7 @@ export default {
     },
     mounted() {
         this.initializeDragula();
-        console.log(process.env.VUE_APP_ACCESS_TOKEN);
+        //console.log(process.env.VUE_APP_ACCESS_TOKEN);
        
         console.log(executeQuery("SELECT Id,Name FROM Account"));
 
