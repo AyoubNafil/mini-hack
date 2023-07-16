@@ -64,9 +64,9 @@ export default {
     },
     methods: {
 
-        
+
         handleRegisterTask(element) {
-           
+
             this.tasks_list.push(element);
         },
 
@@ -100,11 +100,24 @@ export default {
                 this.drake = dragula(this.tasks_list)
                     .on("drag", (el) => {
                         el.classList.remove("ex-moved");
-                        console.log("drag", el);
+                        //console.log("drag", el);
+
                     })
                     .on("drop", (el) => {
                         el.classList.add("ex-moved");
-                        console.log("drop", el);
+                        const tasksLists = document.querySelectorAll("div.tasks-list");
+                        const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
+                            const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
+                            const task = this.cc.find((item) => item.Name === taskId);
+
+                            if (task) {
+                                task.Placement__c = index + 1; // Update the Placement__c value based on the new position
+                            }
+
+                            return task;
+                        });
+                        console.log(updatedCC);
+                        //console.log("drop", el);
                     })
                     .on("over", (el, container) => {
                         container.classList.add("ex-over");
@@ -195,7 +208,7 @@ export default {
 
     <div class="tasks-board mb-3" id="kanbanboard">
 
-        <Listkanban v-for="(item, index) in this.cc" :key="index" :item="item" @registerTask="handleRegisterTask"/>
+        <Listkanban v-for="(item, index) in this.cc" :key="index" :item="item" @registerTask="handleRegisterTask" />
 
 
     </div>

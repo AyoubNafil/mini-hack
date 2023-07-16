@@ -97,7 +97,7 @@ export default {
 </script>
 
 <template>
-    <div class="tasks-list ">
+    <div class="tasks-list " :id="'tasks-list-'+item.Name">
         <div class="d-flex mb-3">
             <div class="flex-grow-1">
                 <h6 class="fs-14 text-uppercase fw-semibold mb-0">{{ item.Name }}<b-badge tag="small" variant="success"
