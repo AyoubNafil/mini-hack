@@ -782,7 +782,7 @@ export default {
               </span>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
-              <h6 class="dropdown-header">Welcome Anna!</h6>
+              <h6 class="dropdown-header">Welcome Ayoub!</h6>
               <router-link class="dropdown-item" to="/pages/profile"><i
                   class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Profile</span>

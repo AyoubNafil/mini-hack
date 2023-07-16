@@ -65,34 +65,43 @@ export function executeQuery(query) {
 
 export function createSObject(name, data) {
 
-	conn.then((cc) => {
+	if (conn) {
 		cc.sobject(name).create(data, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log("Created record id : " + ret.id);
 		});
 
-	});
+	} else {
+		reject(new Error('Connection not established.'));
+	}
 }
 
 export function deleteSObject(name, id) {
-	conn.then((cc) => {
+	if (conn) {
 		cc.sobject(name).destroy(id, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log('Deleted Successfully : ' + ret.id);
 		});
-	});
+	} else {
+		reject(new Error('Connection not established.'));
+	}
 }
 
 
-export function updateSObject(name, data) {
-	conn.then((cc) => {
-		cc.sobject(name).update(data, function (err, ret) {
-			if (err || !ret.success) { return console.error(err, ret); }
-			console.log('Updated Successfully : ' + ret.id);
-			// ...
-		});
+export function updateSObjects(name, data) {
+	if (conn) {
+		conn.sobject(name).update(data, function(err, rets) {
+			if (err) { return console.error(err); }
+			for (var i=0; i < rets.length; i++) {
+			  if (rets[i].success) {
+				console.log("Updated Successfully : " + rets[i].id);
+			  }
+			}
+		  });
 
-	});
+	} else {
+		reject(new Error('Connection not established.'));
+	}
 
 
 }

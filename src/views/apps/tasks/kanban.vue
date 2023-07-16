@@ -16,7 +16,7 @@ import appConfig from "../../../../app.config";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
-import { executeQuery } from "../../../api/utile.js";
+import { executeQuery,updateSObjects } from "../../../api/utile.js";
 
 import Listkanban from './Listkanban.vue'
 
@@ -117,6 +117,7 @@ export default {
 
                             return task;
                         });
+                        updateSObjects("Card__c", updatedCC);
                         console.log(updatedCC);
                         //console.log("drop", el);
                     })

@@ -13,7 +13,7 @@ export default {
         return {
             modalShow2: false,
             modalShow3: false,
-            unassigned: [
+            task: [
                 {
                     title: "Profile Page Satructure",
                     description: "Profile Page means a web page accessible to the public or to guests.",
@@ -119,7 +119,7 @@ export default {
         <div data-simplebar class="tasks-wrapper px-3 mx-n3">
             <div :id="item.Name" class="tasks">
 
-                <b-card no-body class="tasks-box" v-for="(data, index) of unassigned" :key="index">
+                <b-card no-body class="tasks-box" v-for="(data, index) of task" :key="index">
                     <b-card-body>
                         <div class="d-flex mb-2">
                             <h6 class="fs-15 mb-0 flex-grow-1 text-truncate">
