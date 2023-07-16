@@ -6,7 +6,7 @@ import jsforce from "jsforce";
 
 async function ConnexionSFTest() {
 	const cc = await getDomainCookies();
-	console.log(cc);
+	//console.log(cc);
 	conn = new jsforce.Connection({
 		instanceUrl: 'https://' + process.env.VUE_APP_SALES_URL,
 		accessToken: process.env.VUE_APP_ACCESS_TOKEN

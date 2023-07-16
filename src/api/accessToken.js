@@ -14,15 +14,15 @@ export async function getDomainCookies() {
 
       // Extract the base URL
       const baseUrl = url.searchParams.get('url');
-      console.log(baseUrl);
+      //console.log(baseUrl);
       const cookies = await chrome.cookies.getAll({ url: baseUrl });
      
-      console.log(cookies);
+      //console.log(cookies);
       for (var i = 0; i < cookies.length; i++) {
         if (cookies[i].name === "sid") {
           var accessToken = cookies[i].value;
           var domain = cookies[i].domain;
-          console.log([domain,accessToken]);
+          //console.log([domain,accessToken]);
 
           return [domain,accessToken];
          
