@@ -2,10 +2,12 @@
 
 
 export default {
-    props: ['title'],
-    setup(props) {
-        console.log(props.title)
+    props: {
+    item: {
+      type: Object,
+      required: true,
     },
+   },
 
     data() {
         return {
@@ -16,7 +18,7 @@ export default {
                     title: "Profile Page Satructure",
                     description: "Profile Page means a web page accessible to the public or to guests.",
                     features: ["Admin"],
-                    users: [require("@/assets/images/users/avatar-6.jpg"), require("@/assets/images/users/avatar-5.jpg")],
+                    users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
                     id: "#VL2436",
                     watch: "04",
                     message: "19",
@@ -26,7 +28,7 @@ export default {
                     title: "Velzon - Admin Layout Design",
                     description: "The dashboard is the front page of the Administration UI.",
                     features: ["Layout", "Admin", "Dashboard"],
-                    users: [require("@/assets/images/users/avatar-7.jpg"), require("@/assets/images/users/avatar-6.jpg"), require("@/assets/images/users/avatar-1.jpg")],
+                    users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
                     id: "#VL2436",
                     watch: "04",
                     message: "19",
@@ -37,6 +39,18 @@ export default {
 
         };
     },
+
+    mounted() {
+        
+       const element = document.getElementById(this.item.Name);
+       
+      if (element) {
+       
+        this.$emit("registerTask", element);
+    
+      }
+    
+  },
     methods: {
         deleteTask() {
             this.modalShow3 = true;
@@ -86,7 +100,7 @@ export default {
     <div class="tasks-list ">
         <div class="d-flex mb-3">
             <div class="flex-grow-1">
-                <h6 class="fs-14 text-uppercase fw-semibold mb-0">Unassigned <b-badge tag="small" variant="success"
+                <h6 class="fs-14 text-uppercase fw-semibold mb-0">{{ item.Name }}<b-badge tag="small" variant="success"
                         class="align-bottom ms-1">2</b-badge></h6>
             </div>
             <div class="flex-shrink-0">
@@ -103,7 +117,7 @@ export default {
             </div>
         </div>
         <div data-simplebar class="tasks-wrapper px-3 mx-n3">
-            <div id="test-task" class="tasks">
+            <div :id="item.Name" class="tasks">
 
                 <b-card no-body class="tasks-box" v-for="(data, index) of unassigned" :key="index">
                     <b-card-body>
@@ -227,7 +241,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="anna-adame">
                                     <label class="form-check-label d-flex align-items-center" for="anna-adame">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-1.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -241,7 +255,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="frank-hook">
                                     <label class="form-check-label d-flex align-items-center" for="frank-hook">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-3.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -255,7 +269,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="alexis-clarke">
                                     <label class="form-check-label d-flex align-items-center" for="alexis-clarke">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-6.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -269,7 +283,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="herbert-stokes">
                                     <label class="form-check-label d-flex align-items-center" for="herbert-stokes">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-2.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -283,7 +297,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="michael-morris">
                                     <label class="form-check-label d-flex align-items-center" for="michael-morris">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-7.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -297,7 +311,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="nancy-martino">
                                     <label class="form-check-label d-flex align-items-center" for="nancy-martino">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-5.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -311,7 +325,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="thomas-taylor">
                                     <label class="form-check-label d-flex align-items-center" for="thomas-taylor">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-8.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
@@ -325,7 +339,7 @@ export default {
                                     <input class="form-check-input me-3" type="checkbox" value="" id="tonya-noble">
                                     <label class="form-check-label d-flex align-items-center" for="tonya-noble">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/avatar-10.jpg" alt=""
+                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
