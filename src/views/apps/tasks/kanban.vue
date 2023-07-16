@@ -105,14 +105,14 @@ export default {
                     })
                     .on("drop", (el) => {
                         el.classList.add("ex-moved");
-                        const tasksLists = document.querySelectorAll("div.tasks-list");
+                        const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
                         console.log(tasksLists);
                         const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
                             const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
                             const task = this.cc.find((item) => item.Name === taskId);
 
                             if (task) {
-                                task.Placement__c = index; // Update the Placement__c value based on the new position
+                                task.Placement__c = index+1; // Update the Placement__c value based on the new position
                             }
 
                             return task;
