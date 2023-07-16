@@ -51,7 +51,7 @@ export default {
                                         <b-col md="auto">
                                             <div class="avatar-md">
                                                 <div class="avatar-title bg-white rounded-circle">
-                                                    <img src="@/assets/images/brands/slack.png" alt="" class="avatar-xs">
+                                                    <img src="@/assets/images/brands/Salesforce.png" alt="" class="avatar-xs" style="width: 50px;">
                                                 </div>
                                             </div>
                                         </b-col>
