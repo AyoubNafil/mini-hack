@@ -23,6 +23,7 @@ export default {
       console.log(cc);
       this.show = cc
     } catch (error) {
+      this.show = false
       console.log("Error occurred while executing query:", error);
 
     }

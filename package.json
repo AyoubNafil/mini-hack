@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -75,6 +74,7 @@
     "vue3-count-to": "^1.1.2",
     "vue3-echarts": "^1.1.0",
     "vue3-google-map": "^0.15.0",
+    "vue3-particles": "^2.11.0",
     "vuevectormap": "^1.1.0",
     "vuex": "^4.1.0",
     "webextension-polyfill": "^0.10.0",
