@@ -88,25 +88,25 @@ export default {
             </div>
           </div>
           <div class="text-center pb-3">
-            <img :src="item.img" alt="" height="50" />
+            <img src= "@/assets/images/brands/Salesforce.png"  alt="" height="50" />
           </div>
         </div>
 
         <div class="py-3">
           <h5 class="fs-14 mb-3">
-            <router-link to="/apps/projects-overview" class="text-dark">{{ item.label }}</router-link>
+            <router-link :to="`/apps/projects-overview/${item.Id}`" class="text-dark">{{ item.Name }}</router-link>
           </h5>
           <b-row class="gy-3">
             <b-col cols="6">
               <div>
                 <p class="text-muted mb-1">Status</p>
-                <div :class="`badge badge-soft-${getStatusClass(item.status)} fs-12`">{{ item.status }}</div>
+                <div :class="`badge badge-soft-${getStatusClass(item.status__c)} fs-12`">{{ item.status__c }}</div>
               </div>
             </b-col>
             <b-col cols="6">
               <div>
                 <p class="text-muted mb-1">Deadline</p>
-                <h5 class="fs-14">{{ item.deadline }}</h5>
+                <h5 class="fs-14">{{ item.Deadline__c }}</h5>
               </div>
             </b-col>
           </b-row>

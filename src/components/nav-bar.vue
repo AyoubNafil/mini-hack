@@ -4,6 +4,8 @@ import {
 } from "simplebar-vue3";
 
 import i18n from "../i18n";
+import { getLastDebugLogUserId } from "../api/utile";
+import { executeQuery } from "../api/utile";
 
 /**
  * Nav-bar Component
@@ -62,8 +64,38 @@ export default {
   components: {
     SimpleBar
   },
+  created() {
+    this.getUserInfo();
+  },
 
   methods: {
+    getUserInfo() {
+      getLastDebugLogUserId()
+  .then((logUserId) => {
+    const query = `SELECT Id, Name FROM User WHERE Id = '${logUserId}'`;
+
+    executeQuery(query)
+      .then((result) => {
+        // Assuming there is only one record in the result
+        if (result.length > 0) {
+          const name = result[0].Name;
+          
+          // Update the name in the HTML
+          document.querySelector(".user-name-text").textContent = name;
+          
+          // Update the welcome message in the HTML
+          document.querySelector(".dropdown-header").textContent = `Welcome ${name}!`;
+        } else {
+          console.log("No matching user found.");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  })
+  .catch((err) => {
+    console.error(err);
+  });},
 
     isCustomDropdown() {
       //Search bar
@@ -386,24 +418,21 @@ export default {
 
                 <div class="notification-list">
                   <b-link href="javascript:void(0);" class="d-flex dropdown-item notify-item py-2">
-                    <img src="@/assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs"
-                      alt="user-pic" />
+                    <img src="@/assets/images/users/avatar-2.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic" />
                     <div class="flex-1">
                       <h6 class="m-0">Angela Bernier</h6>
                       <span class="fs-11 mb-0 text-muted">Manager</span>
                     </div>
                   </b-link>
                   <b-link href="javascript:void(0);" class="d-flex dropdown-item notify-item py-2">
-                    <img src="@/assets/images/users/avatar-3.jpg" class="me-3 rounded-circle avatar-xs"
-                      alt="user-pic" />
+                    <img src="@/assets/images/users/avatar-3.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic" />
                     <div class="flex-1">
                       <h6 class="m-0">David Grasso</h6>
                       <span class="fs-11 mb-0 text-muted">Web Designer</span>
                     </div>
                   </b-link>
                   <b-link href="javascript:void(0);" class="d-flex dropdown-item notify-item py-2">
-                    <img src="@/assets/images/users/avatar-5.jpg" class="me-3 rounded-circle avatar-xs"
-                      alt="user-pic" />
+                    <img src="@/assets/images/users/avatar-5.jpg" class="me-3 rounded-circle avatar-xs" alt="user-pic" />
                     <div class="flex-1">
                       <h6 class="m-0">Mike Bunch</h6>
                       <span class="fs-11 mb-0 text-muted">React Developer</span>
@@ -431,8 +460,7 @@ export default {
               <form class="p-3">
                 <div class="form-group m-0">
                   <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search ..."
-                      aria-label="Recipient's username" />
+                    <input type="text" class="form-control" placeholder="Search ..." aria-label="Recipient's username" />
                     <b-button variant="primary" type="submit">
                       <i class="mdi mdi-magnify"></i>
                     </b-button>
@@ -450,18 +478,17 @@ export default {
             </button>
             <div class="dropdown-menu dropdown-menu-end">
               <b-link href="javascript:void(0);" v-for="(entry, i) in languages" :key="`Lang${i}`" :value="entry"
-                @click="setLanguage(entry.language, entry.title, entry.flag)"
-                :class="{ active: lan === entry.language }" class="dropdown-item notify-item language py-2"
-                data-lang="en" title="English">
+                @click="setLanguage(entry.language, entry.title, entry.flag)" :class="{ active: lan === entry.language }"
+                class="dropdown-item notify-item language py-2" data-lang="en" title="English">
                 <img :src="entry.flag" alt="user-image" class="me-2 rounded" height="18" />
                 <span class="align-middle">{{ entry.title }}</span>
               </b-link>
             </div>
           </div>
 
-          
 
-       
+
+
           <div class="ms-1 header-item d-none d-sm-flex">
             <b-button type="button" variant="ghost-secondary" class="btn-icon btn-topbar rounded-circle"
               data-toggle="fullscreen" @click="initFullScreen">
@@ -776,13 +803,13 @@ export default {
                 <img class="rounded-circle header-profile-user" src="@/assets/images/users/Trailblazer_avatar.png"
                   alt="Header Avatar" />
                 <span class="text-start ms-xl-2">
-                  <span class=" d-none d-xl-inline-block ms-1 fw-medium user-name-text">Ayoub Nafil</span>
+                  <span class=" d-none d-xl-inline-block ms-1 fw-medium user-name-text"> </span>
                   <span class="d-none d-xl-block ms-1 fs-12 text-muted user-name-sub-text">Admin</span>
                 </span>
               </span>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
-              <h6 class="dropdown-header">Welcome Ayoub!</h6>
+              <h6 class="dropdown-header">Welcome {{name}}!</h6>
               <router-link class="dropdown-item" to="/pages/profile"><i
                   class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Profile</span>
@@ -799,7 +826,7 @@ export default {
                   class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Help</span>
               </router-link>
-             
+
             </div>
           </div>
         </div>

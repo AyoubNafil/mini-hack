@@ -1,40 +1,68 @@
 <script>
 import Layout from "../../../layouts/main.vue";
 import appConfig from "../../../../app.config";
-
+import { executeQuery } from "../../.././api/utile.js";
+import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
-
 export default {
     methods: {
-        toggleFavourite(ele) {
-            ele.target.closest('.favourite-btn').classList.toggle("active");
-        }
-    },
-    page: {
-        title: "Overview",
-        meta: [{ name: "description", content: appConfig.description }],
-    },
-    data() {
-        return {
-            title: "Overview",
-            items: [
-                {
-                    text: "Pages",
-                    href: "/",
-                },
-                {
-                    text: "Overview",
-                    active: true,
-                },
-            ],
-        };
-    },
-    components: {
-        Layout,
-        kanban
-    },
+  toggleFavourite(ele) {
+    ele.target.closest('.favourite-btn').classList.toggle("active");
+  },
+},
+page: {
+  title: "Overview",
+  meta: [{ name: "description", content: appConfig.description }],
+},
+data() {
+  return {
+    title: "Overview",
+    items: [
+      {
+        text: "Pages",
+        href: "/",
+      },
+      {
+        text: "Overview",
+        active: true,
+      },
+    ],
+    project:[],
+  };
+  
+},
+components: {
+  Layout,
+  kanban
+},
+methods :{
+    async getProjectDetail() {
+            try {
+                const ProjectId = this.$route.params.id;
+                
+                this.project = await executeQuery("SELECT Id,Name,CreatedDate ,OwnerId,Status__c,Company__c,Deadline__c,Description__c ,priority__c FROM board__c where id = "+"'"+ProjectId+"'");
+                this.project = this.project[0];
+                this.project.CreatedDate = this.project.CreatedDate.substring(0, 10)
+                console.log(this.project);
+                if (this.project) {
+                    console.log(this.project);
+                    console.log("Description "+this.project.Description__c);
 
+                } else {
+                    console.log("Empty No project with these id");
+                }
+            } catch (error) {
+                console.log("Error occurred while executing query:", error);
+
+            }
+},
+},
+mounted() {
+  this.getProjectDetail();
+  
+}
 };
+
 </script>
 
 <template>
@@ -57,17 +85,17 @@ export default {
                                         </b-col>
                                         <b-col md>
                                             <div>
-                                                <h4 class="fw-bold">Velzon - Admin & Dashboard</h4>
+                                                <h4 class="fw-bold">{{ project.Name }}</h4>
                                                 <div class="hstack gap-3 flex-wrap">
-                                                    <div><i class="ri-building-line align-bottom me-1"></i> Themesbrand
+                                                    <div><i class="ri-building-line align-bottom me-1"></i> {{project.Company__c}}
                                                     </div>
                                                     <div class="vr"></div>
-                                                    <div>Create Date : <span class="fw-medium">15 Sep, 2021</span></div>
+                                                    <div>Create Date : <span class="fw-medium">{{ project.CreatedDate }}</span></div>
                                                     <div class="vr"></div>
-                                                    <div>Due Date : <span class="fw-medium">29 Dec, 2021</span></div>
+                                                    <div>Due Date : <span class="fw-medium">{{ project.Deadline__c }}</span></div>
                                                     <div class="vr"></div>
                                                     <b-badge pill class="bg-info fs-12">New</b-badge>
-                                                    <b-badge variant="danger" pill class="bg-danger fs-12">High</b-badge>
+                                                    <b-badge variant="danger" pill class="bg-danger fs-12">{{project.Priority__c}}</b-badge>
                                                 </div>
                                             </div>
                                         </b-col>
@@ -123,22 +151,7 @@ export default {
                                     <b-card-body>
                                         <div class="text-muted">
                                             <h6 class="mb-3 fw-semibold text-uppercase">Summary</h6>
-                                            <p>It will be as simple as occidental in fact, it will be Occidental. To an
-                                                English person, it will seem like simplified English, as a skeptical
-                                                Cambridge friend of mine told me what Occidental is. The European
-                                                languages are members of the same family. Their separate existence is a
-                                                myth. For science, music, sport, etc, Europe uses the same vocabulary.
-                                                The languages only differ in their grammar, their pronunciation and
-                                                their most common words.</p>
-
-                                            <ul class="ps-4 vstack gap-2">
-                                                <li>Product Design, Figma (Software), Prototype</li>
-                                                <li>Four Dashboards : Ecommerce, Analytics, Project,etc.</li>
-                                                <li>Create calendar, chat and email app pages.</li>
-                                                <li>Add authentication pages.</li>
-                                                <li>Content listing.</li>
-                                            </ul>
-
+                                            <div v-html="project.Description__c"></div>
                                             <div>
                                                 <b-button type="button" variant="link" class="link-success p-0">Read
                                                     more</b-button>
@@ -150,25 +163,25 @@ export default {
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Create Date :</p>
-                                                            <h5 class="fs-15 mb-0">15 Sep, 2021</h5>
+                                                            <h5 class="fs-15 mb-0">{{project.CreatedDate}}</h5>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Due Date :</p>
-                                                            <h5 class="fs-15 mb-0">29 Dec, 2021</h5>
+                                                            <h5 class="fs-15 mb-0">{{project.Deadline__c}}</h5>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Priority :</p>
-                                                            <b-badge tag="div" class="bg-danger fs-12">High</b-badge>
+                                                            <b-badge tag="div" class="bg-danger fs-12">{{project.Priority__c}}</b-badge>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Status :</p>
-                                                            <b-badge tag="div" class="bg-warning fs-12">Inprogess</b-badge>
+                                                            <b-badge tag="div" class="bg-warning fs-12">{{project.status__c}}</b-badge>
                                                         </div>
                                                     </b-col>
                                                 </b-row>
@@ -1736,7 +1749,7 @@ export default {
                     </div>
 
                     <div class="tab-pane fade" id="project-tasks" role="tabpanel">
-                     <kanban></kanban>
+                     <kanban :id=this.$route.params.id ></kanban>
 
                     </div>
                 </div>

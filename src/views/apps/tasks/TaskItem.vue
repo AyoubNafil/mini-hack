@@ -51,7 +51,7 @@ export default {
 </script>
 
 <template>
-    <b-card no-body class="tasks-box">
+    <b-card no-body class="tasks-box" :id=item.Id >
         <b-card-body>
             <div class="d-flex mb-2">
                 <h6 class="fs-15 mb-0 flex-grow-1 text-truncate">

@@ -61,7 +61,22 @@ export function executeQuery(query) {
 	});
 }
 
-
+export function createSObject2(name, data) {
+	return new Promise((resolve, reject) => {
+	  if (conn) {
+		conn.sobject(name).create(data, function (err, ret) {
+		  if (err || !ret.success) {
+			reject(err || new Error("Record creation failed."));
+		  } else {
+			console.log("Created record id: " + ret.id);
+			resolve(ret.id);
+		  }
+		});
+	  } else {
+		reject(new Error("Connection not established."));
+	  }
+	});
+  }
 
 export function createSObject(name, data) {
 
@@ -171,3 +186,46 @@ function checkPackageName(jsonData) {
 
 	return false; // Package name not found
 }
+
+export async function getLastDebugLogUserId() {
+	try {
+		const cc = await ConnexionSFTest(); // Get the Salesforce connection
+		const apexBody = "system.debug(UserInfo.getUserId());";
+
+		const res = await new Promise((resolve, reject) => {
+			cc.tooling.executeAnonymous(apexBody, (err, result) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(result);
+				}
+			});
+		});
+
+		const logs = await new Promise((resolve, reject) => {
+			cc.tooling.sobject("ApexLog")
+				.find({ RequestIdentifier: res.id })
+				.sort({ StartTime: -1 })
+				.limit(1)
+				.execute((err, result) => {
+					if (err) {
+						reject(err);
+					} else {
+						resolve(result);
+					}
+				});
+		});
+
+		if (logs.length > 0) {
+			const lastLog = logs[0];
+			return lastLog.LogUserId;
+		} else {
+			throw new Error("No debug logs found.");
+		}
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
+}
+
+

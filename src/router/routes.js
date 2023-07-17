@@ -93,11 +93,11 @@ export default [
     component: () => import("../views/apps/projects/list"),
   },
   {
-    path: "/apps/projects-overview",
+    path: "/apps/projects-overview/:id",
     name: "projects Overview",
     meta: { title: "Projects Overview", authRequired: false },
     component: () => import("../views/apps/projects/overview"),
-  },
+},
   {
     path: "/apps/projects-create",
     name: "projects-create",

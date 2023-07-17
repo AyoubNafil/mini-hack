@@ -1,17 +1,17 @@
 <script>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import Multiselect from "@vueform/multiselect";
 import "@vueform/multiselect/themes/default.css";
-
-import CKEditor from "@ckeditor/ckeditor5-vue";
+import { createSObject2 } from "../../.././api/utile.js";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import DropZone from "@/components/widgets/dropZone";
 import useVuelidate from "@vuelidate/core";
+import CKEditor from "@ckeditor/ckeditor5-vue";
 
 import Layout from "../../../layouts/main.vue";
 import PageHeader from "@/components/page-header";
 import appConfig from "../../../../app.config";
-
+import Swal from "sweetalert2";
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 
@@ -31,12 +31,6 @@ export default {
       dropzoneFile.value = document.querySelector(".dropzoneFile").files[0];
       files.value.push(dropzoneFile.value);
     };
-    watch(
-      () => [...files.value],
-      (currentValue) => {
-        return currentValue;
-      }
-    );
     return { dropzoneFile, files, drop, selectedFile, v$: useVuelidate() };
   },
   data() {
@@ -44,6 +38,7 @@ export default {
       title: "Create Project",
       items: [
         {
+          editorData: '',
           text: "Projects",
           href: "/",
         },
@@ -59,26 +54,88 @@ export default {
       value1: ["Inprogress"],
       value2: ["High"],
       editor: ClassicEditor,
-      editorData:
-        "<p>It will be as simple as occidental in fact, it will be Occidental. To an English person, it will seem like simplified English, as a skeptical Cambridge friend of mine told me what Occidental is. The European languages are members of the same family. Their separate existence is a myth. For science, music, sport, etc, Europe uses the same vocabulary.</p><ul><li>Product Design, Figma (Software), Prototype</li><li>Four Dashboards : Ecommerce, Analytics, Project etc.</li><li>Create calendar, chat and email app pages.</li><li>Add authentication pages</li></ul>",
-      content: "<h1>Some initial content</h1>",
+      description: "", // Added the 'description' property for CKEditor content
     };
   },
   methods: {
     deleteRecord(ele) {
       ele.target.parentElement.parentElement.parentElement.remove();
     },
+   async createRecord() {
+      console.log("here we go");
+
+      // Getting the value of the inputs
+      const projectTitle = document.getElementById("project-title-input").value;
+      // const projectDescription = document.getElementById("Description").value;
+      const projectDescription = this.editorData;
+      console.log(this.editorData);
+      const status = this.value1; // Retrieve the selected status from the array
+      const priority = this.value2[0]; // Retrieve the selected status from the array
+      const deadline = this.date;
+      console.log(projectTitle);
+      console.log(status);
+      console.log(projectDescription);
+      console.log(deadline);
+      console.log(priority);
+
+      const recordData = {
+        Name: projectTitle,
+        Status__c: status,
+        Description__c: projectDescription,
+        Priority__c: priority,
+        Deadline__c: deadline
+      };
+      console.log("rec data " + recordData);
+
+      // await createSObject("board__c", recordData).then((data) => {
+      //   // Handle the query result
+      //   console.log(data);
+      // })
+      //   .catch((error) => {
+      //     // Handle any errors that occurred
+      //     console.error(error);
+      //   });
+
+      //   Swal.fire("Good job!", "Project Created Succesfly!", "success");
+
+
+      // setTimeout(() => {
+      //   const dynamicPath = `/apps/projects-overview/id=${id}`;
+      // console.log(dynamicPath);
+      //     this.$router.push(dynamicPath);
+      //   }, 5000);
+      try {
+      const id = await createSObject2("board__c", recordData);
+      
+
+      if (id) {
+        console.log(id);
+        Swal.fire("Good job!", "Project Created Succesfly!", "success");
+        const dynamicPath = `/apps/projects-overview/${id}`;
+        this.$router.push(dynamicPath);
+
+      } else {
+        console.log("undifid");
+
+      }
+    } catch (error) {
+      console.log("Error occurred while executing query:", error);
+
+    }
+    },
   },
   components: {
     DropZone,
     Layout,
     PageHeader,
-    ckeditor: CKEditor.component,
     Multiselect,
-    flatPickr
+    flatPickr,
+    ckeditor: CKEditor.component,
+
   },
 };
 </script>
+
 
 <template>
   <Layout>
@@ -98,8 +155,8 @@ export default {
                 accept="image/png, image/gif, image/jpeg" />
             </div>
 
-            <div class="mb-3">
-              <label class="form-label">Project Description</label>
+            <div class="md-form amber-textarea active-amber-textarea" style="margin-bottom: 10px;">
+              <label for="form19">Description</label>
               <ckeditor v-model="editorData" :editor="editor"></ckeditor>
             </div>
 
@@ -108,23 +165,21 @@ export default {
                 <div class="mb-3 mb-lg-0">
                   <label for="choices-priority-input" class="form-label">Priority</label>
 
-                  <Multiselect v-model="value2" :close-on-select="true" :searchable="true" :create-option="true"
-                    :options="[
-                      { value: 'High', label: 'High' },
-                      { value: 'Medium', label: 'Medium' },
-                      { value: 'Low', label: 'Low' },
-                    ]" />
+                  <Multiselect v-model="value2" :close-on-select="true" :searchable="true" :create-option="true" :options="[
+                    { value: 'High', label: 'High' },
+                    { value: 'Medium', label: 'Medium' },
+                    { value: 'Low', label: 'Low' },
+                  ]" />
                 </div>
               </b-col>
               <b-col lg="4">
                 <div class="mb-3 mb-lg-0">
                   <label for="choices-status-input" class="form-label">Status</label>
 
-                  <Multiselect v-model="value1" :close-on-select="true" :searchable="true" :create-option="true"
-                    :options="[
-                      { value: 'Inprogress', label: 'Inprogress' },
-                      { value: 'Completed', label: 'Completed' },
-                    ]" />
+                  <Multiselect v-model="value1" :close-on-select="true" :searchable="true" :create-option="true" :options="[
+                    { value: 'In progress', label: 'In progress' },
+                    { value: 'Completed', label: 'Completed' },
+                  ]" />
                 </div>
               </b-col>
               <b-col lg="4">
@@ -175,7 +230,7 @@ export default {
         <div class="text-end mb-4">
           <b-button type="button" variant="danger" class="w-sm me-1">Delete</b-button>
           <b-button type="submit" variant="secondary" class="w-sm me-1"> Draft </b-button>
-          <b-button type="submit" variant="success" class="w-sm">Create</b-button>
+          <b-button type="submit" variant="success" class="w-sm" @click="createRecord" id="sa-success">Create</b-button>
         </div>
       </b-col>
       <b-col lg="4">

@@ -28,7 +28,7 @@ export default {
     mounted() {
         this.fetchData();
 
-        const element = document.getElementById(this.item.Name);
+        const element = document.getElementById(this.item.Id);
         if (element) { this.$emit("registerTask", element); }
 
 
@@ -129,7 +129,7 @@ export default {
 </script>
 
 <template>
-    <div class="tasks-list " :id="'tasks-list-' + item.Name">
+    <div class="tasks-list " :id="'tasks-list-' + item.Id">
         <div class="d-flex mb-3">
             <div class="flex-grow-1">
                 <h6 class="fs-14 text-uppercase fw-semibold mb-0">{{ item.Name }}<b-badge tag="small" variant="success"
@@ -149,7 +149,7 @@ export default {
             </div>
         </div>
         <div data-simplebar class="tasks-wrapper px-3 mx-n3">
-            <div :id="item.Name" class="tasks">
+            <div :id="item.Id" class="tasks">
 
 
                 <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" @reloadListkanbanTask="handleReloadListkanbanTask"  />

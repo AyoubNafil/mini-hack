@@ -16,12 +16,17 @@ import appConfig from "../../../../app.config";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
-import { executeQuery, updateSObjects } from "../../../api/utile.js";
+import { executeQuery, updateSObjects ,createSObject} from "../../../api/utile.js";
 
 import Listkanban from './Listkanban.vue'
 
 export default {
-
+    props: {
+        id: {
+            type: String,
+            required: true,
+        },
+    },
 
     page: {
         title: "Kanban Board",
@@ -40,6 +45,7 @@ export default {
                     active: true,
                 },
             ],
+            boardName: "", 
             modalShow: false,
             modalShow1: false,
 
@@ -65,7 +71,27 @@ export default {
     },
     methods: {
 
+        addBoard() {
+      // Get the value of the board name from the input field
+      const boardName = this.boardName;
 
+      // Create the data object to pass to createSObject function
+      const data = {
+        Board__c: this.id,
+        Name:boardName,
+        Placement__c:this.cc.length+1
+      };
+
+      // Call the createSObject function from your utile.js file
+      createSObject("Card__c", data, () => {
+        // Callback function called on success
+        window.location.reload();
+      });
+
+      // Clear the input field and close the modal
+      this.boardName = "";
+      this.modalShow1 = false;
+    },
         handleRegisterTask(element) {
 
             this.tasks_list.push(element);
@@ -78,7 +104,7 @@ export default {
 
         async fetchData() {
             try {
-                this.cc = await executeQuery("select id,name,Placement__c from Card__c ");
+                this.cc = await executeQuery(`select id,name,Placement__c from Card__c where Board__c = '${this.id}'`);
                 if (this.cc) {
                     this.cc.sort((a, b) => a.Placement__c - b.Placement__c);
                     console.log(this.cc);
@@ -111,21 +137,33 @@ export default {
                     })
                     .on("drop", (el) => {
                         el.classList.add("ex-moved");
-                        const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
-                        console.log(tasksLists);
-                        const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
-                            const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
-                            const task = this.cc.find((item) => item.Name === taskId);
+                        console.log(el);
+                        if (el.classList.contains("tasks-list")) {
 
-                            if (task) {
-                                task.Placement__c = index + 1; // Update the Placement__c value based on the new position
-                            }
+                            const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
+                            console.log(tasksLists);
+                            const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
+                                const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
+                                const task = this.cc.find((item) => item.Id === taskId);
 
-                            return task;
-                        });
-                        updateSObjects("Card__c", updatedCC);
-                        console.log(updatedCC);
-                        //console.log("drop", el);
+                                if (task) {
+                                    task.Placement__c = index + 1; // Update the Placement__c value based on the new position
+                                }
+
+                                return task;
+                            });
+                            updateSObjects("Card__c", updatedCC);
+                            console.log(updatedCC);
+
+                        } else if (el.classList.contains("tasks-box")) {
+                            console.log("in");
+                            const parentCardId = el.closest(".tasks-list").id.split("-")[2];;
+                            console.log(parentCardId);
+                            const tasksBoxId = el.id;
+                            console.log(tasksBoxId);
+                            updateSObjects("Task__c", {Id:tasksBoxId,Type__c:parentCardId});
+                        }
+                        
                     })
                     .on("over", (el, container) => {
                         container.classList.add("ex-over");
@@ -275,20 +313,20 @@ export default {
     </b-modal>
 
     <b-modal v-model="modalShow1" header-class="p-3 bg-soft-info" content-class="border-0" hide-footer title="Add Board"
-        class="v-modal-custom" centered>
-        <b-form action="#">
-            <b-row>
-                <b-col lg="12">
-                    <label for="boardName" class="form-label">Board Name</label>
-                    <input type="text" class="form-control" id="boardName" placeholder="Enter board name">
-                </b-col>
-                <div class="mt-4">
-                    <div class="hstack gap-2 justify-content-end">
-                        <b-button type="button" variant="light" @click="modalShow1 = false">Close</b-button>
-                        <b-button type="button" variant="success" id="addNewBoard" @click="modalShow1 = false">Add Board</b-button>
-                    </div>
-                </div>
-            </b-row>
-        </b-form>
-    </b-modal>
+  class="v-modal-custom" centered>
+  <b-form @submit.prevent="addBoard">
+    <b-row>
+      <b-col lg="12">
+        <label for="boardName" class="form-label">Board Name</label>
+        <input type="text" class="form-control" id="boardName" placeholder="Enter board name" v-model="boardName">
+      </b-col>
+      <div class="mt-4">
+        <div class="hstack gap-2 justify-content-end">
+          <b-button type="button" variant="light" @click="modalShow1 = false">Close</b-button>
+          <b-button type="submit" variant="success" id="addNewBoard">Add Board</b-button>
+        </div>
+      </div>
+    </b-row>
+  </b-form>
+</b-modal>
 </template>
