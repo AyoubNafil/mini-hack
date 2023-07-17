@@ -1,56 +1,42 @@
 <script>
+import { executeQuery, updateSObjects,createSObject } from "../../../api/utile.js";
 
+import TaskItem from "./TaskItem.vue"
+import flatPickr from "vue-flatpickr-component";
+import "flatpickr/dist/flatpickr.css"
 
 export default {
     props: {
-    item: {
-      type: Object,
-      required: true,
+        item: {
+            type: Object,
+            required: true,
+        },
     },
-   },
 
     data() {
         return {
+
             modalShow2: false,
             modalShow3: false,
-            task: [
-                {
-                    title: "Profile Page Satructure",
-                    description: "Profile Page means a web page accessible to the public or to guests.",
-                    features: ["Admin"],
-                    users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
-                    id: "#VL2436",
-                    watch: "04",
-                    message: "19",
-                    file: "2"
-                },
-                {
-                    title: "Velzon - Admin Layout Design",
-                    description: "The dashboard is the front page of the Administration UI.",
-                    features: ["Layout", "Admin", "Dashboard"],
-                    users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
-                    id: "#VL2436",
-                    watch: "04",
-                    message: "19",
-                    file: "2",
-                    date: " 07 Jan, 2022"
-                }
-            ],
+            task: [],
 
         };
     },
 
+
+
     mounted() {
-        
-       const element = document.getElementById(this.item.Name);
-       
-      if (element) {
-       
-        this.$emit("registerTask", element);
-    
-      }
-    
-  },
+        this.fetchData();
+
+        const element = document.getElementById(this.item.Name);
+        if (element) { this.$emit("registerTask", element); }
+
+
+
+
+
+
+    },
     methods: {
         deleteTask() {
             this.modalShow3 = true;
@@ -67,7 +53,27 @@ export default {
             });
         },
 
-        addNewTask() {
+        async addNewTask() {
+             const name = document.getElementById("sub-tasks").value;
+             try { 
+
+                await createSObject("Task__c",{Name:"name",Type__c:this.item.id});
+
+             } catch (error) {
+                console.log("Error occurred while executing query:", error);
+
+            }
+
+            //console.log(document.getElementById("due-date").value);
+            // const inputDate = document.getElementById("due-date").value;
+            // const dateParts = inputDate.split("-"); // Split the input date into parts
+            // const year = dateParts[0];
+            // const month = new Date(dateParts[1] + " 01, 2000").toLocaleString("en-us", { month: "short" });
+            // const day = dateParts[2];
+
+            // const formattedDate = `${day} ${month} ${year}`;
+            // console.log(formattedDate); // Output: "25 Jul 2023"
+            ///////////////////////////////////////////////////////////////////////////////////////////////
             // var projectName = document.getElementById("projectName").value;
             // var sub_tasks = document.getElementById("sub-tasks").value;
             // var task_description = document.getElementById("task-description").value;
@@ -90,18 +96,40 @@ export default {
             //         console.log('n',n)
             //     }
             // }
-        }
-    }
+        },
+
+        async fetchData() {
+            try {
+
+                this.task = await executeQuery(`SELECT Id, Name, Placement__c FROM Task__c WHERE Type__c = '${this.item.Id}'`);
+                if (this.task) {
+                    this.task.sort((a, b) => a.Placement__c - b.Placement__c);
+                    console.log(this.task);
+                    console.log(this.task.length);
+                } else {
+                    console.log("Empty");
+                }
+            } catch (error) {
+                console.log("Error occurred while executing query:", error);
+
+            }
+        },
+    },
+
+    components: {
+        TaskItem,
+        flatPickr
+    },
 
 }
 </script>
 
 <template>
-    <div class="tasks-list " :id="'tasks-list-'+item.Name">
+    <div class="tasks-list " :id="'tasks-list-' + item.Name">
         <div class="d-flex mb-3">
             <div class="flex-grow-1">
                 <h6 class="fs-14 text-uppercase fw-semibold mb-0">{{ item.Name }}<b-badge tag="small" variant="success"
-                        class="align-bottom ms-1">2</b-badge></h6>
+                        class="align-bottom ms-1">{{ this.task.length }}</b-badge></h6>
             </div>
             <div class="flex-shrink-0">
                 <div class="dropdown card-header-dropdown">
@@ -119,91 +147,8 @@ export default {
         <div data-simplebar class="tasks-wrapper px-3 mx-n3">
             <div :id="item.Name" class="tasks">
 
-                <b-card no-body class="tasks-box" v-for="(data, index) of task" :key="index">
-                    <b-card-body>
-                        <div class="d-flex mb-2">
-                            <h6 class="fs-15 mb-0 flex-grow-1 text-truncate">
-                                <router-link to="/apps/tasks-details" class="d-block text-reset">{{ data.title
-                                }}</router-link>
-                            </h6>
-                            <div class="dropdown">
-                                <b-link href="javascript:void(0);" class="text-muted" id="dropdownMenuLink1"
-                                    data-bs-toggle="dropdown" aria-expanded="false"><i class="ri-more-fill"></i></b-link>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                                    <li>
-                                        <router-link class="dropdown-item" to="/apps/tasks-details"><i
-                                                class="ri-eye-fill align-bottom me-2 text-muted"></i> View
-                                        </router-link>
-                                    </li>
-                                    <li>
-                                        <b-link class="dropdown-item" href="#"><i
-                                                class="ri-edit-2-line align-bottom me-2 text-muted"></i>
-                                            Edit</b-link>
-                                    </li>
-                                    <li>
-                                        <div class="dropdown-item" @click="deleteTask" ><i
-                                                class="ri-delete-bin-5-line align-bottom me-2 text-muted"></i>
-                                            Delete</div>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <p class="text-muted">{{ data.description }}</p>
-                        <div class="mb-3">
-                            <div class="d-flex mb-1">
-                                <div class="flex-grow-1">
-                                    <h6 class="text-muted mb-0"><span class="text-secondary">15%</span> of
-                                        100%</h6>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <span class="text-muted">{{ data.date }}</span>
-                                </div>
-                            </div>
-                            <div class="progress rounded-3 progress-sm">
-                                <div class="progress-bar bg-danger" role="progressbar" style="width: 15%" aria-valuenow="15"
-                                    aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1">
-                                <b-badge variant="soft-primary" class="badge-soft-primary me-1"
-                                    v-for="(item, index) of data.features" :key="index">{{ item }}</b-badge>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <div class="avatar-group">
-                                    <b-link href="javascript: void(0);" v-for="(item, index) of data.users" :key="index"
-                                        class="avatar-group-item" v-b-tooltip.hover title="Alexis">
-                                        <img :src="item" alt="" class="rounded-circle avatar-xxs">
-                                    </b-link>
-                                </div>
-                            </div>
-                        </div>
-                    </b-card-body>
-                    <b-card-footer class="border-top-dashed">
-                        <div class="d-flex">
-                            <div class="flex-grow-1">
-                                <h6 class="text-muted mb-0">#VL2436</h6>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <ul class="link-inline mb-0">
-                                    <li class="list-inline-item">
-                                        <b-link href="javascript:void(0)" class="text-muted"><i
-                                                class="ri-eye-line align-bottom"></i> 04</b-link>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <b-link href="javascript:void(0)" class="text-muted"><i
-                                                class="ri-question-answer-line align-bottom"></i> 19
-                                        </b-link>
-                                    </li>
-                                    <li class="list-inline-item">
-                                        <b-link href="javascript:void(0)" class="text-muted"><i
-                                                class="ri-attachment-2 align-bottom"></i> 02</b-link>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </b-card-footer>
-                </b-card>
+
+                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" />
 
             </div>
         </div>
@@ -216,10 +161,7 @@ export default {
         title="Create New Task" class="v-modal-custom" size="lg" centered>
         <b-form action="#">
             <b-row class="g-3">
-                <b-col lg="12">
-                    <label for="projectName" class="form-label">Project Name</label>
-                    <input type="text" class="form-control" id="projectName" placeholder="Enter project name">
-                </b-col>
+
                 <b-col lg="12">
                     <label for="sub-tasks" class="form-label">Task Title</label>
                     <input type="text" class="form-control" id="sub-tasks" placeholder="Task title">
@@ -354,7 +296,7 @@ export default {
                 <b-col lg="4">
                     <label for="due-date" class="form-label">Due Date</label>
 
-                    <flat-pickr v-model="date1" placeholder="Select date" class="form-control">
+                    <flat-pickr id="due-date" v-model="date1" placeholder="Select date" class="form-control">
                     </flat-pickr>
                 </b-col>
                 <b-col lg="4">

@@ -264,4 +264,28 @@ const projectListWidgets3= [
     },
 ];
 
+const task=[
+    {
+        title: "Profile Page Satructure",
+        description: "Profile Page means a web page accessible to the public or to guests.",
+        features: ["Admin"],
+        users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
+        id: "#VL2436",
+        watch: "04",
+        message: "19",
+        file: "2"
+    },
+    {
+        title: "Velzon - Admin Layout Design",
+        description: "The dashboard is the front page of the Administration UI.",
+        features: ["Layout", "Admin", "Dashboard"],
+        users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
+        id: "#VL2436",
+        watch: "04",
+        message: "19",
+        file: "2",
+        date: " 07 Jan, 2022"
+    }
+]
+
 export { chatData, chatMessagesData };

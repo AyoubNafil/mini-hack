@@ -66,7 +66,7 @@ export function executeQuery(query) {
 export function createSObject(name, data) {
 
 	if (conn) {
-		cc.sobject(name).create(data, function (err, ret) {
+		conn.sobject(name).create(data, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log("Created record id : " + ret.id);
 		});
@@ -78,7 +78,7 @@ export function createSObject(name, data) {
 
 export function deleteSObject(name, id) {
 	if (conn) {
-		cc.sobject(name).destroy(id, function (err, ret) {
+		conn.sobject(name).destroy(id, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log('Deleted Successfully : ' + ret.id);
 		});
