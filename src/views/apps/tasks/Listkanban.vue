@@ -56,9 +56,9 @@ export default {
         async addNewTask() {
              const name = document.getElementById("sub-tasks").value;
              try { 
-
-                await createSObject("Task__c",{Name:"name",Type__c:this.item.id});
-
+                console.log({Name:name, Type__c:this.item.Id});
+                await createSObject("Task__c",{Name:name, Type__c:this.item.Id});
+                this.$emit("reloadListkanban");
              } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
@@ -114,6 +114,10 @@ export default {
 
             }
         },
+
+        handleReloadListkanbanTask(){
+            this.$emit("reloadListkanban");
+        }
     },
 
     components: {
@@ -148,7 +152,7 @@ export default {
             <div :id="item.Name" class="tasks">
 
 
-                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" />
+                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" @reloadListkanbanTask="handleReloadListkanbanTask"  />
 
             </div>
         </div>
@@ -317,18 +321,5 @@ export default {
         </b-form>
     </b-modal>
 
-    <b-modal v-model="modalShow3" id="deleteTask" modal-class="zoomIn" hide-footer class="v-modal-custom" centered>
-        <div class="mt-2 text-center">
-            <lottie class="avatar-xl" colors="primary:#f7b84b,secondary:#f7666e" :options="defaultOptions" :height="100"
-                :width="100" />
-            <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
-                <h4>Are you sure ?</h4>
-                <p class="text-muted mx-4 mb-0">Are you sure you want to remove this tasks ?</p>
-            </div>
-        </div>
-        <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
-            <b-button type="button" variant="light" class="w-sm" data-bs-dismiss="modal">Close</b-button>
-            <b-button type="button" variant="danger" class="w-sm" id="delete-record">Yes, Delete It!</b-button>
-        </div>
-    </b-modal>
+    
 </template>

@@ -16,7 +16,7 @@ import appConfig from "../../../../app.config";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
-import { executeQuery,updateSObjects } from "../../../api/utile.js";
+import { executeQuery, updateSObjects } from "../../../api/utile.js";
 
 import Listkanban from './Listkanban.vue'
 
@@ -54,7 +54,8 @@ export default {
             defaultOptions: { animationData: animationData },
             enabled: true,
             dragging: false,
-            cc: []
+            cc: [],
+            reloadKey: 0,
         };
     },
     mounted() {
@@ -68,6 +69,11 @@ export default {
         handleRegisterTask(element) {
 
             this.tasks_list.push(element);
+        },
+        handleReloadListkanban() {
+            console.log(this.reloadKey);
+            // Increment the reloadKey value to trigger a re-render of the Listkanban component
+            this.reloadKey++;
         },
 
         async fetchData() {
@@ -112,7 +118,7 @@ export default {
                             const task = this.cc.find((item) => item.Name === taskId);
 
                             if (task) {
-                                task.Placement__c = index+1; // Update the Placement__c value based on the new position
+                                task.Placement__c = index + 1; // Update the Placement__c value based on the new position
                             }
 
                             return task;
@@ -210,7 +216,8 @@ export default {
 
     <div class="tasks-board mb-3" id="kanbanboard">
 
-        <Listkanban v-for="(item, index) in this.cc" :key="index" :item="item" @registerTask="handleRegisterTask" />
+        <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}`" :item="item"
+            @registerTask="handleRegisterTask" @reloadListkanban="handleReloadListkanban" />
 
 
     </div>
@@ -278,7 +285,7 @@ export default {
                 <div class="mt-4">
                     <div class="hstack gap-2 justify-content-end">
                         <b-button type="button" variant="light" @click="modalShow1 = false">Close</b-button>
-                        <b-button type="button" variant="success" id="addNewBoard">Add Board</b-button>
+                        <b-button type="button" variant="success" id="addNewBoard" @click="modalShow1 = false">Add Board</b-button>
                     </div>
                 </div>
             </b-row>
