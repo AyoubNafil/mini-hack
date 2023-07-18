@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       title: "Create Project",
+      skills: [],
       items: [
         {
           editorData: '',
@@ -47,7 +48,6 @@ export default {
           active: true,
         },
       ],
-      value: ["C#", "HTML", "CSS"],
       value3: ["Private"],
       value4: ["Designing"],
       value5: ["Ellen Smith"],
@@ -61,7 +61,7 @@ export default {
     deleteRecord(ele) {
       ele.target.parentElement.parentElement.parentElement.remove();
     },
-   async createRecord() {
+    async createRecord() {
       console.log("here we go");
 
       // Getting the value of the inputs
@@ -87,41 +87,33 @@ export default {
       };
       console.log("rec data " + recordData);
 
-      // await createSObject("board__c", recordData).then((data) => {
-      //   // Handle the query result
-      //   console.log(data);
-      // })
-      //   .catch((error) => {
-      //     // Handle any errors that occurred
-      //     console.error(error);
-      //   });
-
-      //   Swal.fire("Good job!", "Project Created Succesfly!", "success");
-
-
-      // setTimeout(() => {
-      //   const dynamicPath = `/apps/projects-overview/id=${id}`;
-      // console.log(dynamicPath);
-      //     this.$router.push(dynamicPath);
-      //   }, 5000);
       try {
-      const id = await createSObject2("board__c", recordData);
-      
+        const id = await createSObject2("board__c", recordData);
 
-      if (id) {
-        console.log(id);
-        Swal.fire("Good job!", "Project Created Succesfly!", "success");
-        const dynamicPath = `/apps/projects-overview/${id}`;
-        this.$router.push(dynamicPath);
+        if (id) {
+          console.log(id);
 
-      } else {
-        console.log("undifid");
+          this.skills.forEach(async (skill) => {
+            const featureData = {
+              Name: skill,
+              Board__c: id,
+            };
 
+            const idFeature = await createSObject2("Feature__c", featureData);
+            console.log(idFeature);
+          });
+
+          Swal.fire("Good job!", "Project Created Successfully!", "success");
+          const dynamicPath = `/apps/projects-overview/${id}`;
+          this.$router.push(dynamicPath);
+        } else {
+          console.log("undefined");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
       }
-    } catch (error) {
-      console.log("Error occurred while executing query:", error);
 
-    }
+      console.log(this.skills);
     },
   },
   components: {
@@ -131,9 +123,9 @@ export default {
     Multiselect,
     flatPickr,
     ckeditor: CKEditor.component,
-
   },
 };
+
 </script>
 
 
@@ -265,7 +257,7 @@ export default {
 
             <div>
               <label for="choices-text-input" class="form-label">Skills</label>
-              <Multiselect class="form-control" v-model="value" mode="tags" :close-on-select="true" :searchable="true"
+              <Multiselect class="form-control" v-model="skills" mode="tags" :close-on-select="true" :searchable="true"
                 :create-option="true" :options="[
                   { value: 'UI/UX', label: 'UI/UX' },
                   { value: 'Figma', label: 'Figma' },

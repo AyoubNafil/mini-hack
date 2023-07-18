@@ -6,47 +6,49 @@ import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
 export default {
     methods: {
-  toggleFavourite(ele) {
-    ele.target.closest('.favourite-btn').classList.toggle("active");
-  },
-},
-page: {
-  title: "Overview",
-  meta: [{ name: "description", content: appConfig.description }],
-},
-data() {
-  return {
-    title: "Overview",
-    items: [
-      {
-        text: "Pages",
-        href: "/",
-      },
-      {
-        text: "Overview",
-        active: true,
-      },
-    ],
-    project:[],
-  };
-  
-},
-components: {
-  Layout,
-  kanban
-},
-methods :{
-    async getProjectDetail() {
+        toggleFavourite(ele) {
+            ele.target.closest('.favourite-btn').classList.toggle("active");
+        },
+    },
+    page: {
+        title: "Overview",
+        meta: [{ name: "description", content: appConfig.description }],
+    },
+    data() {
+        return {
+            title: "Overview",
+            items: [
+                {
+                    text: "Pages",
+                    href: "/",
+                },
+                {
+                    text: "Overview",
+                    active: true,
+                },
+            ],
+            project: [],
+            Features: [],
+        };
+
+    },
+    components: {
+        Layout,
+        kanban
+    },
+    methods: {
+        async getProjectDetail() {
             try {
                 const ProjectId = this.$route.params.id;
-                
-                this.project = await executeQuery("SELECT Id,Name,CreatedDate ,OwnerId,Status__c,Company__c,Deadline__c,Description__c ,priority__c FROM board__c where id = "+"'"+ProjectId+"'");
+
+                this.project = await executeQuery("SELECT Id,Name,CreatedDate ,OwnerId,Status__c,Company__c,Deadline__c,Description__c ,priority__c FROM board__c where id = " + "'" + ProjectId + "'");
+                this.Features = await executeQuery("SELECT Id,Name FROM Feature__c where Board__c = " + "'" + ProjectId + "'");
                 this.project = this.project[0];
                 this.project.CreatedDate = this.project.CreatedDate.substring(0, 10)
                 console.log(this.project);
                 if (this.project) {
                     console.log(this.project);
-                    console.log("Description "+this.project.Description__c);
+                    console.log("Description " + this.project.Description__c);
 
                 } else {
                     console.log("Empty No project with these id");
@@ -55,12 +57,12 @@ methods :{
                 console.log("Error occurred while executing query:", error);
 
             }
-},
-},
-mounted() {
-  this.getProjectDetail();
-  
-}
+        },
+    },
+    mounted() {
+        this.getProjectDetail();
+
+    }
 };
 
 </script>
@@ -79,7 +81,8 @@ mounted() {
                                         <b-col md="auto">
                                             <div class="avatar-md">
                                                 <div class="avatar-title bg-white rounded-circle">
-                                                    <img src="@/assets/images/brands/Salesforce.png" alt="" class="avatar-xs" style="width: 50px;">
+                                                    <img src="@/assets/images/brands/Salesforce.png" alt=""
+                                                        class="avatar-xs" style="width: 50px;">
                                                 </div>
                                             </div>
                                         </b-col>
@@ -87,15 +90,19 @@ mounted() {
                                             <div>
                                                 <h4 class="fw-bold">{{ project.Name }}</h4>
                                                 <div class="hstack gap-3 flex-wrap">
-                                                    <div><i class="ri-building-line align-bottom me-1"></i> {{project.Company__c}}
+                                                    <div><i class="ri-building-line align-bottom me-1"></i>
+                                                        {{ project.Company__c }}
                                                     </div>
                                                     <div class="vr"></div>
-                                                    <div>Create Date : <span class="fw-medium">{{ project.CreatedDate }}</span></div>
+                                                    <div>Create Date : <span class="fw-medium">{{ project.CreatedDate
+                                                    }}</span></div>
                                                     <div class="vr"></div>
-                                                    <div>Due Date : <span class="fw-medium">{{ project.Deadline__c }}</span></div>
+                                                    <div>Due Date : <span class="fw-medium">{{ project.Deadline__c }}</span>
+                                                    </div>
                                                     <div class="vr"></div>
                                                     <b-badge pill class="bg-info fs-12">New</b-badge>
-                                                    <b-badge variant="danger" pill class="bg-danger fs-12">{{project.Priority__c}}</b-badge>
+                                                    <b-badge variant="danger" pill
+                                                        class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
                                                 </div>
                                             </div>
                                         </b-col>
@@ -163,25 +170,27 @@ mounted() {
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Create Date :</p>
-                                                            <h5 class="fs-15 mb-0">{{project.CreatedDate}}</h5>
+                                                            <h5 class="fs-15 mb-0">{{ project.CreatedDate }}</h5>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Due Date :</p>
-                                                            <h5 class="fs-15 mb-0">{{project.Deadline__c}}</h5>
+                                                            <h5 class="fs-15 mb-0">{{ project.Deadline__c }}</h5>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Priority :</p>
-                                                            <b-badge tag="div" class="bg-danger fs-12">{{project.Priority__c}}</b-badge>
+                                                            <b-badge tag="div"
+                                                                class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Status :</p>
-                                                            <b-badge tag="div" class="bg-warning fs-12">{{project.status__c}}</b-badge>
+                                                            <b-badge tag="div"
+                                                                class="bg-warning fs-12">{{ project.status__c }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                 </b-row>
@@ -304,9 +313,8 @@ mounted() {
                                         <b-card-title class="mb-0 flex-grow-1">Comments</b-card-title>
                                         <div class="flex-shrink-0">
                                             <div class="dropdown card-header-dropdown">
-                                                <b-link class="text-reset dropdown-btn" href="#"
-                                                    data-bs-toggle="dropdown" aria-haspopup="true"
-                                                    aria-expanded="false">
+                                                <b-link class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown"
+                                                    aria-haspopup="true" aria-expanded="false">
                                                     <span class="text-muted">Recent<i
                                                             class="mdi mdi-chevron-down ms-1"></i></span>
                                                 </b-link>
@@ -332,8 +340,8 @@ mounted() {
                                                             Dec 2021 - 05:47AM</small></h5>
                                                     <p class="text-muted">I am getting message from customers that when
                                                         they place order always get error message .</p>
-                                                    <b-link href="javascript: void(0);"
-                                                        class="badge text-muted bg-light"><i class="mdi mdi-reply"></i>
+                                                    <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
+                                                            class="mdi mdi-reply"></i>
                                                         Reply</b-link>
                                                     <div class="d-flex mt-4">
                                                         <div class="flex-shrink-0">
@@ -368,8 +376,8 @@ mounted() {
                                                             class="text-decoration-underline">Online Order Support
                                                         </b-link>.
                                                     </p>
-                                                    <b-link href="javascript: void(0);"
-                                                        class="badge text-muted bg-light"><i class="mdi mdi-reply"></i>
+                                                    <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
+                                                            class="mdi mdi-reply"></i>
                                                         Reply</b-link>
                                                 </div>
                                             </div>
@@ -397,8 +405,8 @@ mounted() {
                                                                 class="img-fluid rounded">
                                                         </b-col>
                                                     </b-row>
-                                                    <b-link href="javascript: void(0);"
-                                                        class="badge text-muted bg-light"><i class="mdi mdi-reply"></i>
+                                                    <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
+                                                            class="mdi mdi-reply"></i>
                                                         Reply</b-link>
                                                     <div class="d-flex mt-4">
                                                         <div class="flex-shrink-0">
@@ -406,8 +414,8 @@ mounted() {
                                                                 class="avatar-xs rounded-circle" />
                                                         </div>
                                                         <div class="flex-grow-1 ms-3">
-                                                            <h5 class="fs-13">Donald Palmer <small
-                                                                    class="text-muted ms-2">8 sec ago</small></h5>
+                                                            <h5 class="fs-13">Donald Palmer <small class="text-muted ms-2">8
+                                                                    sec ago</small></h5>
                                                             <p class="text-muted">Other shipping methods are available
                                                                 at checkout if you want your purchase delivered faster.
                                                             </p>
@@ -445,13 +453,10 @@ mounted() {
                                     <b-card-body>
                                         <h5 class="card-title mb-4">Skills</h5>
                                         <div class="d-flex flex-wrap gap-2 fs-16">
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">UI/UX</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">Figma</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">HTML</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">CSS</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">Javascript</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">C#</b-badge>
-                                            <b-badge variant="soft-secondary" tag="div" class="fw-medium badge-soft-secondary">Nodejs</b-badge>
+                                            <b-badge v-for="feature in Features" :key="feature" variant="soft-secondary"
+                                                tag="div" class="fw-medium badge-soft-secondary">
+                                                {{ feature.Name }}
+                                            </b-badge>
                                         </div>
                                     </b-card-body>
                                 </b-card>
@@ -517,8 +522,7 @@ mounted() {
                                                 </div>
                                                 <div class="d-flex align-items-center">
                                                     <div class="avatar-xs flex-shrink-0 me-3">
-                                                        <div
-                                                            class="avatar-title bg-soft-danger text-danger rounded-circle">
+                                                        <div class="avatar-title bg-soft-danger text-danger rounded-circle">
                                                             HB
                                                         </div>
                                                     </div>
@@ -770,8 +774,7 @@ mounted() {
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar-sm">
-                                                            <div
-                                                                class="avatar-title bg-light text-secondary rounded fs-24">
+                                                            <div class="avatar-title bg-light text-secondary rounded fs-24">
                                                                 <i class="ri-folder-zip-line"></i>
                                                             </div>
                                                         </div>
@@ -817,8 +820,7 @@ mounted() {
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar-sm">
-                                                            <div
-                                                                class="avatar-title bg-light text-secondary rounded fs-24">
+                                                            <div class="avatar-title bg-light text-secondary rounded fs-24">
                                                                 <i class="ri-file-ppt-2-line"></i>
                                                             </div>
                                                         </div>
@@ -864,8 +866,7 @@ mounted() {
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar-sm">
-                                                            <div
-                                                                class="avatar-title bg-light text-secondary rounded fs-24">
+                                                            <div class="avatar-title bg-light text-secondary rounded fs-24">
                                                                 <i class="ri-folder-zip-line"></i>
                                                             </div>
                                                         </div>
@@ -911,8 +912,7 @@ mounted() {
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 me-3">
                                                         <div class="avatar-sm">
-                                                            <div
-                                                                class="avatar-title bg-light text-secondary rounded fs-24">
+                                                            <div class="avatar-title bg-light text-secondary rounded fs-24">
                                                                 <i class="ri-image-2-line"></i>
                                                             </div>
                                                         </div>
@@ -975,8 +975,8 @@ mounted() {
                             </b-col>
                             <b-col sm="auto">
                                 <div>
-                                    <b-button type="button" variant="danger"><i
-                                            class="ri-share-line me-1 align-bottom"></i> Invite Member</b-button>
+                                    <b-button type="button" variant="danger"><i class="ri-share-line me-1 align-bottom"></i>
+                                        Invite Member</b-button>
                                 </div>
                             </b-col>
                         </b-row>
@@ -1061,8 +1061,7 @@ mounted() {
                                             <b-row class="align-items-center">
                                                 <b-col>
                                                     <div class="flex-shrink-0 me-2">
-                                                        <button type="button"
-                                                            class="btn fs-16 p-0 favourite-btn active">
+                                                        <button type="button" class="btn fs-16 p-0 favourite-btn active">
                                                             <i class="ri-star-fill"></i>
                                                         </button>
                                                     </div>
@@ -1135,8 +1134,7 @@ mounted() {
                                             <b-row class="align-items-center">
                                                 <b-col>
                                                     <div class="flex-shrink-0 me-2">
-                                                        <button type="button"
-                                                            class="btn fs-16 p-0 favourite-btn active">
+                                                        <button type="button" class="btn fs-16 p-0 favourite-btn active">
                                                             <i class="ri-star-fill"></i>
                                                         </button>
                                                     </div>
@@ -1313,8 +1311,7 @@ mounted() {
                                         <b-col lg="4" cols>
                                             <div class="team-profile-img">
                                                 <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div
-                                                        class="avatar-title bg-soft-success text-success rounded-circle">
+                                                    <div class="avatar-title bg-soft-success text-success rounded-circle">
                                                         ME
                                                     </div>
                                                 </div>
@@ -1676,8 +1673,7 @@ mounted() {
                                         <b-col lg="4" cols>
                                             <div class="team-profile-img">
                                                 <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div
-                                                        class="avatar-title border bg-light text-primary rounded-circle">
+                                                    <div class="avatar-title border bg-light text-primary rounded-circle">
                                                         DP
                                                     </div>
                                                 </div>
@@ -1749,7 +1745,7 @@ mounted() {
                     </div>
 
                     <div class="tab-pane fade" id="project-tasks" role="tabpanel">
-                     <kanban :id=this.$route.params.id ></kanban>
+                        <kanban :id=this.$route.params.id ></kanban>
 
                     </div>
                 </div>

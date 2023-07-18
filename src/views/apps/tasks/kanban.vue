@@ -132,11 +132,14 @@ export default {
                 this.drake = dragula(this.tasks_list)
                     .on("drag", (el) => {
                         el.classList.remove("ex-moved");
+                        el.style.transform = "rotate(5deg)";
                         //console.log("drag", el);
+                        
 
                     })
                     .on("drop", (el) => {
                         el.classList.add("ex-moved");
+                        el.style.transform = "none";
                         console.log(el);
                         if (el.classList.contains("tasks-list")) {
 
@@ -167,11 +170,14 @@ export default {
                     })
                     .on("over", (el, container) => {
                         container.classList.add("ex-over");
+                        el.style.transform = "none";
                     })
                     .on("out", (el, container) => {
                         container.classList.remove("ex-over");
+                        el.style.transform = "none";
 
                     });
+                    
                 const drake = this.drake;
                 const kanbanboard = document.querySelector("#kanbanboard");
                 autoScroll(kanbanboard, {
