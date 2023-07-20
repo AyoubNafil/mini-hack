@@ -5,17 +5,14 @@ import { executeQuery } from "../../.././api/utile.js";
 import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
 export default {
-    methods: {
-        toggleFavourite(ele) {
-            ele.target.closest('.favourite-btn').classList.toggle("active");
-        },
-    },
+   
     page: {
         title: "Overview",
         meta: [{ name: "description", content: appConfig.description }],
     },
     data() {
         return {
+            showFullDescription: false,
             title: "Overview",
             items: [
                 {
@@ -37,6 +34,9 @@ export default {
         kanban
     },
     methods: {
+        toggleFavourite(ele) {
+            ele.target.closest('.favourite-btn').classList.toggle("active");
+        },
         async getProjectDetail() {
             try {
                 const ProjectId = this.$route.params.id;
@@ -58,6 +58,9 @@ export default {
 
             }
         },
+        toggleDescription() {
+            this.showFullDescription = !this.showFullDescription;
+        },
     },
     mounted() {
         this.getProjectDetail();
@@ -66,6 +69,32 @@ export default {
 };
 
 </script>
+<style>
+.description-container {
+    position: relative;
+    max-height: 5em;
+    /* Set the max-height to five lines or any desired height */
+    overflow: hidden;
+}
+
+.description-container.expanded {
+    max-height: none;
+}
+
+.show-more-button {
+    text-align: center;
+    margin-top: 5px;
+}
+</style>
+In this code, the description container is limited to five lines using CSS by setting the max-height and overflow properties. We use Vue.js to toggle the visibility of the full description by updating the showFullDescription data property when the "Show More" button is clicked. When showFullDescription is false, the description is truncated to five lines, and the "Show More" button is displayed. When showFullDescription is true, the container is expanded to show the full description.
+
+Please adjust the height in the CSS to match the desired number of lines or pixels. This way, you can show a summary of the description and expand it when the user clicks the "Show More" button.
+
+
+
+
+
+
 
 <template>
     <Layout>
@@ -101,8 +130,8 @@ export default {
                                                     </div>
                                                     <div class="vr"></div>
                                                     <b-badge pill class="bg-info fs-12">New</b-badge>
-                                                    <b-badge variant="danger" pill
-                                                        class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
+                                                    <b-badge variant="danger" pill class="bg-danger fs-12">{{
+                                                        project.Priority__c }}</b-badge>
                                                 </div>
                                             </div>
                                         </b-col>
@@ -158,11 +187,17 @@ export default {
                                     <b-card-body>
                                         <div class="text-muted">
                                             <h6 class="mb-3 fw-semibold text-uppercase">Summary</h6>
-                                            <div v-html="project.Description__c"></div>
-                                            <div>
-                                                <b-button type="button" variant="link" class="link-success p-0">Read
-                                                    more</b-button>
+                                            <div class="description-container">
+                                                <div :class="{ 'expanded': showFullDescription }"
+                                                    v-html="project.Description__c" ref="description"></div>
+                                                <div v-if="!showFullDescription" class="show-more-button">
+                                                    <b-button type="button" variant="link" class="link-success p-0"
+                                                        @click="toggleDescription">
+                                                        Show more
+                                                    </b-button>
+                                                </div>
                                             </div>
+
 
                                             <div class="pt-3 border-top border-top-dashed mt-4">
                                                 <b-row>
@@ -182,15 +217,15 @@ export default {
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Priority :</p>
-                                                            <b-badge tag="div"
-                                                                class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
+                                                            <b-badge tag="div" class="bg-danger fs-12">{{
+                                                                project.Priority__c }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Status :</p>
-                                                            <b-badge tag="div"
-                                                                class="bg-warning fs-12">{{ project.status__c }}</b-badge>
+                                                            <b-badge tag="div" class="bg-warning fs-12">{{ project.status__c
+                                                            }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                 </b-row>
@@ -1745,7 +1780,7 @@ export default {
                     </div>
 
                     <div class="tab-pane fade" id="project-tasks" role="tabpanel">
-                        <kanban :id=this.$route.params.id ></kanban>
+                        <kanban :id=this.$route.params.id></kanban>
 
                     </div>
                 </div>

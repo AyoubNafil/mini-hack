@@ -1,4 +1,6 @@
 <script>
+import { deleteSObject } from "../../.././api/utile.js";
+import Swal from "sweetalert2";
 import {
   MoreHorizontalIcon
 } from "@zhuowenli/vue-feather-icons";
@@ -15,6 +17,56 @@ export default {
     }
   },
   methods: {
+    async deleteProject(id) {
+      // Use the `id` parameter in your logic here
+      console.log("Deleting task with ID:", id);
+
+
+      //confirmation popup
+      const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-danger ml-2  m-2",
+          cancelButton: "btn btn-success  m-2",
+        },
+        buttonsStyling: false,
+      });
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel!",
+          showCancelButton: true,
+        })
+        .then((result) => {
+          if (result.value) {
+            try {
+              deleteSObject("board__c", id);
+              this.$emit("reloadListkanbanTask");
+              this.modalShow3 = false;
+              window.location.reload()
+            } catch (error) {
+              console.log("Error occurred while executing query:", error);
+            }
+            swalWithBootstrapButtons.fire(
+              "Deleted!",
+              "Your file has been deleted.",
+              "success"
+            );
+          } else if (
+            /* Read more about handling dismissals below */
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
+            swalWithBootstrapButtons.fire(
+              "Cancelled",
+              "Your imaginary file is safe :)",
+              "error"
+            );
+          }
+        });
+    },
     getStatusClass(status) {
 
       switch (status) {
@@ -24,32 +76,17 @@ export default {
           return "success";
         default:
           return "secondary";
-    }},
+      }
+    },
 
     toggleFavourite(ele) {
       ele.target.closest('.favourite-btn').classList.toggle("active");
     },
-
-    removeProject() {
-      this.removeProjectModal = true;
-      document.getElementById("removeProjectModal")
-      addEventListener("click", (e) => {
-        document
-          .getElementById("remove-project")
-          .addEventListener("click", () => {
-            if (e.target.closest('.project-card')) {
-              e.target.closest('.project-card').remove();
-            }
-            this.removeProjectModal = false;
-          });
-      });
-    }
-    
   },
   components: {
-   
+
     MoreHorizontalIcon,
-    
+
   },
 };
 </script>
@@ -81,14 +118,14 @@ export default {
                   <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
                 </router-link>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" @click="removeProject">
-                  <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Remove
+                <div class="dropdown-item" @click="deleteProject(item.Id)">
+                  <i class="ri-delete-bin-fill align-bottom me-2 text-muted" ></i> Remove
                 </div>
               </div>
             </div>
           </div>
           <div class="text-center pb-3">
-            <img src= "@/assets/images/brands/Salesforce.png"  alt="" height="50" />
+            <img src="@/assets/images/brands/Salesforce.png" alt="" height="50" />
           </div>
         </div>
 
@@ -116,12 +153,16 @@ export default {
             <div class="avatar-group">
               <b-link href="javascript: void(0);" v-for="(subItem, index) of item.subItem" :key="index"
                 class="avatar-group-item" v-b-tooltip.hover title="Donna Kline">
-                <div class="avatar-xxs" >
+                <div class="avatar-xxs">
                   <img :src="subItem.imgTeam" alt="" class="rounded-circle img-fluid" />
                 </div>
               </b-link>
 
-              <a class="avatar-group-item" href="javascript: void(0);" target="_self" data-bs-toggle="tooltip" ><div class="avatar-xxs"><div class="avatar-title rounded-circle bg-undefined">+</div></div><!--v-if--></a>
+              <a class="avatar-group-item" href="javascript: void(0);" target="_self" data-bs-toggle="tooltip">
+                <div class="avatar-xxs">
+                  <div class="avatar-title rounded-circle bg-undefined">+</div>
+                </div><!--v-if-->
+              </a>
             </div>
           </div>
         </div>
@@ -137,8 +178,8 @@ export default {
             </div>
           </div>
           <div class="progress progress-sm animated-progess">
-            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="71" aria-valuemin="0" aria-valuemax="100"
-              :style="`width: ${item.progressBar};`"></div>
+            <div class="progress-bar bg-success" role="progressbar" aria-valuenow="71" aria-valuemin="0"
+              aria-valuemax="100" :style="`width: ${item.progressBar};`"></div>
           </div>
         </div>
       </b-card-body>
