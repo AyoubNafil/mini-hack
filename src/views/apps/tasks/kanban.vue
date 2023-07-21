@@ -3,6 +3,7 @@
 </style>
 
 <script >
+import { toRaw } from "vue";
 import autoScroll from 'dom-autoscroller';
 //import { VueDraggableNext } from 'vue-draggable-next';
 import flatPickr from "vue-flatpickr-component";
@@ -16,7 +17,7 @@ import appConfig from "../../../../app.config";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
-import { executeQuery, updateSObjects ,createSObject} from "../../../api/utile.js";
+import { executeQuery, updateSObjects, createSObject, createSObject2 } from "../../../api/utile.js";
 
 import Listkanban from './Listkanban.vue'
 
@@ -45,7 +46,7 @@ export default {
                     active: true,
                 },
             ],
-            boardName: "", 
+            boardName: "",
             modalShow: false,
             modalShow1: false,
 
@@ -62,45 +63,60 @@ export default {
             dragging: false,
             cc: [],
             reloadKey: 0,
+            newCardData: null,
+            ///drake2,
+            //drake
         };
     },
     mounted() {
         this.initializeDragula();
+        //this.initializeDragulaKanbanBoard();
         this.fetchData();
 
     },
     methods: {
 
         addBoard() {
-      // Get the value of the board name from the input field
-      const boardName = this.boardName;
+            // Get the value of the board name from the input field
+            const boardName = this.boardName;
 
-      // Create the data object to pass to createSObject function
-      const data = {
-        Board__c: this.id,
-        Name:boardName,
-        Placement__c:this.cc.length+1
-      };
+            // Create the data object to pass to createSObject function
+            const data = {
+                Board__c: this.id,
+                Name: boardName,
+                Placement__c: this.cc.length + 1
+            };
 
-      // Call the createSObject function from your utile.js file
-      createSObject("Card__c", data, () => {
-        // Callback function called on success
-        window.location.reload();
-      });
+            // Call the createSObject function from your utile.js file
+            createSObject2("Card__c", data).then((newCardId) => {
+                // Handle the query result
 
-      // Clear the input field and close the modal
-      this.boardName = "";
-      this.modalShow1 = false;
-    },
+                // Callback function called on success
+                //window.location.reload();
+                console.log({ Id: newCardId, ...data });
+                this.newCardData = { Id: newCardId, ...data };
+
+                this.cc.push(this.newCardData);
+
+            })
+                .catch((error) => {
+                    // Handle any errors that occurred
+                    console.error(error);
+                });
+
+            // Clear the input field and close the modal
+            this.boardName = "";
+            this.modalShow1 = false;
+        },
         handleRegisterTask(element) {
 
             this.tasks_list.push(element);
         },
-        handleReloadListkanban() {
-            console.log(this.reloadKey);
-            // Increment the reloadKey value to trigger a re-render of the Listkanban component
-            this.reloadKey++;
-        },
+        // handleReloadListkanban() {
+        //     //console.log(this.reloadKey);
+        //     // Increment the reloadKey value to trigger a re-render of the Listkanban component
+        //     this.reloadKey++;
+        // },
 
         async fetchData() {
             try {
@@ -118,9 +134,7 @@ export default {
         },
 
         initializeDragula() {
-            this.tasks_list = [
-                document.getElementById("kanbanboard"),
-            ];
+            this.tasks_list = [document.getElementById("kanbanboard")];
             // for (let i = 0; i < this.cc.length; i++) {
             //     const element = document.getElementById(this.cc[i].Name);
             //     if (element) {
@@ -129,44 +143,72 @@ export default {
             // };
             //console.log(this.tasks_list);
             if (this.tasks_list) {
+                console.log("this.tasks_list", this.tasks_list);
                 this.drake = dragula(this.tasks_list)
-                    .on("drag", (el) => {
+                    .on("drag", (el, container) => {
+
+
                         el.classList.remove("ex-moved");
                         el.style.transform = "rotate(5deg)";
                         //console.log("drag", el);
-                        
+
+
 
                     })
-                    .on("drop", (el) => {
+                    .on("drop", (el, container) => {
+
+
                         el.classList.add("ex-moved");
                         el.style.transform = "none";
-                        console.log(el);
-                        if (el.classList.contains("tasks-list")) {
 
+                        console.log("el: ", el);
+                        console.log("container: ", container);
+
+                        if (el.classList.contains("tasks-list") && container.classList.contains("tasks")) {
+                            drake.cancel(true);
+                        }
+
+                        if (el.classList.contains("tasks-list")) {
                             const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
                             console.log(tasksLists);
                             const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
                                 const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
                                 const task = this.cc.find((item) => item.Id === taskId);
-
                                 if (task) {
                                     task.Placement__c = index + 1; // Update the Placement__c value based on the new position
                                 }
-
                                 return task;
                             });
                             updateSObjects("Card__c", updatedCC);
                             console.log(updatedCC);
-
                         } else if (el.classList.contains("tasks-box")) {
                             console.log("in");
                             const parentCardId = el.closest(".tasks-list").id.split("-")[2];;
                             console.log(parentCardId);
                             const tasksBoxId = el.id;
                             console.log(tasksBoxId);
-                            updateSObjects("Task__c", {Id:tasksBoxId,Type__c:parentCardId});
+                            updateSObjects("Task__c", { Id: tasksBoxId, Type__c: parentCardId });
+
+                            // const refName = `taskListComponent-${parentCardId}`;
+                            // console.log("refName: ", refName);
+                            // const childComponent = this.$refs[refName];
+                            // console.log("childComponent: ", childComponent);
+                            // //const childData = childComponent.data();
+                            // //const tasks = childData.task;
+                            // //const tasks = childComponent.task;
+                            // //console.log("ref: ", tasks);
+                            // //const childComponentInstance = toRaw(childComponent.$);
+                            // //console.log("childComponentInstance: ",childComponentInstance)
+                            // //const tasks = childComponentInstance.task;
+
+                            // this.$nextTick(() => {
+                            //     // Wait for the childComponent to be updated
+                            //     const tasks = childComponent.task;
+                            //     console.log("ref: ", tasks);
+                            // });
                         }
-                        
+
+
                     })
                     .on("over", (el, container) => {
                         container.classList.add("ex-over");
@@ -177,7 +219,7 @@ export default {
                         el.style.transform = "none";
 
                     });
-                    
+
                 const drake = this.drake;
                 const kanbanboard = document.querySelector("#kanbanboard");
                 autoScroll(kanbanboard, {
@@ -191,6 +233,67 @@ export default {
             }
 
         },
+
+
+        // initializeDragulaKanbanBoard() {
+        //     this.tasks_list2 = [
+        //         document.getElementById("kanbanboard"),
+        //     ];
+        //     // for (let i = 0; i < this.cc.length; i++) {
+        //     //     const element = document.getElementById(this.cc[i].Name);
+        //     //     if (element) {
+        //     //         this.tasks_list.push(element);
+        //     //     }
+        //     // };
+        //     //console.log(this.tasks_list);
+        //     if (this.tasks_list2) {
+        //         console.log("this.tasks_list2", this.tasks_list2);
+        //         this.drake2 = dragula(this.tasks_list2)
+        //             .on("drag", (el) => {
+
+
+
+
+
+        //             })
+        //             .on("drop", (el) => {
+
+        //                 //console.log(el);
+
+
+        //                 const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
+        //                 //console.log(tasksLists);
+        //                 const updatedCC = Array.from(tasksLists).map((tasksList, index) => {
+        //                     const taskId = tasksList.id.split("-")[2]; // Extract the task ID from the tasks list ID
+        //                     const task = this.cc.find((item) => item.Id === taskId);
+
+        //                     if (task) {
+        //                         task.Placement__c = index + 1; // Update the Placement__c value based on the new position
+        //                     }
+
+        //                     return task;
+        //                 });
+        //                 updateSObjects("Card__c", updatedCC);
+        //                 //console.log(updatedCC);
+
+
+
+        //             })
+        //             .on("over", (el, container) => {
+
+        //             })
+        //             .on("out", (el, container) => {
+
+
+        //             }).on("dragend", (el, container) => {
+        //                 el.draggable = true;
+
+        //             });;
+
+
+        //     }
+
+        // },
 
 
 
@@ -261,7 +364,7 @@ export default {
     <div class="tasks-board mb-3" id="kanbanboard">
 
         <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}`" :item="item"
-            @registerTask="handleRegisterTask" @reloadListkanban="handleReloadListkanban" />
+            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" />
 
 
     </div>
@@ -319,20 +422,21 @@ export default {
     </b-modal>
 
     <b-modal v-model="modalShow1" header-class="p-3 bg-soft-info" content-class="border-0" hide-footer title="Add Board"
-  class="v-modal-custom" centered>
-  <b-form @submit.prevent="addBoard">
-    <b-row>
-      <b-col lg="12">
-        <label for="boardName" class="form-label">Board Name</label>
-        <input type="text" class="form-control" id="boardName" placeholder="Enter board name" v-model="boardName">
-      </b-col>
-      <div class="mt-4">
-        <div class="hstack gap-2 justify-content-end">
-          <b-button type="button" variant="light" @click="modalShow1 = false">Close</b-button>
-          <b-button type="submit" variant="success" id="addNewBoard">Add Board</b-button>
-        </div>
-      </div>
-    </b-row>
-  </b-form>
-</b-modal>
+        class="v-modal-custom" centered>
+        <b-form @submit.prevent="addBoard">
+            <b-row>
+                <b-col lg="12">
+                    <label for="boardName" class="form-label">Board Name</label>
+                    <input type="text" class="form-control" id="boardName" placeholder="Enter board name"
+                        v-model="boardName">
+                </b-col>
+                <div class="mt-4">
+                    <div class="hstack gap-2 justify-content-end">
+                        <b-button type="button" variant="light" @click="modalShow1 = false">Close</b-button>
+                        <b-button type="submit" variant="success" id="addNewBoard">Add Board</b-button>
+                    </div>
+                </div>
+            </b-row>
+        </b-form>
+    </b-modal>
 </template>

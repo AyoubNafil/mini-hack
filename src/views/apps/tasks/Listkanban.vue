@@ -1,5 +1,5 @@
 <script>
-import { executeQuery, updateSObjects,createSObject } from "../../../api/utile.js";
+import { executeQuery, updateSObjects,createSObject,createSObject2 } from "../../../api/utile.js";
 
 import TaskItem from "./TaskItem.vue"
 import flatPickr from "vue-flatpickr-component";
@@ -11,14 +11,29 @@ export default {
             type: Object,
             required: true,
         },
+       // newCardData: Object,
     },
-
+//     watch: {
+//     newCardData: {
+//       handler(newData) {
+//         // Check if the newCardData is not empty and add it to the task list
+//         if (newData && newData.Id) {
+//           console.log(this.cc);
+//           this.cc.push(newData);
+//           console.log(this.cc);
+//         }
+//       },
+//       immediate: true, // This ensures the watch is triggered immediately when the component is created
+//     },
+//   },
     data() {
         return {
 
             modalShow2: false,
             modalShow3: false,
             task: [],
+            newTaskData: null,
+            taskTitle: '',
 
         };
     },
@@ -54,11 +69,31 @@ export default {
         },
 
         async addNewTask() {
-             const name = document.getElementById("sub-tasks").value;
+            
+             //console.log(tasks);
+             //const name = document.getElementById("sub-tasks").value;
+             //console.log({Name:name, Type__c:this.item.Id});
              try { 
-                console.log({Name:name, Type__c:this.item.Id});
-                await createSObject("Task__c",{Name:name, Type__c:this.item.Id});
-                this.$emit("reloadListkanban");
+                //console.log({Name:name, Type__c:this.item.Id});
+                //await createSObject("Task__c",{Name:this.taskTitle, Type__c:this.item.Id});
+                const data = {Name:this.taskTitle, Type__c:this.item.Id}
+                createSObject2("Task__c",data).then((newTaskId) => {
+                // Handle the query result
+               
+                // Callback function called on success
+                //window.location.reload();
+                console.log({ Id: newTaskId, ...data });
+                this.newTaskData = { Id: newTaskId, ...data };
+
+                this.task.push(this.newTaskData);
+                this.modalShow2=false;
+
+            })
+                .catch((error) => {
+                    // Handle any errors that occurred
+                    console.error(error);
+                });
+                //this.$emit("reloadListkanban");
              } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
@@ -104,8 +139,8 @@ export default {
                 this.task = await executeQuery(`SELECT Id, Name, Placement__c FROM Task__c WHERE Type__c = '${this.item.Id}'`);
                 if (this.task) {
                     this.task.sort((a, b) => a.Placement__c - b.Placement__c);
-                    console.log(this.task);
-                    console.log(this.task.length);
+                    //console.log(this.task);
+                    //console.log(this.task.length);
                 } else {
                     console.log("Empty");
                 }
@@ -115,8 +150,15 @@ export default {
             }
         },
 
-        handleReloadListkanbanTask(){
-            this.$emit("reloadListkanban");
+        handleReloadListTask(idToDelete){
+            
+            console.log(idToDelete);
+            console.log("old",this.task);
+            const indexToDelete = this.task.findIndex(item => item.Id === idToDelete);
+            if (indexToDelete !== -1) {
+                this.task.splice(indexToDelete, 1);
+            }
+            console.log("new",this.task);
         }
     },
 
@@ -152,7 +194,7 @@ export default {
             <div :id="item.Id" class="tasks">
 
 
-                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" @reloadListkanbanTask="handleReloadListkanbanTask"  />
+                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" @reloadListTask="handleReloadListTask"   />
 
             </div>
         </div>
@@ -168,7 +210,7 @@ export default {
 
                 <b-col lg="12">
                     <label for="sub-tasks" class="form-label">Task Title</label>
-                    <input type="text" class="form-control" id="sub-tasks" placeholder="Task title">
+                    <input v-model="taskTitle" type="text" class="form-control" id="sub-tasks" placeholder="Task title">
                 </b-col>
                 <b-col lg="12">
                     <label for="task-description" class="form-label">Task Description</label>

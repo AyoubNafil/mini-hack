@@ -20,7 +20,7 @@ export default {
       },
       {
         flag: require("@/assets/images/flags/spain.svg"),
-        language: "sp",
+        language: "es",
         title: "Española",
       },
       {
@@ -59,6 +59,7 @@ export default {
       flag: null,
       value: null,
       myVar: 1,
+      DefaultLanguage: "",
     };
   },
   components: {
@@ -71,31 +72,37 @@ export default {
   methods: {
     getUserInfo() {
       getLastDebugLogUserId()
-  .then((logUserId) => {
-    const query = `SELECT Id, Name FROM User WHERE Id = '${logUserId}'`;
+        .then((logUserId) => {
+          const query = `SELECT Id, Name,LanguageLocaleKey FROM User WHERE Id = '${logUserId}'`;
 
-    executeQuery(query)
-      .then((result) => {
-        // Assuming there is only one record in the result
-        if (result.length > 0) {
-          const name = result[0].Name;
-          
-          // Update the name in the HTML
-          document.querySelector(".user-name-text").textContent = name;
-          
-          // Update the welcome message in the HTML
-          document.querySelector(".dropdown-header").textContent = `Welcome ${name}!`;
-        } else {
-          console.log("No matching user found.");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-      });
-  })
-  .catch((err) => {
-    console.error(err);
-  });},
+          executeQuery(query)
+            .then((result) => {
+              // Assuming there is only one record in the result
+              if (result.length > 0) {
+                const name = result[0].Name;
+                this.DefaultLanguage = result[0].LanguageLocaleKey.substring(0, 2);
+                console.log("Langue :" + this.DefaultLanguage);
+                // Update the name in the HTML
+                document.querySelector(".user-name-text").textContent = name;
+
+                // Update the welcome message in the HTML
+                document.querySelector(".dropdown-header").textContent = `Welcome ${name}!`;
+              } else {
+                console.log("No matching user found.");
+              }
+            })
+            .catch((err) => {
+              console.error(err);
+            });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    },
+    findLanguageInfo(language) {
+      const foundLanguage = this.languages.find((lang) => lang.language === language);
+      return foundLanguage ? { flag: foundLanguage.flag, title: foundLanguage.title } : null;
+    },
 
     isCustomDropdown() {
       //Search bar
@@ -217,9 +224,11 @@ export default {
       }
     },
     setLanguage(locale, country, flag) {
+      console.log("setlangueafe executed")
       this.lan = locale;
       this.text = country;
       this.flag = flag;
+
       document.getElementById("header-lang-img").setAttribute("src", flag);
       i18n.global.locale = locale;
     },
@@ -283,15 +292,26 @@ export default {
   },
   computed: {},
   mounted() {
-    if (process.env.VUE_APP_I18N_LOCALE) {
-      this.flag = process.env.VUE_APP_I18N_LOCALE;
-      this.languages.forEach((item) => {
-        if (item.language == this.flag) {
-          document.getElementById("header-lang-img").setAttribute("src", item.flag);
-        }
-      });
-    }
+    setTimeout(() => {
+      console.log("hi" + this.DefaultLanguage);
+      const languageInfo = this.findLanguageInfo(this.DefaultLanguage);
 
+      // Check if languageInfo is not null before using the values
+      
+      if (languageInfo) {
+        const { flag: defaultFlag, title: defaultTitle } = languageInfo;
+
+        console.log("Default Flag:", defaultFlag);
+        console.log("Default Title:", defaultTitle);
+        this.setLanguage(this.DefaultLanguage, defaultTitle, defaultFlag);
+
+      } else {
+        console.log("Language not found.");
+      }
+
+
+
+    }, 3000);
     document.addEventListener("scroll", function () {
       var pageTopbar = document.getElementById("page-topbar");
       if (pageTopbar) {
@@ -809,7 +829,7 @@ export default {
               </span>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
-              <h6 class="dropdown-header">Welcome {{name}}!</h6>
+              <h6 class="dropdown-header">Welcome {{ name }}!</h6>
               <router-link class="dropdown-item" to="/pages/profile"><i
                   class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Profile</span>

@@ -33,46 +33,9 @@ export default {
       ],
       defaultOptions: { animationData: animationData },
       removeProjectModal: false,
-      projectListWidgets3: [
-        {
-          id: 1,
-          img: require("@/assets/images/brands/Salesforce.png"),
-          label: "Kanban Board",
-          status: "Inprogess",
-          deadline: "08 Dec, 2021",
-          number: "17/20",
-          progressBar: "71%",
-          subItem: [
-          {
-            id: 2,
-            imgTeam: require("@/assets/images/users/Trailblazer_avatar.png")
-          },
-          
-          ],
-        },
-
-        {
-          id: 5,
-          img: require("@/assets/images/brands/Salesforce.png"),
-          label: "Multipurpose landing template",
-          status: "Completed",
-          deadline: "18 Sep, 2021",
-          number: "25/32",
-          progressBar: "75%",
-          subItem: [
-          {
-            id: 2,
-            imgTeam: require("@/assets/images/users/Trailblazer_avatar.png")
-          },
-          {
-            id: 3,
-            imgTeam: require("@/assets/images/users/Trailblazer_avatar.png")
-          },
-          
-          ],
-        },
-      ],
-      boards :[]
+      boards: [],
+      filteredProjects: [],  // Filtered data to be displayed based on the input
+      searchText: "",
     };
   },
   components: {
@@ -84,22 +47,46 @@ export default {
     CardItem
   },
   methods: {
-    async getProjectsRecords() {
-            try {
-                this.boards = await executeQuery("SELECT Id,Name ,OwnerId,Status__c,Deadline__c,Description__c ,priority__c FROM board__c ");
-                if (this.boards) {
-                    console.log(this.boards);
-                } else {
-                    console.log("Empty");
-                }
-            } catch (error) {
-                console.log("Error occurred while executing query:", error);
-
+    handleReloadListProject(idToDelete){
+            
+            //console.log(idToDelete);
+            //console.log("old",this.task);
+            const indexToDelete = this.displayedProjects.findIndex(item => item.Id === idToDelete);
+            if (indexToDelete !== -1) {
+                this.displayedProjects.splice(indexToDelete, 1);
             }
-        },},
-  created(){
-    this.getProjectsRecords();
-  }
+            //console.log("new",this.task);
+        },
+    async getProjectsRecords(query) {
+      try {
+        this.boards = await executeQuery(query);
+        this.filteredProjects = this.boards; // Initialize filtered data with all data
+        if (this.boards.length > 0) {
+          console.log("Projects fetched:", this.boards);
+        } else {
+          console.log("Empty data");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+      }
+    },
+    filterProjects() {
+      const inputText = this.searchText.trim().toLowerCase();
+      this.filteredProjects = this.boards.filter(project => project.Name.toLowerCase().startsWith(inputText));
+      console.log(this.filteredProjects);
+
+    },
+  },
+  created() {
+    const queryAllProject = "SELECT Id, Name, OwnerId, Status__c, Deadline__c, Description__c, priority__c FROM board__c";
+    this.getProjectsRecords(queryAllProject);
+  },
+  computed: {
+    displayedProjects() {
+      const inputText = this.searchText.trim().toLowerCase();
+      return inputText === "" ? this.boards : this.filteredProjects;
+    },
+  },
 };
 </script>
 
@@ -116,11 +103,13 @@ export default {
       <b-col sm>
         <div class="d-flex justify-content-sm-end gap-2">
           <div class="search-box ms-2">
-            <input type="text" class="form-control" placeholder="Search..." />
+            <input type="text" class="form-control" placeholder="Search..." @change="filterProjects"
+              v-model="searchText" />
+
             <i class="ri-search-line search-icon"></i>
           </div>
 
-          
+
         </div>
       </b-col>
     </b-row>
@@ -128,10 +117,10 @@ export default {
 
 
     <b-row>
-      <card-item v-for="(item, index) in boards" :key="index" :item="item"></card-item>
+      <card-item v-for="(item, index) in displayedProjects" :key="index" :item="item" @reloadListProject="handleReloadListProject"/>
     </b-row>
 
-  
+
 
     <b-modal v-model="removeProjectModal" id="removeProjectModal" hide-footer class="v-modal-custom" modal-class="zoomIn"
       centered>

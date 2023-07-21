@@ -1,80 +1,100 @@
 <script>
+import { ref, onMounted, computed } from 'vue';
+import { executeQuery } from '../../../api/utile';
+
 export default {
   setup() {
+    // Define a reactive ref for the boards array
+    const boards = ref([]);
+    // Define the number of items to show per page
+    const itemsPerPage = 5;
+    // Define a reactive ref for the current page
+    const currentPage = ref(1);
+
+    // Fetch data when the component is mounted
+    onMounted(async () => {
+      try {
+        const boardRecords = await executeQuery("SELECT Id, Name, Owner.Name, Status__c, Deadline__c, CreatedDate, Description__c, priority__c FROM board__c");
+if (boardRecords && boardRecords.length > 0) {
+  boards.value = boardRecords.map((board) => {
+    // Calculate the time remaining in hours between today and the deadline
+    const deadlineDate = new Date(board.Deadline__c);
+    const currentDate = new Date();
+    const timeRemainingHours = (deadlineDate - currentDate) / (1000 * 60 * 60);
+
+    // Calculate the total time allowed in hours between CreatedDate and Deadline__c
+    const createdDate = new Date(board.CreatedDate);
+    const totalTimeAllowedHours = (deadlineDate - createdDate) / (1000 * 60 * 60);
+
+    // Calculate the percentage
+    let percentage = ((totalTimeAllowedHours - timeRemainingHours) / totalTimeAllowedHours) * 100;
+
+    // Limit the percentage to a maximum of 100%
+    percentage = Math.min(100, percentage);
+
     return {
-      activeProjects: [
-        {
-          id: 1,
-          projectName: "Brand Logo Design",
-          img: require("@/assets/images/users/avatar-1.jpg"),
-          projectLead: "Donald Risher",
-          percentage: "53%",
-          subItem: [
-            { id: 1, assImg: require("@/assets/images/users/avatar-1.jpg") },
-            { id: 2, assImg: require("@/assets/images/users/avatar-2.jpg") },
-            { id: 3, assImg: require("@/assets/images/users/avatar-3.jpg") },
-          ],
-          badge: "Inprogress",
-          badgeClass: "warning",
-          dueDate: "06 Sep 2021",
-        },
-        {
-          id: 2,
-          projectName: "Redesign - Landing Page",
-          img: require("@/assets/images/users/avatar-2.jpg"),
-          projectLead: "Prezy William",
-          percentage: "0%",
-          subItem: [
-            { id: 1, assImg: require("@/assets/images/users/avatar-5.jpg") },
-            { id: 2, assImg: require("@/assets/images/users/avatar-6.jpg") },
-          ],
-          badge: "Pending",
-          badgeClass: "danger",
-          dueDate: "13 Nov 2021",
-        },
-        {
-          id: 3,
-          projectName: "Multipurpose Landing Template",
-          img: require("@/assets/images/users/avatar-3.jpg"),
-          projectLead: "Boonie Hoynas",
-          percentage: "100%",
-          subItem: [
-            { id: 1, assImg: require("@/assets/images/users/avatar-1.jpg") },
-            { id: 2, assImg: require("@/assets/images/users/avatar-2.jpg") },
-          ],
-          badge: "Completed",
-          badgeClass: "success",
-          dueDate: "26 Nov 2021",
-        },
-        {
-          id: 4,
-          projectName: "Chat Application",
-          img: require("@/assets/images/users/avatar-5.jpg"),
-          projectLead: "Pauline Moll",
-          percentage: "64%",
-          subItem: [
-            { id: 1, assImg: require("@/assets/images/users/avatar-2.jpg") },
-          ],
-          badge: "Progress",
-          badgeClass: "warning",
-          dueDate: "15 Dec 2021",
-        },
-        {
-          id: 5,
-          projectName: "Create Wireframe",
-          img: require("@/assets/images/users/avatar-6.jpg"),
-          projectLead: "James Bangs",
-          percentage: "77%",
-          subItem: [
-            { id: 1, assImg: require("@/assets/images/users/avatar-1.jpg") },
-            { id: 2, assImg: require("@/assets/images/users/avatar-6.jpg") },
-            { id: 3, assImg: require("@/assets/images/users/avatar-4.jpg") },
-          ],
-          badge: "Progress",
-          badgeClass: "warning",
-          dueDate: "21 Dec 2021",
-        },
-      ],
+      id: board.Id,
+      projectName: board.Name,
+      img: require("@/assets/images/users/Trailblazer_avatar.png"), // Replace this with the correct image path
+      projectLead: board.Owner.Name, // You may need to fetch the user's name based on OwnerId
+      percentage: percentage.toFixed(0) + "%", // Percentage rounded to 0 decimal places
+      subItem: [
+        { id: 1, assImg: require("@/assets/images/users/Trailblazer_avatar.png") },
+        { id: 2, assImg: require("@/assets/images/users/Trailblazer_avatar.png") },
+      ], // Initialize an empty array for subItem, you can populate it later if needed
+      badge: board.status__c, // Replace this with the correct badge value based on Status__c
+      badgeClass: board.status__c === "In Progress" ? "warning" : "success", // Set badgeClass based on Status__c
+      dueDate: board.Deadline__c, // Replace this with the correct due date value
+    };
+  });
+}
+else {
+          console.log("Empty");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+      }
+    });
+
+    // Calculate the total number of pages based on the number of boards and itemsPerPage
+    const totalPages = computed(() => Math.ceil(boards.value.length / itemsPerPage));
+
+    // Calculate the displayed items based on the current page and itemsPerPage
+    const displayedItems = computed(() => {
+      const startIndex = (currentPage.value - 1) * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return boards.value.slice(startIndex, endIndex);
+    });
+
+    // Function to go to the previous page
+    const prevPage = () => {
+      if (currentPage.value > 1) {
+        currentPage.value--;
+      }
+    };
+
+    // Function to go to the next page
+    const nextPage = () => {
+      if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+      }
+    };
+
+    // Function to go to a specific page
+    const gotoPage = (pageNumber) => {
+      if (pageNumber >= 1 && pageNumber <= totalPages.value) {
+        currentPage.value = pageNumber;
+      }
+    };
+
+    return {
+      boards,
+      displayedItems,
+      currentPage,
+      totalPages,
+      prevPage,
+      nextPage,
+      gotoPage,
     };
   },
 };
@@ -103,7 +123,7 @@ export default {
           </thead>
 
           <tbody>
-            <tr v-for="(item, index) of activeProjects" :key="index">
+            <tr v-for="(item, index) of boards" :key="index">
               <td class="fw-medium">{{ item.projectName }}</td>
               <td>
                 <img :src="item.img" class="avatar-xxs rounded-circle me-1" alt="" />
@@ -132,30 +152,24 @@ export default {
       </div>
 
       <div class="align-items-center mt-xl-3 mt-4 justify-content-between d-flex">
-        <div class="flex-shrink-0">
-          <div class="text-muted">
-            Showing <span class="fw-semibold">5</span> of
-            <span class="fw-semibold">25</span> Results
-          </div>
-        </div>
-        <ul class="pagination pagination-separated pagination-sm mb-0">
-          <li class="page-item disabled">
-            <b-link href="#" class="page-link">←</b-link>
-          </li>
-          <li class="page-item">
-            <b-link href="#" class="page-link">1</b-link>
-          </li>
-          <li class="page-item active">
-            <b-link href="#" class="page-link">2</b-link>
-          </li>
-          <li class="page-item">
-            <b-link href="#" class="page-link">3</b-link>
-          </li>
-          <li class="page-item">
-            <b-link href="#" class="page-link">→</b-link>
-          </li>
-        </ul>
+    <div class="flex-shrink-0">
+      <div class="text-muted">
+        Showing <span class="fw-semibold">{{ displayedItems.length }}</span> of
+        <span class="fw-semibold">{{ boards.length }}</span> Results
       </div>
+    </div>
+    <ul class="pagination pagination-separated pagination-sm mb-0">
+      <li class="page-item" :class="{ disabled: currentPage === 1 }">
+        <b-link @click="prevPage" href="#" class="page-link">←</b-link>
+      </li>
+      <li class="page-item" v-for="pageNumber in totalPages" :key="pageNumber" :class="{ active: currentPage === pageNumber }">
+        <b-link @click="gotoPage(pageNumber)" href="#" class="page-link">{{ pageNumber }}</b-link>
+      </li>
+      <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+        <b-link @click="nextPage" href="#" class="page-link">→</b-link>
+      </li>
+    </ul>
+  </div>
     </b-card-body>
   </b-card>
 </template>

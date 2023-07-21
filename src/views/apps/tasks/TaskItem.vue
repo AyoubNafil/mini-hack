@@ -34,7 +34,7 @@ export default {
             try { 
                 
                 await deleteSObject("Task__c",id);
-                this.$emit("reloadListkanbanTask");
+                this.$emit("reloadListTask",id);
                 this.modalShow3 = false;
              } catch (error) {
                 console.log("Error occurred while executing query:", error);

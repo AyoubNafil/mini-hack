@@ -1,8 +1,43 @@
 <script>
+import { ref, onMounted } from 'vue';
+import { executeQuery } from '../../../api/utile';
+
 export default {
   setup() {
-    return {
+    // Define a reactive ref for the task data
+    const tasks = ref([]);
 
+    // Fetch data when the component is mounted
+    onMounted(async () => {
+      try {
+        // Fetch task data using the query
+        const taskRecords = await executeQuery("SELECT Name, Type__r.Name, CreatedDate FROM task__c");
+
+        // Check if the taskRecords is not empty
+        if (taskRecords && taskRecords.length > 0) {
+          // Map the taskRecords to the tasks array with the required properties
+          tasks.value = taskRecords.map((task) => ({
+            name: task.Name,
+            type: task.Type__r ? task.Type__r.Name : 'Unknown',
+            deadline: formatDate(task.CreatedDate),
+            createdDate: formatDate(task.CreatedDate),
+            assignee: require("@/assets/images/users/Trailblazer_avatar.png"), // Replace this with the correct image path
+          }));
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+      }
+    });
+
+    // Function to format the date as "DD MMM YYYY" (e.g., 03 Nov 2021)
+    function formatDate(dateString) {
+      const options = { year: 'numeric', month: 'short', day: '2-digit' };
+      const date = new Date(dateString);
+      return date.toLocaleDateString(undefined, options);
+    }
+
+    return {
+      tasks, // Expose the tasks ref to the template
     };
   },
 };
@@ -35,117 +70,35 @@ export default {
           <thead class="table-light text-muted">
             <tr>
               <th scope="col">Name</th>
-              <th scope="col">Dedline</th>
+              <th scope="col">Deadline</th>
               <th scope="col">Status</th>
               <th scope="col">Assignee</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <!-- Loop through tasks and render each row -->
+            <tr v-for="(task, index) in tasks" :key="index">
               <td>
                 <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask1" />
-                  <label class="form-check-label ms-2" for="checkTask1">
-                    Create new Admin Template
+                  <input class="form-check-input fs-15" type="checkbox" :value="task.name" :id="'checkTask' + (index + 1)" />
+                  <label class="form-check-label ms-2" :for="'checkTask' + (index + 1)">
+                    {{ task.name }}
                   </label>
                 </div>
               </td>
-              <td class="text-muted">03 Nov 2021</td>
-              <td><b-badge variant="soft-success" class="badge-soft-success">Completed</b-badge></td>
+              
+              <td class="text-muted">{{ task.deadline }}</td>
+              <td>
+                <!-- Conditionally display the badge based on the task status -->
+                <b-badge :variant="task.type === 'Completed' ? 'soft-success' : 'soft-warning'">
+                  {{ task.type }}
+                </b-badge>
+              </td>
+              <!-- ... (other columns) ... -->
               <td>
                 <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Mary Stoner">
-                  <img src="@/assets/images/users/avatar-2.jpg" alt="" class="rounded-circle avatar-xxs" />
-                </b-link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask2" />
-                  <label class="form-check-label ms-2" for="checkTask2">
-                    Marketing Coordinator
-                  </label>
-                </div>
-              </td>
-              <td class="text-muted">17 Nov 2021</td>
-              <td><b-badge variant="soft-warning" class="badge-soft-warning">Progress</b-badge></td>
-              <td>
-                <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Den Davis">
-                  <img src="@/assets/images/users/avatar-7.jpg" alt="" class="rounded-circle avatar-xxs" />
-                </b-link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask3" />
-                  <label class="form-check-label ms-2" for="checkTask3">
-                    Administrative Analyst
-                  </label>
-                </div>
-              </td>
-              <td class="text-muted">26 Nov 2021</td>
-              <td><b-badge variant="soft-success" class="badge-soft-success">Completed</b-badge></td>
-              <td>
-                <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Alex Brown">
-                  <img src="@/assets/images/users/avatar-6.jpg" alt="" class="rounded-circle avatar-xxs" />
-                </b-link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask4" />
-                  <label class="form-check-label ms-2" for="checkTask4">
-                    E-commerce Landing Page
-                  </label>
-                </div>
-              </td>
-              <td class="text-muted">10 Dec 2021</td>
-              <td><b-badge variant="soft-danger" class="badge-soft-danger">Pending</b-badge></td>
-              <td>
-                <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Prezy Morin">
-                  <img src="@/assets/images/users/avatar-5.jpg" alt="" class="rounded-circle avatar-xxs" />
-                </b-link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask5" />
-                  <label class="form-check-label ms-2" for="checkTask5">
-                    UI/UX Design
-                  </label>
-                </div>
-              </td>
-              <td class="text-muted">22 Dec 2021</td>
-              <td><b-badge variant="soft-warning" class="badge-soft-warning">Progress</b-badge></td>
-              <td>
-                <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Stine Nielsen">
-                  <img src="@/assets/images/users/avatar-1.jpg" alt="" class="rounded-circle avatar-xxs" />
-                </b-link>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <div class="form-check">
-                  <input class="form-check-input fs-15" type="checkbox" value="" id="checkTask6" />
-                  <label class="form-check-label ms-2" for="checkTask6">
-                    Projects Design
-                  </label>
-                </div>
-              </td>
-              <td class="text-muted">31 Dec 2021</td>
-              <td><b-badge variant="soft-danger" class="badge-soft-danger">Pending</b-badge></td>
-              <td>
-                <b-link href="javascript: void(0);" class="d-inline-block" data-bs-toggle="tooltip"
-                  data-bs-placement="top" title="" data-bs-original-title="Jansh William">
-                  <img src="@/assets/images/users/avatar-4.jpg" alt="" class="rounded-circle avatar-xxs" />
+                  data-bs-placement="top" title="" :data-bs-original-title="task.assignee">
+                  <img :src="task.assignee" alt="" class="rounded-circle avatar-xxs" />
                 </b-link>
               </td>
             </tr>

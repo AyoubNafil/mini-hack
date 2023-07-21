@@ -109,7 +109,7 @@ export function updateSObjects(name, data) {
 			if (err) { return console.error(err); }
 			for (var i=0; i < rets.length; i++) {
 			  if (rets[i].success) {
-				console.log("Updated Successfully : " + rets[i].id);
+				//console.log("Updated Successfully : " + rets[i].id);
 			  }
 			}
 		  });
@@ -229,3 +229,63 @@ export async function getLastDebugLogUserId() {
 }
 
 
+export function exportToTrello(boardData, listData, cardData) {
+	const apiKey = '093fb7c15e6f37e30c5b5f1e4f743e3a';
+	const token = 'ATTA66ee805783e590f1d38a02c85b9e2ab3790b56864e5212601265d098db7c6f78465A868C';
+	const endpoint = 'https://api.trello.com/1';
+
+	axios.post(`${endpoint}/boards`, boardData, {
+		params: {
+			key: apiKey,
+			token: token
+		}
+	})
+		.then(boardResponse => {
+			const boardId = boardResponse.data.id;
+
+			// Create lists
+			const listPromises = listData.map(list => {
+				return axios.post(`${endpoint}/lists`, { ...list, idBoard: boardId }, {
+					params: {
+						key: apiKey,
+						token: token
+					}
+				});
+			});
+
+			axios.all(listPromises)
+				.then(listResponses => {
+					const listIds = listResponses.map(response => response.data.id);
+
+					// Create cards
+					const cardPromises = cardData.map(card => {
+						const listIndex = card.listIndex;
+						const listId = listIds[listIndex];
+						return axios.post(`${endpoint}/cards`, { ...card, idList: listId }, {
+							params: {
+								key: apiKey,
+								token: token
+							}
+						});
+					});
+
+					axios.all(cardPromises)
+						.then(cardResponses => {
+							// Handle success response
+							console.log('Board, lists, and cards created successfully:', boardResponse.data, listResponses.map(res => res.data), cardResponses.map(res => res.data));
+						})
+						.catch(error => {
+							// Handle error response while creating cards
+							console.error('Error creating cards:', error);
+						});
+				})
+				.catch(error => {
+					// Handle error response while creating lists
+					console.error('Error creating lists:', error);
+				});
+		})
+		.catch(error => {
+			// Handle error response while creating the board
+			console.error('Error creating board:', error);
+		});
+}
