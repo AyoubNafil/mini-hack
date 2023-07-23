@@ -161,7 +161,7 @@ export default {
       </b-container>
     </div>
 
-    <footer class="footer">
+    <footer class="footer" style="left: 100px;">
       <b-container>
         <b-row>
           <b-col lg="12">

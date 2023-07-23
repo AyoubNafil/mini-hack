@@ -47,6 +47,9 @@ export default {
                 },
             ],
             boardName: "",
+            firstnameInput: "",
+            lastnameInput: "",
+            emailInput: "",
             modalShow: false,
             modalShow1: false,
 
@@ -75,7 +78,40 @@ export default {
 
     },
     methods: {
+        addMember() {
+            // Get the value of the board name from the input field
+            const firstnameInput = this.firstnameInput;
+            const lastnameInput = this.lastnameInput;
+            const emailInput = this.emailInput;
 
+            // Create the data object to pass to createSObject function
+            const data = {
+                FirstName: firstnameInput,
+                LastName: lastnameInput,
+                Email: emailInput,
+                Username: emailInput,
+                LanguageLocaleKey : 'fr',
+                EmailEncodingKey: 'UTF-8',
+                LocaleSidKey: 'ar_MA',
+                TimeZoneSidKey: 'Africa/Casablanca',
+                Alias: "in"+lastnameInput,
+                ProfileId: '00e8d000000u5huAAA'
+            };
+
+            // Call the createSObject function from your utile.js file
+            createSObject("User", data, () => {
+                // Callback function called on success
+                window.location.reload();
+            });
+
+            // Clear the input field and close the modal
+            this.firstnameInput = "";
+            this.lastnameInput = "";
+            this.emailInput = "";
+            this.modalShow = false;
+            
+            Swal.fire("Good job!", "Team member added Succesfly!", "success");
+        },
         addBoard() {
             // Get the value of the board name from the input field
             const boardName = this.boardName;
@@ -372,8 +408,22 @@ export default {
 
     <b-modal v-model="modalShow" header-class="p-3 bg-soft-warning" content-class="border-0" hide-footer title="Add Member"
         class="v-modal-custom">
-        <b-form>
+        <b-form @submit.prevent="addMember">
             <b-row class="g-3">
+                <b-col lg="6">
+                    <label for="firstnameInput" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstnameInput" placeholder="Enter firstname"
+                        v-model="firstnameInput">
+                </b-col>
+                <b-col lg="6">
+                    <label for="lastnameInput" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastnameInput" placeholder="Enter lastname"
+                        v-model="lastnameInput">
+                </b-col>
+                <b-col lg="12">
+                    <label for="emailInput" class="form-label">Email ID</label>
+                    <input type="email" class="form-control" id="emailInput" placeholder="Email" v-model="emailInput">
+                </b-col>
                 <b-col lg="12">
                     <label for="submissionidInput" class="form-label">Submission ID</label>
                     <input type="number" class="form-control" id="submissionidInput" placeholder="Submission ID">
@@ -382,14 +432,7 @@ export default {
                     <label for="profileimgInput" class="form-label">Profile Images</label>
                     <input class="form-control" type="file" id="profileimgInput">
                 </b-col>
-                <b-col lg="6">
-                    <label for="firstnameInput" class="form-label">First Name</label>
-                    <input type="text" class="form-control" id="firstnameInput" placeholder="Enter firstname">
-                </b-col>
-                <b-col lg="6">
-                    <label for="lastnameInput" class="form-label">Last Name</label>
-                    <input type="text" class="form-control" id="lastnameInput" placeholder="Enter lastname">
-                </b-col>
+
                 <b-col lg="12">
                     <label for="designationInput" class="form-label">Designation</label>
                     <input type="text" class="form-control" id="designationInput" placeholder="Designation">
@@ -408,17 +451,14 @@ export default {
                     <flat-pickr v-model="date" :config="config" placeholder="Select date" class="form-control">
                     </flat-pickr>
                 </b-col>
-                <b-col lg="12">
-                    <label for="emailInput" class="form-label">Email ID</label>
-                    <input type="email" class="form-control" id="emailInput" placeholder="Email">
-                </b-col>
+                <div class="modal-footer v-modal-footer">
+                    <b-button type="button" variant="light" @click="modalShow = false"><i
+                            class="ri-close-line align-bottom me-1"></i> Close</b-button>
+                    <b-button type="submit" variant="success" id="addNewMember">Add Member</b-button>
+                </div>
             </b-row>
         </b-form>
-        <div class="modal-footer v-modal-footer">
-            <b-button type="button" variant="light" @click="modalShow = false"><i
-                    class="ri-close-line align-bottom me-1"></i> Close</b-button>
-            <b-button type="button" variant="success" id="addMember">Add Member</b-button>
-        </div>
+
     </b-modal>
 
     <b-modal v-model="modalShow1" header-class="p-3 bg-soft-info" content-class="border-0" hide-footer title="Add Board"

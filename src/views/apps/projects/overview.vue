@@ -1,21 +1,18 @@
 <script>
 import Layout from "../../../layouts/main.vue";
 import appConfig from "../../../../app.config";
-import { executeQuery } from "../../.././api/utile.js";
+import { executeQuery, createSObject } from "../../.././api/utile.js";
 import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
+
 export default {
-    methods: {
-        toggleFavourite(ele) {
-            ele.target.closest('.favourite-btn').classList.toggle("active");
-        },
-    },
     page: {
         title: "Overview",
         meta: [{ name: "description", content: appConfig.description }],
     },
     data() {
         return {
+            teamMembers: [], // Store the team members' data here
             title: "Overview",
             items: [
                 {
@@ -27,22 +24,95 @@ export default {
                     active: true,
                 },
             ],
+            firstnameInput: "",
+            lastnameInput: "",
+            emailInput: "",
+            modalShow: false,
             project: [],
-            Features: [],
         };
 
     },
     components: {
         Layout,
         kanban
+    }, async mounted() {
+        try {
+
+            this.getProjectDetail();
+            // Fetch team members' data from the API
+            this.teamMembers = await this.fetchTeamMembersData();
+        } catch (error) {
+            console.error('Error fetching team members data:', error);
+        }
     },
     methods: {
+
+        addMember() {
+            // Get the value of the board name from the input field
+            const firstnameInput = this.firstnameInput;
+            const lastnameInput = this.lastnameInput;
+            const emailInput = this.emailInput;
+
+            // Create the data object to pass to createSObject function
+            const data = {
+                FirstName: firstnameInput,
+                LastName: lastnameInput,
+                Email: emailInput,
+                Username: emailInput,
+                LanguageLocaleKey : 'fr',
+                EmailEncodingKey: 'UTF-8',
+                LocaleSidKey: 'ar_MA',
+                TimeZoneSidKey: 'Africa/Casablanca',
+                Alias: "in"+lastnameInput,
+                ProfileId: '00e8d000000u5huAAA'
+            };
+
+            // Call the createSObject function from your utile.js file
+            createSObject("User", data, () => {
+                // Callback function called on success
+                window.location.reload();
+            });
+
+            // Clear the input field and close the modal
+            this.firstnameInput = "";
+            this.lastnameInput = "";
+            this.emailInput = "";
+            this.modalShow = false;
+            
+            Swal.fire("Good job!", "Team member added Succesfly!", "success");
+        },
+
+        toggleFavourite(ele) {
+            ele.target.closest('.favourite-btn').classList.toggle("active");
+        },
+
+        async fetchTeamMembersData() {
+            // Use executeQuery or your API utility to fetch data from the API
+            // Replace the below query with your actual query to fetch team members' data
+            const queryResult = await executeQuery("SELECT Name, UserType FROM User");
+            const activeProjectsRecords = await executeQuery("SELECT Id FROM board__c");
+            const newLeadsRecords = await executeQuery("SELECT Id FROM task__c");
+
+            // Format the data to return an array of objects with the required properties
+            const teamMembersData = queryResult.map((record) => {
+
+                return {
+                    name: record.Name,
+                    position: record.UserType,
+                    projects: activeProjectsRecords.length,
+                    tasks: newLeadsRecords.length,
+                    img: require("@/assets/images/users/Trailblazer_avatar.png")
+                    // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+                };
+            });
+
+            return teamMembersData;
+        },
         async getProjectDetail() {
             try {
                 const ProjectId = this.$route.params.id;
 
                 this.project = await executeQuery("SELECT Id,Name,CreatedDate ,OwnerId,Status__c,Company__c,Deadline__c,Description__c ,priority__c FROM board__c where id = " + "'" + ProjectId + "'");
-                this.Features = await executeQuery("SELECT Id,Name FROM Feature__c where Board__c = " + "'" + ProjectId + "'");
                 this.project = this.project[0];
                 this.project.CreatedDate = this.project.CreatedDate.substring(0, 10)
                 console.log(this.project);
@@ -58,10 +128,6 @@ export default {
 
             }
         },
-    },
-    mounted() {
-        this.getProjectDetail();
-
     }
 };
 
@@ -101,8 +167,8 @@ export default {
                                                     </div>
                                                     <div class="vr"></div>
                                                     <b-badge pill class="bg-info fs-12">New</b-badge>
-                                                    <b-badge variant="danger" pill
-                                                        class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
+                                                    <b-badge variant="danger" pill class="bg-danger fs-12">{{
+                                                        project.Priority__c }}</b-badge>
                                                 </div>
                                             </div>
                                         </b-col>
@@ -182,15 +248,15 @@ export default {
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Priority :</p>
-                                                            <b-badge tag="div"
-                                                                class="bg-danger fs-12">{{ project.Priority__c }}</b-badge>
+                                                            <b-badge tag="div" class="bg-danger fs-12">{{
+                                                                project.Priority__c }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                     <b-col lg="3" sm="6">
                                                         <div>
                                                             <p class="mb-2 text-uppercase fw-medium">Status :</p>
-                                                            <b-badge tag="div"
-                                                                class="bg-warning fs-12">{{ project.status__c }}</b-badge>
+                                                            <b-badge tag="div" class="bg-warning fs-12">{{ project.status__c
+                                                            }}</b-badge>
                                                         </div>
                                                     </b-col>
                                                 </b-row>
@@ -453,10 +519,20 @@ export default {
                                     <b-card-body>
                                         <h5 class="card-title mb-4">Skills</h5>
                                         <div class="d-flex flex-wrap gap-2 fs-16">
-                                            <b-badge v-for="feature in Features" :key="feature" variant="soft-secondary"
-                                                tag="div" class="fw-medium badge-soft-secondary">
-                                                {{ feature.Name }}
-                                            </b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">UI/UX</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">Figma</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">HTML</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">CSS</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">Javascript</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">C#</b-badge>
+                                            <b-badge variant="soft-secondary" tag="div"
+                                                class="fw-medium badge-soft-secondary">Nodejs</b-badge>
                                         </div>
                                     </b-card-body>
                                 </b-card>
@@ -975,13 +1051,16 @@ export default {
                             </b-col>
                             <b-col sm="auto">
                                 <div>
-                                    <b-button type="button" variant="danger"><i class="ri-share-line me-1 align-bottom"></i>
+                                    <b-button type="button" variant="danger" @click="modalShow = !modalShow"><i
+                                            class="ri-share-line me-1 align-bottom"></i>
                                         Invite Member</b-button>
                                 </div>
                             </b-col>
                         </b-row>
 
-                        <div class="team-list list-view-filter">
+                        <!-- Loop through the teamMembers array and render team member cards dynamically -->
+                        <div v-for="(member, index) of teamMembers" :key="index" class="team-list list-view-filter">
+
                             <b-card no-body class="team-box">
                                 <b-card-body class="px-4">
                                     <b-row class="align-items-center team-row">
@@ -1022,25 +1101,25 @@ export default {
                                         <b-col lg="4" cols>
                                             <div class="team-profile-img">
                                                 <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-2.jpg" alt=""
+                                                    <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                         class="img-fluid d-block rounded-circle" />
                                                 </div>
                                                 <div class="team-content">
                                                     <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Nancy Martino</h5>
+                                                        <h5 class="fs-16 mb-1">{{ member.name }}</h5>
                                                     </b-link>
-                                                    <p class="text-muted mb-0">Team Leader & HR</p>
+                                                    <p class="text-muted mb-0">{{ member.position }}</p>
                                                 </div>
                                             </div>
                                         </b-col>
                                         <b-col lg="4" cols>
                                             <b-row class="text-muted text-center">
                                                 <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">225</h5>
+                                                    <h5 class="mb-1">{{ member.projects }}</h5>
                                                     <p class="text-muted mb-0">Projects</p>
                                                 </b-col>
                                                 <b-col cols="6">
-                                                    <h5 class="mb-1">197</h5>
+                                                    <h5 class="mb-1">{{ member.tasks }}</h5>
                                                     <p class="text-muted mb-0">Tasks</p>
                                                 </b-col>
                                             </b-row>
@@ -1054,658 +1133,8 @@ export default {
                                     </b-row>
                                 </b-card-body>
                             </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn active">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div class="avatar-title bg-soft-danger text-danger rounded-circle">
-                                                        HB
-                                                    </div>
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Henry Baird</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Full Stack Developer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">352</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">376</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn active">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-3.jpg" alt=""
-                                                        class="img-fluid d-block rounded-circle" />
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Frank Hook</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Project Manager</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">164</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">182</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-8.jpg" alt=""
-                                                        class="img-fluid d-block rounded-circle" />
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Jennifer Carter</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">UI/UX Designer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">225</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">197</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div class="avatar-title bg-soft-success text-success rounded-circle">
-                                                        ME
-                                                    </div>
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Megan Elmore</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Team Leader & Web Developer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">201</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">263</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-4.jpg" alt=""
-                                                        class="img-fluid d-block rounded-circle" />
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Alexis Clarke</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Backend Developer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">132</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">147</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div class="avatar-title bg-soft-info text-info rounded-circle">
-                                                        NC
-                                                    </div>
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Nathan Cole</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Front-End Developer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">352</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">376</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-7.jpg" alt=""
-                                                        class="img-fluid d-block rounded-circle" />
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Joseph Parker</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Team Leader & HR</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">64</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">93</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <img src="@/assets/images/users/avatar-5.jpg" alt=""
-                                                        class="img-fluid d-block rounded-circle" />
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Erica Kernan</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Web Designer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">345</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">298</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
-                            <b-card no-body class="team-box">
-                                <b-card-body class="px-4">
-                                    <b-row class="align-items-center team-row">
-                                        <div class="col team-settings">
-                                            <b-row class="align-items-center">
-                                                <b-col>
-                                                    <div class="flex-shrink-0 me-2">
-                                                        <button type="button" class="btn fs-16 p-0 favourite-btn">
-                                                            <i class="ri-star-fill"></i>
-                                                        </button>
-                                                    </div>
-                                                </b-col>
-                                                <div class="col text-end dropdown">
-                                                    <b-link href="javascript:void(0);" data-bs-toggle="dropdown"
-                                                        aria-expanded="false">
-                                                        <i class="ri-more-fill fs-17"></i>
-                                                    </b-link>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-eye-fill text-muted me-2 align-bottom"></i>View
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-star-fill text-muted me-2 align-bottom"></i>Favourite
-                                                            </b-link>
-                                                        </li>
-                                                        <li>
-                                                            <b-link class="dropdown-item" href="javascript:void(0);"><i
-                                                                    class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
-                                                            </b-link>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </b-row>
-                                        </div>
-                                        <b-col lg="4" cols>
-                                            <div class="team-profile-img">
-                                                <div class="avatar-lg img-thumbnail rounded-circle">
-                                                    <div class="avatar-title border bg-light text-primary rounded-circle">
-                                                        DP
-                                                    </div>
-                                                </div>
-                                                <div class="team-content">
-                                                    <b-link href="#" class="d-block">
-                                                        <h5 class="fs-16 mb-1">Donald Palmer</h5>
-                                                    </b-link>
-                                                    <p class="text-muted mb-0">Wed Developer</p>
-                                                </div>
-                                            </div>
-                                        </b-col>
-                                        <b-col lg="4" cols>
-                                            <b-row class="text-muted text-center">
-                                                <b-col cols="6" class="border-end border-end-dashed">
-                                                    <h5 class="mb-1">97</h5>
-                                                    <p class="text-muted mb-0">Projects</p>
-                                                </b-col>
-                                                <b-col cols="6">
-                                                    <h5 class="mb-1">135</h5>
-                                                    <p class="text-muted mb-0">Tasks</p>
-                                                </b-col>
-                                            </b-row>
-                                        </b-col>
-                                        <b-col lg="2">
-                                            <div class="text-end">
-                                                <router-link to="/pages/profile" class="btn btn-light view-btn">View
-                                                    Profile</router-link>
-                                            </div>
-                                        </b-col>
-                                    </b-row>
-                                </b-card-body>
-                            </b-card>
+
+
                         </div>
 
                         <b-row class="g-0 text-center text-sm-start align-items-center mb-3">
@@ -1745,11 +1174,66 @@ export default {
                     </div>
 
                     <div class="tab-pane fade" id="project-tasks" role="tabpanel">
-                        <kanban :id=this.$route.params.id ></kanban>
+                        <kanban :id=this.$route.params.id></kanban>
 
                     </div>
                 </div>
             </b-col>
         </b-row>
     </Layout>
+
+    <b-modal v-model="modalShow" header-class="p-3 bg-soft-warning" content-class="border-0" hide-footer title="Add Member"
+        class="v-modal-custom">
+        <b-form @submit.prevent="addMember">
+            <b-row class="g-3">
+                <b-col lg="6">
+                    <label for="firstnameInput" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="firstnameInput" placeholder="Enter firstname"
+                        v-model="firstnameInput">
+                </b-col>
+                <b-col lg="6">
+                    <label for="lastnameInput" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="lastnameInput" placeholder="Enter lastname"
+                        v-model="lastnameInput">
+                </b-col>
+                <b-col lg="12">
+                    <label for="emailInput" class="form-label">Email ID</label>
+                    <input type="email" class="form-control" id="emailInput" placeholder="Email" v-model="emailInput">
+                </b-col>
+                <b-col lg="12">
+                    <label for="submissionidInput" class="form-label">Submission ID</label>
+                    <input type="number" class="form-control" id="submissionidInput" placeholder="Submission ID">
+                </b-col>
+                <b-col lg="12">
+                    <label for="profileimgInput" class="form-label">Profile Images</label>
+                    <input class="form-control" type="file" id="profileimgInput">
+                </b-col>
+
+                <b-col lg="12">
+                    <label for="designationInput" class="form-label">Designation</label>
+                    <input type="text" class="form-control" id="designationInput" placeholder="Designation">
+                </b-col>
+                <b-col lg="12">
+                    <label for="titleInput" class="form-label">Title</label>
+                    <input type="text" class="form-control" id="titleInput" placeholder="Title">
+                </b-col>
+                <b-col lg="6">
+                    <label for="numberInput" class="form-label">Phone Number</label>
+                    <input type="text" class="form-control" id="numberInput" placeholder="Phone number">
+                </b-col>
+                <b-col lg="6">
+                    <label for="joiningdateInput" class="form-label">Joining Date</label>
+
+                    <flat-pickr v-model="date" :config="config" placeholder="Select date" class="form-control">
+                    </flat-pickr>
+                </b-col>
+                <div class="modal-footer v-modal-footer">
+                    <b-button type="button" variant="light" @click="modalShow = false"><i
+                            class="ri-close-line align-bottom me-1"></i> Close</b-button>
+                    <b-button type="submit" variant="success" id="addNewMember">Add Member</b-button>
+                </div>
+            </b-row>
+        </b-form>
+
+    </b-modal>
 </template>
