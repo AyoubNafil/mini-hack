@@ -1,4 +1,6 @@
 <script>
+import { deleteSObject } from "../../.././api/utile.js";
+import Swal from "sweetalert2";
 import {
   MoreHorizontalIcon
 } from "@zhuowenli/vue-feather-icons";
@@ -23,6 +25,56 @@ export default {
     }
   },
   methods: {
+    async deleteProject(id) {
+      // Use the `id` parameter in your logic here
+      console.log("Deleting task with ID:", id);
+
+
+      //confirmation popup
+      const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+          confirmButton: "btn btn-danger ml-2  m-2",
+          cancelButton: "btn btn-success  m-2",
+        },
+        buttonsStyling: false,
+      });
+
+      swalWithBootstrapButtons
+        .fire({
+          title: "Are you sure?",
+          text: "You won't be able to revert this!",
+          icon: "warning",
+          confirmButtonText: "Yes, delete it!",
+          cancelButtonText: "No, cancel!",
+          showCancelButton: true,
+        })
+        .then((result) => {
+          if (result.value) {
+            try {
+              deleteSObject("board__c", id);
+              this.$emit("reloadListkanbanTask");
+              this.modalShow3 = false;
+              window.location.reload()
+            } catch (error) {
+              console.log("Error occurred while executing query:", error);
+            }
+            swalWithBootstrapButtons.fire(
+              "Deleted!",
+              "Your file has been deleted.",
+              "success"
+            );
+          } else if (
+            /* Read more about handling dismissals below */
+            result.dismiss === Swal.DismissReason.cancel
+          ) {
+            swalWithBootstrapButtons.fire(
+              "Cancelled",
+              "Your imaginary file is safe :)",
+              "error"
+            );
+          }
+        });
+    },
     getStatusClass(status) {
 
       switch (status) {
@@ -52,108 +104,8 @@ export default {
             this.removeProjectModal = false;
           });
       });
-    },
-    Import() {
-      Swal.fire({
-  icon: 'error',
-  title: 'Oops...',
-  text: 'Something went wrong!',
-})
-    },
-
-  
-    Export(boardId, boardName, boardDesc) {
-      const boardData = {
-        name: boardName,
-        desc: boardDesc
-      };
-
-
-      const query = "SELECT Name, Placement__c FROM Card__c WHERE Board__c ='" + boardId + "'";
-executeQuery(query)
-  .then((result) => {
-    this.listData = result.map((card) => ({
-      name: card.Name,
-      pos: card.Placement__c
-    }));
-    const query2 = "SELECT Name FROM Task__c WHERE Type__r.Board__c = '" + boardId + "'";
-    executeQuery(query2)
-      .then((result2) => {
-        this.cardData = result2.map((task) => ({ // Fix this line to use result2
-          name: task.Name,
-          listIndex: 0
-        }));
-        exportToTrello(boardData, this.listData, this.cardData);
-        Swal.fire("Good job!", "Project Exported to trello Succesfly!", "success");
-      })
-      .catch((error) => {
-        console.error("Error fetching Task data:", error);
-      });
-  })
-  .catch((error) => {
-    console.error("Error fetching Card data:", error);
-  });
-
-
-      
-
-      //exportToTrello(boardData, this.listData, cardData);
-    },
-
-    async deleteProject(id) {
-      // Use the `id` parameter in your logic here
-      console.log("Deleting task with ID:", id);
-
-
-      //confirmation popup
-      const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-          confirmButton: "btn btn-danger ml-2  m-2",
-          cancelButton: "btn btn-success  m-2",
-        },
-        buttonsStyling: false,
-      });
-
-      swalWithBootstrapButtons
-        .fire({
-          title: "Are you sure?",
-          text: "You won't be able to revert this!",
-          icon: "warning",
-          confirmButtonText: "Yes, delete it!",
-          cancelButtonText: "No, cancel!",
-          showCancelButton: true,
-        })
-        .then((result) => {
-          if (result.value) {
-            try {
-              deleteSObject("board__c", id);
-              this.$emit("reloadListProject",id);
-              this.modalShow3 = false;
-              setTimeout(() => {
-              //window.location.reload()
-              }, 2000);
-            } catch (error) {
-              console.log("Error occurred while executing query:", error);
-            }
-            swalWithBootstrapButtons.fire(
-              "Deleted!",
-              "Your Project has been deleted.",
-              "success"
-            );
-          } else if (
-            /* Read more about handling dismissals below */
-            result.dismiss === Swal.DismissReason.cancel
-          ) {
-            swalWithBootstrapButtons.fire(
-              "Cancelled",
-              "Your imaginary file is safe :)",
-              "error"
-            );
-          }
-        });
     }
-
-
+    
   },
   components: {
 
@@ -190,14 +142,8 @@ executeQuery(query)
                   <i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
                 </router-link>
                 <div class="dropdown-divider"></div>
-                <div class="dropdown-item" @click="deleteProject(item.Id)">
-                  <i class="ri-delete-bin-fill align-bottom me-2 text-muted" ></i> Remove</div>
-                <div class="dropdown-divider"></div>
-                <div class="dropdown-item" @click="Import">
-                  <i class="mdi mdi-database-import align-bottom me-2 text-muted"></i> Import
-                </div>
-                <div class="dropdown-item" @click="Export(item.Id, item.Name, item.Description__c)">
-                  <i class="mdi mdi-database-export align-bottom me-2 text-muted"></i> Export
+                <div class="dropdown-item" @click="removeProject">
+                  <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Remove
                 </div>
               </div>
             </div>

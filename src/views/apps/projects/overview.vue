@@ -6,13 +6,17 @@ import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
 
 export default {
+    methods: {
+        toggleFavourite(ele) {
+            ele.target.closest('.favourite-btn').classList.toggle("active");
+        },
+    },
     page: {
         title: "Overview",
         meta: [{ name: "description", content: appConfig.description }],
     },
     data() {
         return {
-            teamMembers: [], // Store the team members' data here
             title: "Overview",
             items: [
                 {
@@ -46,68 +50,6 @@ export default {
         }
     },
     methods: {
-
-        addMember() {
-            // Get the value of the board name from the input field
-            const firstnameInput = this.firstnameInput;
-            const lastnameInput = this.lastnameInput;
-            const emailInput = this.emailInput;
-
-            // Create the data object to pass to createSObject function
-            const data = {
-                FirstName: firstnameInput,
-                LastName: lastnameInput,
-                Email: emailInput,
-                Username: emailInput,
-                LanguageLocaleKey : 'fr',
-                EmailEncodingKey: 'UTF-8',
-                LocaleSidKey: 'ar_MA',
-                TimeZoneSidKey: 'Africa/Casablanca',
-                Alias: "in"+lastnameInput,
-                ProfileId: '00e8d000000u5huAAA'
-            };
-
-            // Call the createSObject function from your utile.js file
-            createSObject("User", data, () => {
-                // Callback function called on success
-                window.location.reload();
-            });
-
-            // Clear the input field and close the modal
-            this.firstnameInput = "";
-            this.lastnameInput = "";
-            this.emailInput = "";
-            this.modalShow = false;
-            
-            Swal.fire("Good job!", "Team member added Succesfly!", "success");
-        },
-
-        toggleFavourite(ele) {
-            ele.target.closest('.favourite-btn').classList.toggle("active");
-        },
-
-        async fetchTeamMembersData() {
-            // Use executeQuery or your API utility to fetch data from the API
-            // Replace the below query with your actual query to fetch team members' data
-            const queryResult = await executeQuery("SELECT Name, UserType FROM User");
-            const activeProjectsRecords = await executeQuery("SELECT Id FROM board__c");
-            const newLeadsRecords = await executeQuery("SELECT Id FROM task__c");
-
-            // Format the data to return an array of objects with the required properties
-            const teamMembersData = queryResult.map((record) => {
-
-                return {
-                    name: record.Name,
-                    position: record.UserType,
-                    projects: activeProjectsRecords.length,
-                    tasks: newLeadsRecords.length,
-                    img: require("@/assets/images/users/Trailblazer_avatar.png")
-                    // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
-                };
-            });
-
-            return teamMembersData;
-        },
         async getProjectDetail() {
             try {
                 const ProjectId = this.$route.params.id;
@@ -128,10 +70,40 @@ export default {
 
             }
         },
+    },
+    mounted() {
+        this.getProjectDetail();
+
     }
 };
 
 </script>
+<style>
+.description-container {
+    position: relative;
+    max-height: 5em;
+    /* Set the max-height to five lines or any desired height */
+    overflow: hidden;
+}
+
+.description-container.expanded {
+    max-height: none;
+}
+
+.show-more-button {
+    text-align: center;
+    margin-top: 5px;
+}
+</style>
+In this code, the description container is limited to five lines using CSS by setting the max-height and overflow properties. We use Vue.js to toggle the visibility of the full description by updating the showFullDescription data property when the "Show More" button is clicked. When showFullDescription is false, the description is truncated to five lines, and the "Show More" button is displayed. When showFullDescription is true, the container is expanded to show the full description.
+
+Please adjust the height in the CSS to match the desired number of lines or pixels. This way, you can show a summary of the description and expand it when the user clicks the "Show More" button.
+
+
+
+
+
+
 
 <template>
     <Layout>
@@ -224,11 +196,17 @@ export default {
                                     <b-card-body>
                                         <div class="text-muted">
                                             <h6 class="mb-3 fw-semibold text-uppercase">Summary</h6>
-                                            <div v-html="project.Description__c"></div>
-                                            <div>
-                                                <b-button type="button" variant="link" class="link-success p-0">Read
-                                                    more</b-button>
+                                            <div class="description-container">
+                                                <div :class="{ 'expanded': showFullDescription }"
+                                                    v-html="project.Description__c" ref="description"></div>
+                                                <div v-if="!showFullDescription" class="show-more-button">
+                                                    <b-button type="button" variant="link" class="link-success p-0"
+                                                        @click="toggleDescription">
+                                                        Show more
+                                                    </b-button>
+                                                </div>
                                             </div>
+
 
                                             <div class="pt-3 border-top border-top-dashed mt-4">
                                                 <b-row>
