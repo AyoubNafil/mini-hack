@@ -78,16 +78,18 @@ export default {
                     ContentType: file.type
                 };
                 console.log('Attachment', attachment);
-
+                return new Promise((resolve, reject) => {
                 createSObject2('Attachment', attachment).then((newAttachmentId) => {
                     attachment.Id=newAttachmentId;
                     console.log('Image uploaded successfully.', 'success',attachment);
-                    return attachment;
+                    resolve (attachment);
                 })
                 .catch((error) => {
                     // Handle any errors that occurred
+                    reject(error);
                     console.error(error);
                 });
+            });
 
             } catch (error) {
                 console.log('Error uploading image: ' + error.message, 'error');
