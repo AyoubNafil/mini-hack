@@ -332,7 +332,15 @@ export default {
         // },
 
 
-
+        handleReloadList(idToDelete){
+            
+           
+            const indexToDelete = this.cc.findIndex(item => item.Id === idToDelete);
+            if (indexToDelete !== -1) {
+                this.cc.splice(indexToDelete, 1);
+            }
+            
+        },
 
         log(event) {
             console.log(event);
@@ -400,7 +408,7 @@ export default {
     <div class="tasks-board mb-3" id="kanbanboard">
 
         <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}`" :item="item"
-            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" />
+            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" @reloadList="handleReloadList" />
 
 
     </div>

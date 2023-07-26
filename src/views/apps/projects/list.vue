@@ -47,6 +47,7 @@ export default {
     CardItem
   },
   methods: {
+    
     handleReloadListProject(idToDelete){
             
             //console.log(idToDelete);

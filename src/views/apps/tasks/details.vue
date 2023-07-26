@@ -8,6 +8,7 @@ import appConfig from "../../../../app.config";
 
 import animationData from "@/components/widgets/kbtmbyzy.json";
 import Lottie from "@/components/widgets/lottie.vue";
+import { executeQuery } from "../../../api/utile";
 
 export default {
     page: {
@@ -28,6 +29,7 @@ export default {
                 },
             ],
             modalShow: false,
+            task: [],
             value: null,
             defaultOptions: { animationData: animationData },
         };
@@ -37,6 +39,39 @@ export default {
         PageHeader,
         lottie: Lottie,
         Multiselect
+    }, async mounted() {
+        try {
+
+            this.getTaskDetail();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    },
+    methods: {
+
+        async getTaskDetail() {
+            try {
+                const TaskId = this.$route.params.id;
+
+                this.task = await executeQuery("SELECT Id,Name,CreatedDate ,Date__c,Watch__c,Type__r.name,Description__c FROM task__c where id = " + "'" + TaskId + "'");
+                this.task = this.task[0];
+                this.task.CreatedDate = this.task.CreatedDate.substring(0, 10)
+                this.task.Watch__c = this.task.Type__r.Name
+                console.log(this.task);
+                this.task.Id = this.task.Id.substring(0, 16);
+                if (this.task) {
+                    console.log(this.task);
+                    console.log("Description " + this.task.Description__c);
+                    console.log(this.task.Type__r.Name);
+
+                } else {
+                    console.log("Empty No task with this id");
+                }
+            } catch (error) {
+                console.log("Error occurred while executing query:", error);
+
+            }
+        },
     },
 };
 </script>
@@ -54,7 +89,7 @@ export default {
                                 :width="90" />
                         </div>
                         <h3 class="mb-1">9 hrs 13 min</h3>
-                        <h5 class="fs-14 mb-4">Profile Page Satructure</h5>
+                        <h5 class="fs-14 mb-4">{{ task.Name }}</h5>
                         <div class="hstack gap-2 justify-content-center">
                             <b-button variant="danger" size="sm"><i class="ri-stop-circle-line align-bottom me-1"></i>
                                 Stop</b-button>
@@ -80,16 +115,16 @@ export default {
                             <table class="table mb-0">
                                 <tbody>
                                     <tr>
-                                        <td class="fw-medium">Tasks No</td>
-                                        <td>#VLZ456</td>
+                                        <td class="fw-medium">Task's No</td>
+                                        <td>{{ task.Id }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-medium">Tasks Title</td>
-                                        <td>Profile Page Satructure</td>
+                                        <td class="fw-medium">Task's Title</td>
+                                        <td>{{ task.Name }}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Project Name</td>
-                                        <td>Velzon - Admin Dashboard</td>
+                                        <td>{{ task.type__c }}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Priority</td>
@@ -97,11 +132,12 @@ export default {
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Status</td>
-                                        <td><b-badge variant="soft-secondary" class="badge-soft-secondary">Inprogress</b-badge></td>
+                                        <td><b-badge variant="soft-secondary"
+                                                class="badge-soft-secondary">{{ task.Watch__c }}</b-badge></td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Due Date</td>
-                                        <td>05 Jan, 2022</td>
+                                        <td>{{ task.CreatedDate }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -265,8 +301,8 @@ export default {
                                             <button type="button" class="btn btn-icon text-muted btn-sm fs-18"><i
                                                     class="ri-download-2-line"></i></button>
                                             <div class="dropdown">
-                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown"
-                                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="ri-more-fill"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
@@ -308,8 +344,8 @@ export default {
                                             <button type="button" class="btn btn-icon text-muted btn-sm fs-18"><i
                                                     class="ri-download-2-line"></i></button>
                                             <div class="dropdown">
-                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown"
-                                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="ri-more-fill"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
@@ -351,8 +387,8 @@ export default {
                                             <button type="button" class="btn btn-icon text-muted btn-sm fs-18"><i
                                                     class="ri-download-2-line"></i></button>
                                             <div class="dropdown">
-                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown"
-                                                    type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                <button class="btn btn-icon text-muted btn-sm fs-18 dropdown" type="button"
+                                                    data-bs-toggle="dropdown" aria-expanded="false">
                                                     <i class="ri-more-fill"></i>
                                                 </button>
                                                 <ul class="dropdown-menu">
@@ -384,12 +420,7 @@ export default {
                     <b-card-body>
                         <div class="text-muted">
                             <h6 class="mb-3 fw-semibold text-uppercase">Summary</h6>
-                            <p>It will be as simple as occidental in fact, it will be Occidental. To an English person,
-                                it will seem like simplified English, as a skeptical Cambridge friend of mine told me
-                                what Occidental is. The European languages are members of the same family. Their
-                                separate existence is a myth. For science, music, sport, etc, Europe uses the same
-                                vocabulary. The languages only differ in their grammar, their pronunciation and their
-                                most common words.</p>
+                            <p>{{ task.Description__c }}</p>
 
                             <h6 class="mb-3 fw-semibold text-uppercase">Sub-tasks</h6>
                             <ul class=" ps-3 list-unstyled vstack gap-2">
@@ -403,8 +434,7 @@ export default {
                                 </li>
                                 <li>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value="" id="dashboardTask"
-                                            checked>
+                                        <input class="form-check-input" type="checkbox" value="" id="dashboardTask" checked>
                                         <label class="form-check-label" for="dashboardTask">
                                             Dashboards : Ecommerce, Analytics, Project,etc.
                                         </label>
@@ -420,8 +450,7 @@ export default {
                                 </li>
                                 <li>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value=""
-                                            id="authenticationTask">
+                                        <input class="form-check-input" type="checkbox" value="" id="authenticationTask">
                                         <label class="form-check-label" for="authenticationTask">
                                             Add authentication pages
                                         </label>
@@ -433,8 +462,10 @@ export default {
                                 <h6 class="mb-3 fw-semibold text-uppercase">Tasks Tags</h6>
                                 <div class="hstack flex-wrap gap-2 fs-15">
                                     <b-badge variant="soft-info" tag="div" class="fw-medium badge-soft-info">UI/UX</b-badge>
-                                    <b-badge variant="soft-info" tag="div" class="fw-medium badge-soft-info">Dashboard</b-badge>
-                                    <b-badge variant="soft-info" tag="div" class="fw-medium badge-soft-info">Design</b-badge>
+                                    <b-badge variant="soft-info" tag="div"
+                                        class="fw-medium badge-soft-info">Dashboard</b-badge>
+                                    <b-badge variant="soft-info" tag="div"
+                                        class="fw-medium badge-soft-info">Design</b-badge>
                                 </div>
                             </div>
                         </div>
@@ -474,8 +505,9 @@ export default {
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <h5 class="fs-13">
-                                                <router-link to="/pages/profile" class="text-reset">Joseph Parker</router-link> <small
-                                                    class="text-muted">20 Dec 2021 - 05:47AM</small>
+                                                <router-link to="/pages/profile" class="text-reset">Joseph
+                                                    Parker</router-link> <small class="text-muted">20 Dec 2021 -
+                                                    05:47AM</small>
                                             </h5>
                                             <p class="text-muted">I am getting message from customers that when they
                                                 place order always get error message .</p>
@@ -488,14 +520,15 @@ export default {
                                                 </div>
                                                 <div class="flex-grow-1 ms-3">
                                                     <h5 class="fs-13">
-                                                        <router-link to="/pages/profile" class="text-reset">Tonya Noble</router-link>
+                                                        <router-link to="/pages/profile" class="text-reset">Tonya
+                                                            Noble</router-link>
                                                         <small class="text-muted">22 Dec 2021 - 02:32PM</small>
                                                     </h5>
                                                     <p class="text-muted">Please be sure to check your Spam mailbox to
                                                         see if your email filters have identified the email from Dell as
                                                         spam.</p>
-                                                    <b-link href="javascript: void(0);"
-                                                        class="badge text-muted bg-light"><i class="mdi mdi-reply"></i>
+                                                    <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
+                                                            class="mdi mdi-reply"></i>
                                                         Reply</b-link>
                                                 </div>
                                             </div>
@@ -508,12 +541,13 @@ export default {
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <h5 class="fs-13">
-                                                <router-link to="/pages/profile" class="text-reset">Thomas Taylor</router-link> <small
-                                                    class="text-muted">24 Dec 2021 - 05:20PM</small>
+                                                <router-link to="/pages/profile" class="text-reset">Thomas
+                                                    Taylor</router-link> <small class="text-muted">24 Dec 2021 -
+                                                    05:20PM</small>
                                             </h5>
                                             <p class="text-muted">If you have further questions, please contact Customer
-                                                Support from the “Action Menu” on your <b-link
-                                                    href="javascript:void(0);" class="text-decoration-underline">Online
+                                                Support from the “Action Menu” on your <b-link href="javascript:void(0);"
+                                                    class="text-decoration-underline">Online
                                                     Order Support</b-link>.</p>
                                             <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
                                                     class="mdi mdi-reply"></i> Reply</b-link>
@@ -526,8 +560,8 @@ export default {
                                         </div>
                                         <div class="flex-grow-1 ms-3">
                                             <h5 class="fs-13">
-                                                <router-link to="/pages/profile" class="text-reset">Tonya Noble</router-link> <small
-                                                    class="text-muted">26 min ago</small>
+                                                <router-link to="/pages/profile" class="text-reset">Tonya
+                                                    Noble</router-link> <small class="text-muted">26 min ago</small>
                                             </h5>
                                             <p class="text-muted">Your <b-link href="javascript:void(0)"
                                                     class="text-decoration-underline">Online Order Support</b-link>
@@ -554,13 +588,14 @@ export default {
                                                 </div>
                                                 <div class="flex-grow-1 ms-3">
                                                     <h5 class="fs-13">
-                                                        <router-link to="/pages/profile" class="text-reset">Nancy Martino</router-link>
+                                                        <router-link to="/pages/profile" class="text-reset">Nancy
+                                                            Martino</router-link>
                                                         <small class="text-muted">8 sec ago</small>
                                                     </h5>
                                                     <p class="text-muted">Other shipping methods are available at
                                                         checkout if you want your purchase delivered faster.</p>
-                                                    <b-link href="javascript: void(0);"
-                                                        class="badge text-muted bg-light"><i class="mdi mdi-reply"></i>
+                                                    <b-link href="javascript: void(0);" class="badge text-muted bg-light"><i
+                                                            class="mdi mdi-reply"></i>
                                                         Reply</b-link>
                                                 </div>
                                             </div>
@@ -620,9 +655,9 @@ export default {
                                                 <td>21 Dec, 2021</td>
                                                 <td>
                                                     <div class="dropdown">
-                                                        <b-link href="javascript:void(0);"
-                                                            class="btn btn-light btn-icon" id="dropdownMenuLink1"
-                                                            data-bs-toggle="dropdown" aria-expanded="true">
+                                                        <b-link href="javascript:void(0);" class="btn btn-light btn-icon"
+                                                            id="dropdownMenuLink1" data-bs-toggle="dropdown"
+                                                            aria-expanded="true">
                                                             <i class="ri-equalizer-fill"></i>
                                                         </b-link>
                                                         <ul class="dropdown-menu dropdown-menu-end"
@@ -630,21 +665,18 @@ export default {
                                                             data-popper-placement="bottom-end"
                                                             style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 23px);">
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-eye-fill me-2 align-middle text-muted"></i>View
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-download-2-fill me-2 align-middle text-muted"></i>Download
                                                                 </b-link>
                                                             </li>
                                                             <li class="dropdown-divider"></li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-delete-bin-5-line me-2 align-middle text-muted"></i>Delete
                                                                 </b-link>
                                                             </li>
@@ -674,9 +706,9 @@ export default {
                                                 <td>25 Dec, 2021</td>
                                                 <td>
                                                     <div class="dropdown">
-                                                        <b-link href="javascript:void(0);"
-                                                            class="btn btn-light btn-icon" id="dropdownMenuLink2"
-                                                            data-bs-toggle="dropdown" aria-expanded="true">
+                                                        <b-link href="javascript:void(0);" class="btn btn-light btn-icon"
+                                                            id="dropdownMenuLink2" data-bs-toggle="dropdown"
+                                                            aria-expanded="true">
                                                             <i class="ri-equalizer-fill"></i>
                                                         </b-link>
                                                         <ul class="dropdown-menu dropdown-menu-end"
@@ -684,21 +716,18 @@ export default {
                                                             data-popper-placement="bottom-end"
                                                             style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 23px);">
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-eye-fill me-2 align-middle text-muted"></i>View
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-download-2-fill me-2 align-middle text-muted"></i>Download
                                                                 </b-link>
                                                             </li>
                                                             <li class="dropdown-divider"></li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-delete-bin-5-line me-2 align-middle text-muted"></i>Delete
                                                                 </b-link>
                                                             </li>
@@ -710,8 +739,7 @@ export default {
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="avatar-sm">
-                                                            <div
-                                                                class="avatar-title bg-soft-info text-info rounded fs-20">
+                                                            <div class="avatar-title bg-soft-info text-info rounded fs-20">
                                                                 <i class="ri-folder-line"></i>
                                                             </div>
                                                         </div>
@@ -727,9 +755,9 @@ export default {
                                                 <td>28 Dec, 2021</td>
                                                 <td>
                                                     <div class="dropdown">
-                                                        <b-link href="javascript:void(0);"
-                                                            class="btn btn-light btn-icon" id="dropdownMenuLink3"
-                                                            data-bs-toggle="dropdown" aria-expanded="true">
+                                                        <b-link href="javascript:void(0);" class="btn btn-light btn-icon"
+                                                            id="dropdownMenuLink3" data-bs-toggle="dropdown"
+                                                            aria-expanded="true">
                                                             <i class="ri-equalizer-fill"></i>
                                                         </b-link>
                                                         <ul class="dropdown-menu dropdown-menu-end"
@@ -737,20 +765,17 @@ export default {
                                                             data-popper-placement="bottom-end"
                                                             style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 23px);">
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-eye-fill me-2 align-middle"></i>View
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-download-2-fill me-2 align-middle"></i>Download
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-delete-bin-5-line me-2 align-middle"></i>Delete
                                                                 </b-link>
                                                             </li>
@@ -780,9 +805,9 @@ export default {
                                                 <td>02 Nov 2021</td>
                                                 <td>
                                                     <div class="dropdown">
-                                                        <b-link href="javascript:void(0);"
-                                                            class="btn btn-light btn-icon" id="dropdownMenuLink4"
-                                                            data-bs-toggle="dropdown" aria-expanded="true">
+                                                        <b-link href="javascript:void(0);" class="btn btn-light btn-icon"
+                                                            id="dropdownMenuLink4" data-bs-toggle="dropdown"
+                                                            aria-expanded="true">
                                                             <i class="ri-equalizer-fill"></i>
                                                         </b-link>
                                                         <ul class="dropdown-menu dropdown-menu-end"
@@ -790,20 +815,17 @@ export default {
                                                             data-popper-placement="bottom-end"
                                                             style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(0px, 23px);">
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-eye-fill me-2 align-middle"></i>View
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-download-2-fill me-2 align-middle"></i>Download
                                                                 </b-link>
                                                             </li>
                                                             <li>
-                                                                <b-link class="dropdown-item"
-                                                                    href="javascript:void(0);"><i
+                                                                <b-link class="dropdown-item" href="javascript:void(0);"><i
                                                                         class="ri-delete-bin-5-line me-2 align-middle"></i>Delete
                                                                 </b-link>
                                                             </li>
@@ -835,7 +857,8 @@ export default {
                                                         <img src="@/assets/images/users/avatar-8.jpg" alt=""
                                                             class="rounded-circle avatar-xxs">
                                                         <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile" class="fw-medium text-reset">Thomas
+                                                            <router-link to="/pages/profile"
+                                                                class="fw-medium text-reset">Thomas
                                                                 Taylor</router-link>
                                                         </div>
                                                     </div>
@@ -851,7 +874,8 @@ export default {
                                                         <img src="@/assets/images/users/avatar-10.jpg" alt=""
                                                             class="rounded-circle avatar-xxs">
                                                         <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile" class="fw-medium text-reset">Tonya
+                                                            <router-link to="/pages/profile"
+                                                                class="fw-medium text-reset">Tonya
                                                                 Noble</router-link>
                                                         </div>
                                                     </div>
@@ -867,7 +891,8 @@ export default {
                                                         <img src="@/assets/images/users/avatar-10.jpg" alt=""
                                                             class="rounded-circle avatar-xxs">
                                                         <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile" class="fw-medium text-reset">Tonya
+                                                            <router-link to="/pages/profile"
+                                                                class="fw-medium text-reset">Tonya
                                                                 Noble</router-link>
                                                         </div>
                                                     </div>
@@ -907,14 +932,12 @@ export default {
                             <img src="@/assets/images/users/avatar-10.jpg" alt="" class="rounded-circle img-fluid">
                         </div>
                     </b-link>
-                    <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover
-                        title="Thomas Taylor">
+                    <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Thomas Taylor">
                         <div class="avatar-xs">
                             <img src="@/assets/images/users/avatar-8.jpg" alt="" class="rounded-circle img-fluid">
                         </div>
                     </b-link>
-                    <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover
-                        title="Nancy Martino">
+                    <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Nancy Martino">
                         <div class="avatar-xs">
                             <img src="@/assets/images/users/avatar-2.jpg" alt="" class="rounded-circle img-fluid">
                         </div>

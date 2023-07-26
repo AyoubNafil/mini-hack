@@ -1,5 +1,5 @@
 <script>
-import { executeQuery, updateSObjects,createSObject,createSObject2 } from "../../../api/utile.js";
+import { executeQuery, updateSObjects, createSObject, createSObject2 } from "../../../api/utile.js";
 
 import TaskItem from "./TaskItem.vue"
 import flatPickr from "vue-flatpickr-component";
@@ -11,21 +11,21 @@ export default {
             type: Object,
             required: true,
         },
-       // newCardData: Object,
+        // newCardData: Object,
     },
-//     watch: {
-//     newCardData: {
-//       handler(newData) {
-//         // Check if the newCardData is not empty and add it to the task list
-//         if (newData && newData.Id) {
-//           console.log(this.cc);
-//           this.cc.push(newData);
-//           console.log(this.cc);
-//         }
-//       },
-//       immediate: true, // This ensures the watch is triggered immediately when the component is created
-//     },
-//   },
+    //     watch: {
+    //     newCardData: {
+    //       handler(newData) {
+    //         // Check if the newCardData is not empty and add it to the task list
+    //         if (newData && newData.Id) {
+    //           console.log(this.cc);
+    //           this.cc.push(newData);
+    //           console.log(this.cc);
+    //         }
+    //       },
+    //       immediate: true, // This ensures the watch is triggered immediately when the component is created
+    //     },
+    //   },
     data() {
         return {
 
@@ -53,48 +53,121 @@ export default {
 
     },
     methods: {
-        deleteTask() {
-            this.modalShow3 = true;
-            document.getElementById("deleteTask")
-            addEventListener("click", (e) => {
-                document
-                    .getElementById("delete-record")
-                    .addEventListener("click", () => {
-                        if (e.target.closest('.tasks-list')) {
-                            e.target.closest('.tasks-list').remove();
-                        }
-                        this.modalShow3 = false;
-                    });
-            });
-        },
+        async uploadImage(recordId) {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
 
-        async addNewTask() {
-            
-             //console.log(tasks);
-             //const name = document.getElementById("sub-tasks").value;
-             //console.log({Name:name, Type__c:this.item.Id});
-             try { 
-                //console.log({Name:name, Type__c:this.item.Id});
-                //await createSObject("Task__c",{Name:this.taskTitle, Type__c:this.item.Id});
-                const data = {Name:this.taskTitle, Type__c:this.item.Id}
-                createSObject2("Task__c",data).then((newTaskId) => {
-                // Handle the query result
-               
-                // Callback function called on success
-                //window.location.reload();
-                console.log({ Id: newTaskId, ...data });
-                this.newTaskData = { Id: newTaskId, ...data };
+            if (!file) {
+                console.log('Please select an image to upload.', 'error');
+                return;
+            }
 
-                this.task.push(this.newTaskData);
-                this.modalShow2=false;
 
-            })
+            try {
+
+                const fileName = file.name;
+                const fileData = await this.readFileAsBase64(file);
+                // Convert the base64 image data to binary
+                // const binaryData = Buffer.from(fileData, 'base64');
+
+                const attachment = {
+                    ParentId: recordId,
+                    Name: fileName,
+                    Body: fileData,
+                    ContentType: file.type
+                };
+                console.log('Attachment', attachment);
+
+                createSObject2('Attachment', attachment).then((newAttachmentId) => {
+                    
+                console.log('Image uploaded successfully.', 'success');
+                return attachment;
+                })
                 .catch((error) => {
                     // Handle any errors that occurred
                     console.error(error);
                 });
+                
+            } catch (error) {
+                console.log('Error uploading image: ' + error.message, 'error');
+                return null;
+            }
+        },
+        async deleteTask(id) {
+            // Use the `id` parameter in your logic here
+            console.log("Deleting List with ID:", id);
+
+            try {
+
+                await deleteSObject("Card__c", id);
+                this.$emit("reloadList", id);
+                this.modalShow3 = false;
+            } catch (error) {
+                console.log("Error occurred while executing query:", error);
+
+            }
+
+            // Rest of your delete task logic...
+        },
+        readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+
+                reader.onload = (event) => {
+                    resolve(event.target.result.split(',')[1]);
+                };
+
+                reader.onerror = (event) => {
+                    reject(event.target.error);
+                };
+
+                reader.readAsDataURL(file);
+            });
+        },
+        async addNewTask() {
+
+            //console.log(tasks);
+            //const name = document.getElementById("sub-tasks").value;
+            //console.log({Name:name, Type__c:this.item.Id});
+            try {
+                //console.log({Name:name, Type__c:this.item.Id});
+                //await createSObject("Task__c",{Name:this.taskTitle, Type__c:this.item.Id});
+                const data = { Name: this.taskTitle, Type__c: this.item.Id }
+                createSObject2("Task__c", data).then((newTaskId) => {
+                    // Handle the query result
+
+                    // Callback function called on success
+                    //window.location.reload();
+                     this.uploadImage(newTaskId).then(async() => {
+
+                        //console.log({ Id: newTaskId, ...data });
+                        this.newTaskData = { Id: newTaskId, ...data };
+                        const attachments = await executeQuery(`SELECT Id, Name, ContentType, Body, ParentId FROM Attachment WHERE ParentId = '${newTaskId}'`);
+                        console.log("attachments: ",[attachments]);
+                        this.newTaskData.attachments=[attachments];
+
+                        console.log("newTaskData: ",this.newTaskData);
+
+
+
+                        this.task.push(this.newTaskData);
+
+
+                        this.modalShow2 = false;
+                    })
+                        .catch((error) => {
+                            // Handle any errors that occurred
+                            console.error(error);
+                        });
+
+
+                })
+                    .catch((error) => {
+                        // Handle any errors that occurred
+                        console.error(error);
+                    });
                 //this.$emit("reloadListkanban");
-             } catch (error) {
+            } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
             }
@@ -132,6 +205,38 @@ export default {
             //     }
             // }
         },
+        async fetchAttachmentsForTasks() {
+            try {
+                // Construct a list of Task__c IDs from the fetched tasks
+                const taskIds = this.task.map((task) => `'${task.Id}'`).join(',');
+
+                // Query attachments related to the tasks
+                const attachments = await executeQuery(`
+                    SELECT Id, Name, ContentType, Body, ParentId
+                    FROM Attachment
+                    WHERE ParentId IN (${taskIds})
+                    `);
+
+                // Group attachments by their ParentId (Task__c Id)
+                const attachmentsByTaskId = {};
+                attachments.forEach((attachment) => {
+                    const parentId = attachment.ParentId;
+                    if (!attachmentsByTaskId[parentId]) {
+                        attachmentsByTaskId[parentId] = [];
+                    }
+                    attachmentsByTaskId[parentId].push(attachment);
+                });
+
+                // Assign the attachments to the corresponding tasks
+                this.task.forEach((task) => {
+                    task.attachments = attachmentsByTaskId[task.Id] || [];
+                });
+
+                console.log("Tasks with attachments:", this.task);
+            } catch (error) {
+                console.log("Error occurred while fetching attachments:", error);
+            }
+        },
 
         async fetchData() {
             try {
@@ -144,21 +249,23 @@ export default {
                 } else {
                     console.log("Empty");
                 }
+
+                this.fetchAttachmentsForTasks();
             } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
             }
         },
 
-        handleReloadListTask(idToDelete){
-            
+        handleReloadListTask(idToDelete) {
+
             console.log(idToDelete);
-            console.log("old",this.task);
+            console.log("old", this.task);
             const indexToDelete = this.task.findIndex(item => item.Id === idToDelete);
             if (indexToDelete !== -1) {
                 this.task.splice(indexToDelete, 1);
             }
-            console.log("new",this.task);
+            console.log("new", this.task);
         }
     },
 
@@ -181,11 +288,12 @@ export default {
                 <div class="dropdown card-header-dropdown">
                     <b-link class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true"
                         aria-expanded="false">
-                        <span class="fw-medium text-muted fs-12">Priority<i class="mdi mdi-chevron-down ms-1"></i></span>
+                        <span class="fw-medium text-muted fs-12">Menu<i class="mdi mdi-chevron-down ms-1"></i></span>
                     </b-link>
                     <div class="dropdown-menu dropdown-menu-end">
-                        <b-link class="dropdown-item" href="#">Priority</b-link>
-                        <b-link class="dropdown-item" href="#">Date Added</b-link>
+                        <button class="dropdown-item" @click="modalShow3 = !modalShow3"><i
+                                class="ri-delete-bin-5-line align-bottom me-2 text-muted"></i>
+                            Delete</button>
                     </div>
                 </div>
             </div>
@@ -194,7 +302,8 @@ export default {
             <div :id="item.Id" class="tasks">
 
 
-                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item" @reloadListTask="handleReloadListTask"   />
+                <TaskItem v-for="(item, index) of this.task" :key="index" :item="item"
+                    @reloadListTask="handleReloadListTask" />
 
             </div>
         </div>
@@ -218,7 +327,7 @@ export default {
                 </b-col>
                 <b-col lg="12">
                     <label for="formFile" class="form-label">Tasks Images</label>
-                    <input class="form-control" type="file" id="formFile">
+                    <input class="form-control" type="file" id="fileInput">
                 </b-col>
                 <b-col lg="12">
                     <label for="tasks-progress" class="form-label">Add Team Member</label>
@@ -363,5 +472,19 @@ export default {
         </b-form>
     </b-modal>
 
-    
+    <b-modal v-model="modalShow3" id="deleteTask" modal-class="zoomIn" hide-footer class="v-modal-custom" centered>
+        <div class="mt-2 text-center">
+            <lottie class="avatar-xl" colors="primary:#f7b84b,secondary:#f7666e" :options="defaultOptions" :height="100"
+                :width="100" />
+            <div class="mt-4 pt-2 fs-15 mx-4 mx-sm-5">
+                <h4>Are you sure ?</h4>
+                <p class="text-muted mx-4 mb-0">Are you sure you want to remove this tasks ?</p>
+            </div>
+        </div>
+        <div class="d-flex gap-2 justify-content-center mt-4 mb-2">
+            <b-button type="button" variant="light" class="w-sm" data-bs-dismiss="modal">Close</b-button>
+            <b-button type="button" variant="danger" class="w-sm" id="delete-record" @click="deleteTask(item.Id)">Yes,
+                Delete It!</b-button>
+        </div>
+    </b-modal>
 </template>

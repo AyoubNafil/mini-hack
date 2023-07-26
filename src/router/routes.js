@@ -38,7 +38,7 @@ export default [
     component: () => import("../views/apps/projects/create"),
   },
   {
-    path: "/apps/tasks-details",
+    path: "/apps/tasks-details/:id",
     name: "tasks-details",
     meta: { title: "Tasks Details", authRequired: false },
     component: () => import("../views/apps/tasks/details"),
@@ -54,5 +54,41 @@ export default [
     name: "tasks-list-view",
     meta: { title: "Taks List", authRequired: false },
     component: () => import("../views/apps/tasks/list-view"),
+  },
+  {
+    path: "/pages/profile/:id",
+    name: "profile",
+    meta: { title: "Profile", authRequired: true },
+    component: () => import("../views/pages/profile/simple"),
+  },
+  {
+    path: "/pages/profile-setting/:id",
+    name: "profile-setting",
+    meta: { title: "Setting", authRequired: true },
+    component: () => import("../views/pages/profile/setting"),
+  },
+  {
+    path: "/apps-api-key",
+    name: "API Key",
+    meta: { title: "API Key", authRequired: true },
+    component: () => import("../views/apps/apikey"),
+  },
+  {
+    path: "/apps/tickets-details",
+    name: "tickets-details",
+    meta: { title: "Ticket Details", authRequired: true },
+    component: () => import("../views/tickets/details"),
+  },
+  {
+    path: "/apps/tickets-list",
+    name: "tickets-list",
+    meta: { title: "Tickets List", authRequired: true },
+    component: () => import("../views/tickets/list"),
+  },
+  {
+    path: "/chat",
+    name: "chat",
+    meta: { title: "Chat", authRequired: true },
+    component: () => import("../views/apps/chat"),
   },
 ];

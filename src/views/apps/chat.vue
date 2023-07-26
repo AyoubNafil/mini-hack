@@ -1,4 +1,6 @@
 <script>
+import { ChatGpt,callGpt35TurboAPI } from "../../.././src/api/utile.js"
+
 import {
   SearchIcon,
   InfoIcon,
@@ -16,7 +18,6 @@ import appConfig from "../../../app.config";
 
 import {
   chatData,
-  chatMessagesData
 } from "./data";
 
 export default {
@@ -34,8 +35,11 @@ export default {
   },
   data() {
     return {
+      resp: '',
+      message: '',
       chatData: chatData,
-      chatMessagesData: chatMessagesData,
+      // chatMessagesData: chatMessagesData,
+      chatMessagesData: [],
       title: "Chat",
       items: [{
         text: "Velzon",
@@ -68,6 +72,84 @@ export default {
     },
   },
   methods: {
+    addLeadingZero(number) {
+      return number < 10 ? "0" + number : number;
+    },
+  renderChatResponse(response) {
+  const responseContainer = document.getElementById('responseContainer');
+  responseContainer.innerHTML = ''; // Clear any previous content
+
+  // Check if the response contains code
+  if (this.containsCode(response)) {
+    // Wrap code blocks in <code> tags
+    const codeFormattedResponse = response.replace(/`([^`]+)`/g, '<code>$1</code>');
+    responseContainer.innerHTML = codeFormattedResponse;
+  } else {
+    // If no code, display the response as is
+    responseContainer.textContent = response;
+  }
+},
+ containsCode(response) {
+  // Regular expression to match code blocks enclosed in backticks (```)
+  const codeRegex = /`([^`]+)`/g;
+  return codeRegex.test(response);
+},
+//  ExecuteChatGpt(msg) {
+//   // Get the current time
+//   var now = new Date();
+//   var hours = this.addLeadingZero(now.getHours());
+//   var minutes = this.addLeadingZero(now.getMinutes());
+//   var timeNow2 = hours + ":" + minutes;
+
+  // Fetch the response from ChatGPT API
+//   ChatGpt(msg)
+//     .then(response => {
+//       // Handle the response here
+//       console.log('Received Response:', response);
+//       this.renderChatResponse(response);
+
+//       this.chatMessagesData.push({
+//         align: 'left',
+//         name: 'ChatGPT',
+//         message: document.getElementById('responseContainer').innerHTML, // Use the formatted response
+//         time: timeNow2
+//       });
+//     })
+//     .catch(error => {
+//       // Handle errors here
+//       console.error('Error:', error);
+//     });
+// },
+    ExecuteChatGpt(msg) {
+      console.log(msg)
+      //now time
+      var now = new Date();
+      var hours = this.addLeadingZero(now.getHours());
+      var minutes = this.addLeadingZero(now.getMinutes());
+      // var timeNow = hours + ":" + minutes;
+      
+      callGpt35TurboAPI(msg).then(response => {
+        // Handle the response here
+        console.log('Received Response:', response);
+        var timeNow2 = hours + ":" + minutes;
+
+        this.chatMessagesData.push(
+         
+          {
+            align: 'left',
+            name: 'ChatGPT',
+            message: response,
+            time: timeNow2
+          }
+          
+        )
+      }).catch(error => {
+        // Handle errors here
+        console.error('Error:', error);
+      });
+      console.log(this.chatMessagesData);
+      
+    },
     /**
      * Get the name of user
      */
@@ -163,10 +245,8 @@ export default {
   },
 };
 </script>
-
 <template>
   <Layout>
-
     <div class="chat-wrapper d-lg-flex gap-1 mt-n4 py-1">
       <div class="chat-leftsidebar">
         <div class="px-4 pt-4 mb-4">
@@ -191,9 +271,7 @@ export default {
         <div class="chat-room-list" data-simplebar>
           <div class="d-flex align-items-center px-4 mb-2">
             <div class="flex-grow-1">
-              <h4 class="mb-0 fs-11 text-muted text-uppercase">
-                Direct Messages
-              </h4>
+              <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
             </div>
             <div class="flex-shrink-0">
               <div v-b-tooltip.hover title="New Message">
@@ -203,10 +281,10 @@ export default {
               </div>
             </div>
           </div>
-
+          
           <div class="chat-message-list">
             <SimpleBar class="list-unstyled chat-list chat-user-list">
-              <li class v-for="data of chatData" :key="data.id" @click="chatUsername(data.name, data.image)"
+              <li v-for="data of chatData" :key="data.id" @click="chatUsername(data.name, data.image)"
                 :class="{ active: username == data.name }">
                 <b-link href="javascript: void(0);">
                   <div class="d-flex align-items-center">
@@ -221,9 +299,7 @@ export default {
                       </div>
                     </div>
                     <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-1">
-                        {{ data.name }}
-                      </p>
+                      <p class="text-truncate mb-1">{{ data.name }}</p>
                     </div>
 
                     <div class="flex-shrink-0">
@@ -233,111 +309,6 @@ export default {
                 </b-link>
               </li>
             </SimpleBar>
-          </div>
-
-          <div class="d-flex align-items-center px-4 mt-4 pt-2 mb-2">
-            <div class="flex-grow-1">
-              <h4 class="mb-0 fs-11 text-muted text-uppercase">Channels</h4>
-            </div>
-            <div class="flex-shrink-0">
-              <div v-b-tooltip.hover title="Create group">
-                <b-button type="button" variant="soft-success" size="sm">
-                  <i class="ri-add-line align-bottom"></i>
-                </b-button>
-              </div>
-            </div>
-          </div>
-
-          <div class="chat-message-list">
-            <ul class="list-unstyled chat-list chat-user-list mb-0" id="channelList">
-              <li>
-                <b-link href="javascript: void(0);" class="unread-msg-user">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs">
-                        <div class="avatar-title bg-light rounded-circle text-body">
-                          #
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-0">Landing Design</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                      <b-badge variant="soft-dark" class="badge-soft-dark rounded p-1">7</b-badge>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-              <li>
-                <b-link href="javascript: void(0);">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs">
-                        <div class="avatar-title bg-light rounded-circle text-body">
-                          #
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-0">General</p>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-              <li>
-                <b-link href="javascript: void(0);" class="unread-msg-user">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs">
-                        <div class="avatar-title bg-light rounded-circle text-body">
-                          #
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-0">Project Tasks</p>
-                    </div>
-                    <div class="flex-shrink-0">
-                      <b-badge variant="soft-dark" class="badge-soft-dark rounded p-1">3</b-badge>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-
-              <li>
-                <b-link href="javascript: void(0);">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs">
-                        <div class="avatar-title bg-light rounded-circle text-dark">
-                          #
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-0">Meeting</p>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-              <li>
-                <b-link href="javascript: void(0);">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs">
-                        <div class="avatar-title bg-light rounded-circle text-dark">
-                          #
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-0">Reporting</p>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-            </ul>
           </div>
         </div>
       </div>
@@ -350,8 +321,9 @@ export default {
                   <b-col sm="4" cols="8">
                     <div class="d-flex align-items-center">
                       <div class="flex-shrink-0 d-block d-lg-none me-3">
-                        <b-link href="javascript: void(0);" class="user-chat-remove fs-18 p-1"><i
-                            class="ri-arrow-left-s-line align-bottom"></i></b-link>
+                        <b-link href="javascript: void(0);" class="user-chat-remove fs-18 p-1">
+                          <i class="ri-arrow-left-s-line align-bottom"></i>
+                        </b-link>
                       </div>
                       <div class="flex-grow-1 overflow-hidden">
                         <div class="d-flex align-items-center">
@@ -363,7 +335,8 @@ export default {
                           <div class="flex-grow-1 overflow-hidden">
                             <h5 class="text-truncate mb-0 fs-16">
                               <b-link class="text-reset username" data-bs-toggle="offcanvas"
-                                href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">{{ username }}
+                                href="#userProfileCanvasExample" aria-controls="userProfileCanvasExample">
+                                {{ username }}
                               </b-link>
                             </h5>
                             <p class="text-truncate text-muted fs-14 mb-0 userStatus">
@@ -385,8 +358,8 @@ export default {
                           <div class="dropdown-menu p-0 dropdown-menu-end dropdown-menu-lg">
                             <div class="p-2">
                               <div class="search-box">
-                                <input type="text" class="form-control bg-light border-light"
-                                  placeholder="Search here..." onkeyup="searchMessages()" id="searchMessage" />
+                                <input type="text" class="form-control bg-light border-light" placeholder="Search here..."
+                                  onkeyup="searchMessages()" id="searchMessage" />
                                 <i class="ri-search-2-line search-icon"></i>
                               </div>
                             </div>
@@ -408,18 +381,22 @@ export default {
                             <more-vertical-icon class="icon-sm"></more-vertical-icon>
                           </button>
                           <div class="dropdown-menu dropdown-menu-end">
-                            <b-link class="dropdown-item d-block d-lg-none user-profile-show" href="#"><i
-                                class="ri-user-2-fill align-bottom text-muted me-2"></i>
-                              View Profile</b-link>
-                            <b-link class="dropdown-item" href="#"><i
-                                class="ri-inbox-archive-line align-bottom text-muted me-2"></i>
-                              Archive</b-link>
-                            <b-link class="dropdown-item" href="#"><i
-                                class="ri-mic-off-line align-bottom text-muted me-2"></i>
-                              Muted</b-link>
-                            <b-link class="dropdown-item" href="#"><i
-                                class="ri-delete-bin-5-line align-bottom text-muted me-2"></i>
-                              Delete</b-link>
+                            <b-link class="dropdown-item d-block d-lg-none user-profile-show">
+                              <i class="ri-user-2-fill align-bottom text-muted me-2"></i>
+                              View Profile
+                            </b-link>
+                            <b-link class="dropdown-item">
+                              <i class="ri-inbox-archive-line align-bottom text-muted me-2"></i>
+                              Archive
+                            </b-link>
+                            <b-link class="dropdown-item">
+                              <i class="ri-mic-off-line align-bottom text-muted me-2"></i>
+                              Muted
+                            </b-link>
+                            <b-link class="dropdown-item">
+                              <i class="ri-delete-bin-5-line align-bottom text-muted me-2"></i>
+                              Delete
+                            </b-link>
                           </div>
                         </div>
                       </li>
@@ -432,9 +409,9 @@ export default {
                 <div class="chat-conversation p-3 p-lg-4" id="chat-conversation" data-simplebar ref="current">
                   <ul class="list-unstyled chat-conversation-list">
                     <li v-for="data of chatMessagesData" :key="data.message" :class="{
-  right: `${data.align}` === 'right',
-  left: `${data.align}` !== 'right',
-}" class="chat-list">
+                      right: `${data.align}` === 'right',
+                      left: `${data.align}` !== 'right',
+                    }" class="chat-list">
                       <div class="conversation-list">
                         <div class="chat-avatar" v-if="data.align !== 'right'">
                           <img :src="profile ? profile : require('@/assets/images/users/user-dummy-img.jpg')" alt="" />
@@ -442,41 +419,16 @@ export default {
                         <div class="user-chat-content">
                           <div class="ctext-wrap">
                             <div class="ctext-wrap-content">
-                              <p class="mb-0 ctext-content">
-                                {{ data.message }}
+                              <p class="mb-0 ctext-content" id="responseContainer">
+                                <code>{{ data.message }}</code>
                               </p>
                             </div>
-                            <div class="dropdown align-self-start message-box-drop">
-                              <b-link class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
-                                aria-haspopup="true" aria-expanded="false">
-                                <i class="ri-more-2-fill"></i>
-                              </b-link>
-                              <div class="dropdown-menu">
-                                <b-link class="dropdown-item reply-message" href="#"><i
-                                    class="ri-reply-line me-2 text-muted align-bottom"></i>Reply</b-link>
-                                <b-link class="dropdown-item" href="#"><i
-                                    class="ri-share-line me-2 text-muted align-bottom"></i>Forward</b-link>
-                                <b-link class="dropdown-item copy-message" href="#"><i
-                                    class="ri-file-copy-line me-2 text-muted align-bottom"></i>Copy</b-link>
-                                <b-link class="dropdown-item" href="#"><i
-                                    class="ri-bookmark-line me-2 text-muted align-bottom"></i>Bookmark</b-link>
-                                <b-link class="dropdown-item delete-item" href="#"><i
-                                    class="ri-delete-bin-5-line me-2 text-muted align-bottom"></i>Delete</b-link>
-                              </div>
-                            </div>
-                            <div class="conversation-name">
-                              <small class="text-muted time">{{
-    data.time
-}}</small>
-                              <span class="text-success check-message-icon"><i
-                                  class="ri-check-double-line align-bottom"></i></span>
-                            </div>
+                            <!-- ... (other dropdown and message content) ... -->
                           </div>
                         </div>
                       </div>
                     </li>
                   </ul>
-
                 </div>
                 <div class="alert alert-warning alert-dismissible copyclipboard-alert px-4 fade show" id="copyClipBoard"
                   role="alert">
@@ -484,38 +436,31 @@ export default {
                 </div>
               </div>
 
-
               <div class="chat-input-section p-3 p-lg-4">
                 <form @submit.prevent="formSubmit">
                   <b-row class="g-0 align-items-center">
                     <b-col cols="auto">
                       <div class="chat-input-links me-2">
-                        <div class="links-list-item">
-                          <b-button type="button" variant="link" class="text-decoration-none emoji-btn" id="emoji-btn">
-                            <i class="bx bx-smile align-middle"></i>
-                          </b-button>
-                        </div>
+                        <!-- Chat input links here -->
                       </div>
                     </b-col>
                     <b-col>
                       <div class="chat-input-feedback">
                         Please Enter a Message
                       </div>
-
                       <input type="text" v-model="form.message" class="form-control chat-input bg-light border-light"
                         placeholder="Enter Message..." :class="{
-  'is-invalid': submitted && v$.form.message.$error,
-}" />
+                          'is-invalid': submitted && v$.form.message.$error,
+                        }" />
                       <div v-if="submitted && v$.form.message.$error" class="invalid-feedback">
-                        <span v-if="v$.form.message.required.$message">{{
-    v$.form.message.required.$message
-                          }}</span>
+                        <span v-if="v$.form.message.required.$message">{{ v$.form.message.required.$message }}</span>
                       </div>
                     </b-col>
                     <b-col cols="auto">
                       <div class="chat-input-links ms-2">
                         <div class="links-list-item">
-                          <b-button variant="success" type="submit" class="chat-send">
+                          <b-button variant="success" type="submit" class="chat-send"
+                            @click="ExecuteChatGpt(form.message)">
                             <i class="ri-send-plane-2-fill align-bottom"></i>
                           </b-button>
                         </div>
@@ -547,6 +492,5 @@ export default {
         </div>
       </div>
     </div>
-
   </Layout>
 </template>

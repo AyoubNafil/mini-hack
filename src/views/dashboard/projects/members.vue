@@ -1,109 +1,79 @@
 <script>
+import { executeQuery } from "../../../api/utile";
+
 export default {
-  setup() {
+  data() {
     return {
-      teamMembers: [
-        {
-          id: 1,
-          img: require("@/assets/images/users/avatar-1.jpg"),
-          name: "Donald Risher",
-          position: "Product Manager",
+      date: null,
+      config: {
+        inline: true,
+      },
+      teamMembersData: [], // Non-reactive data property to hold the fetched team members data
+      chartOptions: {
+          chart: {
+            type: "radialBar",
+            width: 36,
+            height: 36,
+            sparkline: {
+              enabled: true,
+            },
+          },
+          dataLabels: {
+            enabled: false,
+          },
+          plotOptions: {
+            radialBar: {
+              hollow: {
+                margin: 0,
+                size: "50%",
+              },
+              track: {
+                margin: 1,
+              },
+              dataLabels: {
+                show: false,
+              },
+            },
+          },
+          colors: ["#687cfe"],
+        },
+    };
+  },
+  async mounted() {
+    try {
+      this.teamMembersData = await this.fetchTeamMembersDataFromSalesforce();
+    } catch (error) {
+      console.error("Error fetching team members data:", error);
+    }
+  },
+  computed: {
+    teamMembers() {
+      // Format the team members data to include additional properties needed for the template
+      return this.teamMembersData.map((member) => {
+        return {
+          id: member.Id,
+          img: require("@/assets/images/users/Trailblazer_avatar.png"), // You can update this based on the actual member data
+          name: member.Name,
+          position: member.UserType,
           hours: "110",
           tasks: "258",
           series: [50],
           chartsColor: "#687cfe",
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-2.jpg"),
-          name: "Jansh Brown",
-          position: "Lead Developer",
-          hours: "83",
-          tasks: "105",
-          series: [45],
-          chartsColor: "#687cfe",
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-7.jpg"),
-          name: "Carroll Adams",
-          position: "Lead Designer",
-          hours: "58",
-          tasks: "75",
-          series: [75],
-          chartsColor: "#687cfe",
-        },
-        {
-          id: 4,
-          img: require("@/assets/images/users/avatar-4.jpg"),
-          name: "William Pinto",
-          position: "UI/UX Designer",
-          hours: "96",
-          tasks: "85",
-          series: [25],
-          chartsColor: "#f7b84b",
-        },
-        {
-          id: 5,
-          img: require("@/assets/images/users/avatar-6.jpg"),
-          name: "Garry Fournier",
-          position: "Web Designer",
-          hours: "76",
-          tasks: "69",
-          series: [60],
-          chartsColor: "#687cfe",
-        },
-        {
-          id: 6,
-          img: require("@/assets/images/users/avatar-5.jpg"),
-          name: "Susan Denton",
-          position: "Lead Designer",
-          hours: "123",
-          tasks: "658",
-          series: [85],
-          chartsColor: "#3cd188",
-        },
-        {
-          id: 7,
-          img: require("@/assets/images/users/avatar-3.jpg"),
-          name: "Joseph Jackson",
-          position: "React Developer",
-          hours: "117",
-          tasks: "125",
-          series: [70],
-          chartsColor: "#687cfe",
-        },
-      ],
+        };
+      });
+    },
+  },
+  methods: {
+    async fetchTeamMembersDataFromSalesforce() {
+      // Use Salesforce REST API or SOQL query to fetch team members data
+      // Replace the below query with your actual SOQL query to get team members data
+      const queryResult = await executeQuery(
+        "SELECT Id, Name, UserType FROM User"
+      );
 
-      chartOptions: {
-        chart: {
-          type: "radialBar",
-          width: 36,
-          height: 36,
-          sparkline: {
-            enabled: true,
-          },
-        },
-        dataLabels: {
-          enabled: false,
-        },
-        plotOptions: {
-          radialBar: {
-            hollow: {
-              margin: 0,
-              size: "50%",
-            },
-            track: {
-              margin: 1,
-            },
-            dataLabels: {
-              show: false,
-            },
-          },
-        },
-        colors: ["#687cfe"],
-      },
-    };
+      // You can format the data further if needed before returning
+      return queryResult;
+    },
   },
 };
 </script>

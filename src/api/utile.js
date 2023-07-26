@@ -1,5 +1,8 @@
 import { getDomainCookies } from "./accessToken.js";
 import jsforce from "jsforce";
+import axios from 'axios';
+import throttle from 'lodash/throttle';
+//const base64Img = require('base64-img');
 
 //import { URL, AccessToken, PackageName } from "../constants";
 
@@ -63,20 +66,20 @@ export function executeQuery(query) {
 
 export function createSObject2(name, data) {
 	return new Promise((resolve, reject) => {
-	  if (conn) {
-		conn.sobject(name).create(data, function (err, ret) {
-		  if (err || !ret.success) {
-			reject(err || new Error("Record creation failed."));
-		  } else {
-			console.log("Created record id: " + ret.id);
-			resolve(ret.id);
-		  }
-		});
-	  } else {
-		reject(new Error("Connection not established."));
-	  }
+		if (conn) {
+			conn.sobject(name).create(data, function (err, ret) {
+				if (err || !ret.success) {
+					reject(err || new Error("Record creation failed."));
+				} else {
+					console.log("Created record id: " + ret.id);
+					resolve(ret.id);
+				}
+			});
+		} else {
+			reject(new Error("Connection not established."));
+		}
 	});
-  }
+}
 
 export function createSObject(name, data) {
 
@@ -105,14 +108,14 @@ export function deleteSObject(name, id) {
 
 export function updateSObjects(name, data) {
 	if (conn) {
-		conn.sobject(name).update(data, function(err, rets) {
+		conn.sobject(name).update(data, function (err, rets) {
 			if (err) { return console.error(err); }
-			for (var i=0; i < rets.length; i++) {
-			  if (rets[i].success) {
-				//console.log("Updated Successfully : " + rets[i].id);
-			  }
+			for (var i = 0; i < rets.length; i++) {
+				if (rets[i].success) {
+					//console.log("Updated Successfully : " + rets[i].id);
+				}
 			}
-		  });
+		});
 
 	} else {
 		reject(new Error('Connection not established.'));
@@ -289,3 +292,147 @@ export function exportToTrello(boardData, listData, cardData) {
 			console.error('Error creating board:', error);
 		});
 }
+
+
+
+
+export function requestSF(url) {
+	return new Promise((resolve, reject) => {
+		if (conn) {
+			conn.request(url, function (err, ret) {
+				console.log(ret);
+				resolve(ret);
+
+			});
+		} else {
+			reject(new Error("Connection not established."));
+		}
+	});
+}
+
+export async function fetchAndDisplayImage(attachmentId) {
+    //console.log("1");
+	if (conn) {
+		try {
+			//console.log("2");
+			// Fetch the image attachment body from Salesforce
+			const attachment = await conn.sobject("Attachment").retrieve(attachmentId, ["Body", "ContentType"]);
+			if (attachment && attachment.Body) {
+				// Convert the binary image data to base64
+				const base64Data = Buffer.from(attachment.Body, 'base64').toString('base64');
+				// Display the base64 data in the console
+				console.log('Base64 Image Data: ', base64Data);
+
+				// Display the image on the HTML page using the base64 data
+				base64Img.img(`data:${attachment.ContentType};base64,${base64Data}`, './', 'image', (err, filePath) => {
+					if (err) {
+						console.error('Error saving image:', err);
+					} else {
+						console.log('Image file path:', filePath);
+						// Now you can use the image file path (filePath) to display the image in your HTML page
+						// For example, you can set the image source attribute in the <img> tag.
+						// Example in Vue.js: this.imageSrc = filePath;
+					}
+				});
+			} else {
+				console.error('Attachment not found or empty.');
+			}
+		} catch (error) {
+			console.error('Error fetching image:', error);
+		}
+	} else {
+		reject(new Error('Connection not established.'));
+	}
+
+}
+
+export function getImageUrl(attachmentId) {
+	try {
+	 
+		if (conn) {
+	  // Construct the image URL
+	  const imageUrl = `${conn.instanceUrl}/servlet/servlet.FileDownload?file=${attachmentId}`;
+	  return imageUrl;
+	} else {
+		reject(new Error("Connection not established."));
+	}
+	} catch (error) {
+	  console.error('Error fetching image URL:', error);
+	  return null;
+	}
+
+  }
+
+
+  export function ChatGpt(message) {
+	const openAiApiKey = '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';
+	const openAiEndpoint = 'https://api.openai.com/v1';
+  
+	// Throttle the ChatGPT API call to 1 request per 5 seconds (adjust as needed)
+	const throttledChatGptApiCall = throttle(chatGptApiCall, 5000);
+  
+	// Function to handle the ChatGPT API call
+	function chatGptApiCall(message) {
+	  return new Promise((resolve, reject) => {
+		// Make the API call to ChatGPT
+		axios.post(`${openAiEndpoint}/completions`, {
+		  model: "text-davinci-003",
+		  prompt: message,
+		  max_tokens: 150
+		}, {
+		  headers: {
+			'Authorization': `Bearer ${openAiApiKey}`,
+			'Content-Type': 'application/json'
+		  }
+		})
+		.then(response => {
+		  // Handle the API response here
+		  const chatGptResponse = response.data.choices[0].text;
+		  console.log('ChatGPT Response:', chatGptResponse);
+		  resolve(chatGptResponse);
+		})
+		.catch(error => {
+		  console.error('Error calling ChatGPT API:', error);
+		  reject("Error");
+		});
+	  });
+	}
+  
+	
+	// Call the throttled ChatGPT API function here with the message
+	return throttledChatGptApiCall(message);
+  }
+  export function callGpt35TurboAPI(message) {
+	console.log("callGpt35TurboAPI "+message)
+	return new Promise((resolve, reject) => {
+	  const openAiEndpoint = 'https://api.openai.com/v1/chat/completions'; // Endpoint for GPT-3.5-turbo model
+	  const openAiApiKey = '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'; // Replace this with your actual OpenAI API key
+  
+	  axios
+		.post(
+		  openAiEndpoint,
+		  {
+			
+			
+			"model": "gpt-3.5-turbo",
+			"messages": [{"role": "user", "content": message}]
+		  },
+		  {
+			headers: {
+			  Authorization: `Bearer ${openAiApiKey}`,
+			  'Content-Type': 'application/json',
+			},
+		  }
+		)
+		.then(response => {
+		  // Handle the API response here
+		  const chatGptResponse = response.data.choices[0].message.content;
+		  console.log('ChatGPT Response:', chatGptResponse);
+		  resolve(chatGptResponse);
+		})
+		.catch(error => {
+		  console.error('Error calling ChatGPT API:', error);
+		  reject("Error");
+		});
+	});
+  }

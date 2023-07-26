@@ -40,7 +40,6 @@ export default {
     Project,
     Task,
     Member,
-    Chat,
     ActiveProjects,
     Status
   },
@@ -82,13 +81,10 @@ export default {
     </b-row>
 
     <b-row>
-      <b-col xxl="4">
+      <b-col xxl="7">
         <Member />
       </b-col>
-      <b-col xxl="4" lg="6">
-        <Chat />
-      </b-col>
-      <b-col xxl="4" lg="6">
+      <b-col xxl="5" lg="6">
         <Status />
       </b-col>
     </b-row>

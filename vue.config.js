@@ -9,6 +9,9 @@ module.exports = defineConfig({
     config.devtool = "source-map";
     config.resolve.symlinks = false;
     config.resolve.fallback = {
+      fs: false,
+      os: false,
+      path: false,
       crypto: false, // crypto-browserify can be polyfilled here if needed
       stream: require.resolve("stream-browserify"),
       assert: false, // assert can be polyfilled here if needed
@@ -18,7 +21,8 @@ module.exports = defineConfig({
       url: false, // url can be polyfilled here if needed
       zlib: false, // browserify-zlib can be polyfilled here if needed
       timers: require.resolve("timers-browserify"),
-      querystring: require.resolve("querystring-es3"),
+      querystring: require.resolve("querystring-es3")
+      //path: require.resolve("path-browserify")
     };
     config.plugins.push(new ProvidePlugin({ Buffer: ["buffer", "Buffer"] }));
     config.plugins.push(new ProvidePlugin({ process: ["process/browser"] }));

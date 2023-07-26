@@ -2,6 +2,7 @@
 import SwiperCore, { Thumbs, Navigation, Pagination } from "swiper";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import "swiper/swiper-bundle.css";
+import { executeQuery } from "../../../api/utile";
 
 SwiperCore.use([Thumbs, Navigation, Pagination]);
 
@@ -15,6 +16,7 @@ export default {
   },
   data() {
     return {
+      profile: [],
       title: "Profile",
       items: [
         {
@@ -34,6 +36,37 @@ export default {
     Swiper,
     SwiperSlide,
   },
+  async mounted() {
+        try {
+
+            this.getProfileDetail();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    },
+    methods: {
+
+async getProfileDetail() {
+    try {
+        const ProfileId = this.$route.params.id;
+
+        this.profile = await executeQuery("SELECT Id,Username,Name,CreatedDate ,MobilePhone, CompanyName,Country,UserType,Email,AboutMe,address FROM User where Id = " + "'" + ProfileId + "'");
+        this.profile = this.profile[0];
+        this.profile.CreatedDate = this.profile.CreatedDate.substring(0, 10);
+        console.log(this.profile);
+        if (this.profile) {
+            console.log(this.profile);
+            console.log("Description " + this.profile.AboutMe);
+
+        } else {
+            console.log("Empty No profile with this id");
+        }
+    } catch (error) {
+        console.log("Error occurred while executing query:", error);
+
+    }
+},
+},
 };
 </script>
 
@@ -48,19 +81,19 @@ export default {
       <b-row class="g-4">
         <b-col cols="auto">
           <div class="avatar-lg">
-            <img src="@/assets/images/users/avatar-1.jpg" alt="user-img" class="img-thumbnail rounded-circle" />
+            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="user-img" class="img-thumbnail rounded-circle" />
           </div>
         </b-col>
         <b-col>
           <div class="p-2">
-            <h3 class="text-white mb-1">Anna Adame</h3>
-            <p class="text-white-75">Owner & Founder</p>
+            <h3 class="text-white mb-1">{{this.profile.Name}}</h3>
+            <p class="text-white-75">{{this.profile.UserType}}</p>
             <div class="hstack text-white-50 gap-1">
               <div class="me-2">
-                <i class="ri-map-pin-user-line me-1 text-white-75 fs-16 align-middle"></i>California, United States
+                <i class="ri-map-pin-user-line me-1 text-white-75 fs-16 align-middle"></i>{{this.profile.Country}}
               </div>
               <div>
-                <i class="ri-building-line me-1 text-white-75 fs-16 align-middle"></i>Themesbrand
+                <i class="ri-building-line me-1 text-white-75 fs-16 align-middle"></i>{{this.profile.CompanyName}}
               </div>
             </div>
           </div>
@@ -115,7 +148,7 @@ export default {
               </li>
             </ul>
             <div class="flex-shrink-0">
-              <router-link to="/pages/profile-setting" class="btn btn-secondary"><i
+              <router-link :to="`/pages/profile-setting/${this.profile.Id}`" class="btn btn-secondary"><i
                   class="ri-edit-box-line align-bottom"></i> Edit Profile</router-link>
             </div>
           </div>
@@ -142,25 +175,25 @@ export default {
                           <tbody>
                             <tr>
                               <th class="ps-0" scope="row">Full Name :</th>
-                              <td class="text-muted">Anna Adame</td>
+                              <td class="text-muted">{{this.profile.Name}}</td>
                             </tr>
                             <tr>
                               <th class="ps-0" scope="row">Mobile :</th>
-                              <td class="text-muted">+(1) 987 6543</td>
+                              <td class="text-muted">{{this.profile.MobilePhone}}</td>
                             </tr>
                             <tr>
                               <th class="ps-0" scope="row">E-mail :</th>
-                              <td class="text-muted">daveadame@velzon.com</td>
+                              <td class="text-muted">{{this.profile.Email}}</td>
                             </tr>
                             <tr>
                               <th class="ps-0" scope="row">Location :</th>
                               <td class="text-muted">
-                                California, United States
+                                {{this.profile.Country}}
                               </td>
                             </tr>
                             <tr>
                               <th class="ps-0" scope="row">Joining Date</th>
-                              <td class="text-muted">24 Nov 2021</td>
+                              <td class="text-muted">{{this.profile.CreatedDate}}</td>
                             </tr>
                           </tbody>
                         </table>
@@ -369,22 +402,7 @@ export default {
                     <b-card-body>
                       <h5 class="card-title mb-3">About</h5>
                       <p>
-                        Hi I'm Anna Adame, It will be as simple as Occidental;
-                        in fact, it will be Occidental. To an English person, it
-                        will seem like simplified English, as a skeptical
-                        Cambridge friend of mine told me what Occidental is
-                        European languages are members of the same family.
-                      </p>
-                      <p>
-                        You always want to make sure that your fonts work well
-                        together and try to limit the number of fonts you use to
-                        three or less. Experiment and play around with the fonts
-                        that you already have in the software you’re working
-                        with reputable font websites. This may be the most
-                        commonly encountered tip I received from the designers I
-                        spoke with. They highly encourage that you use different
-                        fonts in one design, but do not over-exaggerate and go
-                        overboard.
+                        {{ this.profile.AboutMe }}
                       </p>
                       <b-row>
                         <b-col cols="6" md="4">
@@ -397,7 +415,7 @@ export default {
                             <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Designation :</p>
                               <h6 class="text-truncate mb-0">
-                                Lead Designer / Developer
+                                {{this.profile.UserType}}
                               </h6>
                             </div>
                           </div>
@@ -411,7 +429,7 @@ export default {
                             </div>
                             <div class="flex-grow-1 overflow-hidden">
                               <p class="mb-1">Website :</p>
-                              <b-link href="#" class="fw-semibold">www.velzon.com</b-link>
+                              <b-link href="#" class="fw-semibold"></b-link>
                             </div>
                           </div>
                         </b-col>

@@ -56,32 +56,12 @@ const chatData = [
 ];
 
 const chatMessagesData = [
-    {
-        name: 'Steven Franklin',
-        message: 'Hello!',
-        time: '10:00'
-    },
+    
     {
         align: 'right',
         name: 'Henry Wells',
         message: 'Hi, How are you? What about our next meeting?',
         time: '10:02'
-    },
-    {
-        name: 'Steven Franklin',
-        message: 'Yeah everything is fine',
-        time: '10:06'
-    },
-    {
-        name: 'Steven Franklin',
-        message: '& Next meeting tomorrow 10.00AM',
-        time: '10:06'
-    },
-    {
-        align: 'right',
-        name: 'Henry Wells',
-        message: 'Wow that\'s great',
-        time: '10:07'
     }
 ];
 

@@ -1,5 +1,5 @@
 <script>
-import { deleteSObject } from "../../../api/utile.js";
+import { deleteSObject, requestSF,fetchAndDisplayImage,getImageUrl } from "../../../api/utile.js";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 export default {
@@ -17,7 +17,8 @@ export default {
             id: "#TS0001",
             date: " 07 Jan, 2022",
             modalShow3: false,
-            defaultOptions: { animationData: animationData }
+            defaultOptions: { animationData: animationData },
+            imageDataURL: ''
         };
     },
 
@@ -26,17 +27,56 @@ export default {
         lottie: Lottie,
 
     },
+    mounted() {
+        console.log("render");
+        //fetchAndDisplayImage("00P8d00000F2qKVEAZ");
+        //console.log(getImageUrl("00P8d00000F2qKVEAZ"));
+        //this.getImageUrl(this.item.attachments);
+    },
     methods: {
+
+        getImageUrl(attachment) {
+            console.log("dddddddddddd1");
+            if (attachment) {
+                console.log("dddddddddddd2");
+                if (attachment.length > 0) {
+                   console.log(attachment);
+
+                    //console.log("dddddddddddd3");
+                    try {
+                        const hhh = getImageUrl(attachment[0].Id);
+                        // //console.log("dddddddddddd4");
+                        // const attachmentData = await requestSF(attachment[0].Body);
+                        // //console.log(base64_encode(attachmentData.toString('base64'))); // Fetch the attachment content
+                        // const base64Data = Buffer.from(attachmentData, 'binary').toString('base64'); // Convert the Buffer to a base64 string
+                        // const contentType = attachment[0].ContentType;
+                        // const dataURL = `data:${contentType};base64,${base64Data}`;
+                        // console.log('dataURL: ', dataURL);
+                        //this.imageDataURL = hhh; // Set the imageDataURL property with the data URL
+                        return hhh;
+
+
+                    } catch (error) {
+                        console.log("Error occurred while executing query:", error);
+                        
+                    }
+                } else {
+                    //this.imageDataURL = ''; // Reset the imageDataURL property if no attachment
+                    return '';
+                }
+            }
+
+        },
         async deleteTask(id) {
             // Use the `id` parameter in your logic here
             console.log("Deleting task with ID:", id);
 
-            try { 
-                
-                await deleteSObject("Task__c",id);
-                this.$emit("reloadListTask",id);
+            try {
+
+                await deleteSObject("Task__c", id);
+                this.$emit("reloadListTask", id);
                 this.modalShow3 = false;
-             } catch (error) {
+            } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
             }
@@ -51,11 +91,11 @@ export default {
 </script>
 
 <template>
-    <b-card no-body class="tasks-box" :id=item.Id >
+    <b-card no-body class="tasks-box" :id=item.Id>
         <b-card-body>
             <div class="d-flex mb-2">
                 <h6 class="fs-15 mb-0 flex-grow-1 text-truncate">
-                    <router-link to="/apps/tasks-details" class="d-block text-reset">{{ item.Name
+                    <router-link :to="`/apps/tasks-details/${item.Id}`" class="d-block text-reset">{{ item.Name
                     }}</router-link>
                 </h6>
                 <div class="dropdown">
@@ -81,6 +121,8 @@ export default {
                 </div>
             </div>
             <p class="text-muted">Long Description of The Task</p>
+            
+            <img :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
             <div class="mb-3">
                 <div class="d-flex mb-1">
                     <div class="flex-grow-1">

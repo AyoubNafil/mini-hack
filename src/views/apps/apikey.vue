@@ -7,6 +7,7 @@ import { CountTo } from "vue3-count-to";
 import animationData from "@/components/widgets/msoeawqm.json";
 import Lottie from "@/components/widgets/lottie.vue";
 import Swal from "sweetalert2";
+import { executeQuery } from "../../api/utile";
 
 export default {
   page: {
@@ -30,81 +31,8 @@ export default {
       page: 1,
       perPage: 8,
       pages: [],
-      apikeydata: [
-        {
-          id: "1",
-          name: "Streamlab",
-          createby: "Michael Morris",
-          apikey: "fef67078-6fb6-4689-b342-6ddc24481728",
-          status: "Disable",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "2",
-          name: "Streamlab",
-          createby: "Zynthia Marrow",
-          apikey: "ed4c0d11-7d49-4c94-aae8-83fafb226ee9",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "3",
-          name: "Streamlab",
-          createby: "Philippa Santiago",
-          apikey: "0b53e8e2-e53d-4067-8be0-9cddea19e45e",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "4",
-          name: "Streamlab",
-          createby: "Elizabeth Allen",
-          apikey: "b69ee258-1053-4e08-adbd-d37837f9c558",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "5",
-          name: "Streamlab",
-          createby: "Cassian Jenning",
-          apikey: "33ec3a35-8b44-48f3-ba68-f3ea1e9ef214",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "6",
-          name: "Streamlab",
-          createby: "Harley Watkins",
-          apikey: "84540348-f97d-41de-87c6-f5eae32aecc5",
-          status: "Disable",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "7",
-          name: "Streamlab",
-          createby: "Addison Black",
-          apikey: "aecc1ede-f613-48d5-8140-7108b324f0bd",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "8",
-          name: "Streamlab",
-          createby: "Nicki Butler",
-          apikey: "8abba6e5-9622-46d2-8c52-c937e1d20ba2",
-          status: "Active",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }, {
-          id: "9",
-          name: "Streamlab",
-          createby: "Tara Hawkins",
-          apikey: "9e6d336a-2f98-43e9-9fa6-11b4d5cdaf62",
-          status: "Disable",
-          create_date: "24 Sep 2022",
-          expiry_date: "24 Jan 2023"
-        }
-      ],
+      api: [],
+      apikeydata: [],
       defaultOptions: {
         animationData: animationData
       },
@@ -138,8 +66,39 @@ export default {
   },
   created() {
     this.setPages();
+
+  },
+  async mounted() {
+    try {
+
+      this.getApiDetail();
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
   },
   methods: {
+
+    async getApiDetail() {
+      try {
+
+        this.api = await executeQuery("SELECT Id,Name,CreatedDate ,Key__c, Token__c FROM api__c");
+        //this.api.CreatedDate = this.api.CreatedDate.substring(0, 10);
+        if (this.api) {
+          console.log(this.api);
+
+        } else {
+          console.log("Empty No Api with this id");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+
+      }
+    },
+    formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  },
+
     setPages() {
       let numberOfPages = Math.ceil(this.apikeydata.length / this.perPage);
       this.pages = [];
@@ -315,8 +274,8 @@ export default {
           <b-card-body>
             <h5 class="card-title mb-3">Developer Plan</h5>
             <div class="progress animated-progress custom-progress mb-1">
-              <div class="progress-bar bg-info" role="progressbar" style="width: 38%" aria-valuenow="38"
-                aria-valuemin="0" aria-valuemax="100"></div>
+              <div class="progress-bar bg-info" role="progressbar" style="width: 38%" aria-valuenow="38" aria-valuemin="0"
+                aria-valuemax="100"></div>
             </div>
             <p class="text-muted mb-2">You used 215 of 2000 of your API</p>
             <div class="text-end">
@@ -401,8 +360,8 @@ export default {
                       </th>
                       <th class="sort d-none" data-sort="id" scope="col">Id</th>
                       <th class="sort" data-sort="name" scope="col">Name</th>
-                      <th class="sort" data-sort="createBy" scope="col">Created By</th>
                       <th class="sort" data-sort="apikey" scope="col">API Key</th>
+                      <th class="sort" data-sort="createBy" scope="col">Token</th>
                       <th class="sort" data-sort="status" scope="col">Status</th>
                       <th class="sort" data-sort="create_date" scope="col">Create Date</th>
                       <th class="sort" data-sort="expiry_date" scope="col">Expiry Date</th>
@@ -410,25 +369,25 @@ export default {
                     </tr>
                   </thead>
                   <tbody class="list form-check-all">
-                    <tr v-for="(data, index) of resultQuery" :key="index">
+                    <tr v-for="(data, index) of api" :key="index">
                       <th scope="row">
                         <div class="form-check">
                           <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                         </div>
                       </th>
                       <td class="id" style="display:none;">
-                        <b-link href="javascript:void(0);" class="fw-medium link-primary">{{ data.id }}</b-link>
+                        <b-link href="javascript:void(0);" class="fw-medium link-primary">{{ data.Id }}</b-link>
                       </td>
-                      <td class="name">{{ data.name }}</td>
-                      <td class="createBy">{{ data.createby }}</td>
+                      <td class="name">{{ data.Name }}</td>
                       <td class="apikey">
-                        <input type="text" class="form-control apikey-value" readonly="" :value="data.apikey">
+                        <input type="text" class="form-control apikey-value" readonly="" :value="data.Key__c">
                       </td>
-                      <td class="status"><b-badge variant="badge-soft-success" :class="{
-                        'badge-soft-success': data.status == 'Active',
-                        'badge-soft-danger': data.status == 'Disable',
-                      }">{{ data.status }}</b-badge></td>
-                      <td class="create_date">{{ data.create_date }}</td>
+                      <td class="token">
+                        <input type="text" class="form-control apikey-value" readonly="" :value="data.Token__c">
+                      </td>
+                      <td class="status"><b-badge variant="badge-soft-success" class="badge-soft-success">Active</b-badge>
+                      </td>
+                      <td class="create_date">{{ data.CreatedDate.substring(0, 10) }}</td>
                       <td class="expiry_date">{{ data.expiry_date }}</td>
                       <td>
                         <div class="dropdown">
@@ -438,21 +397,8 @@ export default {
                           </b-button>
                           <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                              <b-link class="dropdown-item edit-item-btn" id="edit-item-btn"
-                                @click="(e) => handleApikeydetails(e, data)">Rename</b-link>
-                            </li>
-                            <li>
-                              <b-link class="dropdown-item regenerate-api-btn" id="regenerate-api-btn"
-                                @click="(e) => handleApikeydetails(e, data)">Regenerate Key</b-link>
-                            </li>
-                            <li>
-                              <b-link class="dropdown-item disable-btn" id="disable-btn" href="javascript:void(0);"
-                                @click="(e) => changestatus(data)">{{ data.status == "Active" ? "Disable" : "Active"
-                                }} </b-link>
-                            </li>
-                            <li>
-                              <b-link class="dropdown-item remove-item-btn" href="#deleteApiKeyModal"
-                                @click="deleteApikey(data)">Delete</b-link>
+                              <b-link class="dropdown-item regenerate-api-btn" id="regenerate-api-btn"  href="javascript:void(0);"
+                              @click="createApiModal = !createApiModal">Regenerate Key</b-link>
                             </li>
                           </ul>
                         </div>
@@ -495,23 +441,22 @@ export default {
     <!-- Modal -->
     <b-modal v-model="createApiModal" id="showModal" title-class="exampleModalLabel" hide-footer class="v-modal-custom"
       centered no-close-on-backdrop>
-      <b-form autocomplete="off" id="addform">
-        <div id="api-key-error-msg" class="alert alert-danger py-2 d-none">Please enter api key name</div>
-        <input type="hidden" id="apikeyId">
+      <b-form >
         <div class="mb-3">
-          <label for="api-key-name" class="form-label">API Key Name <span class="text-danger">*</span></label>
+          <label for="api-key" class="form-label">API Key Name</label>
+          <input type="text" class="form-control" id="api-key" disabled value="b5815DE8A7224438932eb296Z5">
+        </div>
+        <div class="mb-3">
+          <label for="api-key-name" class="form-label">API Key  <span class="text-danger">*</span></label>
           <input type="text" class="form-control" id="api-key-name" placeholder="Enter api key name">
         </div>
-        <div class="mb-3" id="apikey-element" style="display: none;">
-          <label for="api-key" class="form-label">API Key</label>
-          <input type="text" class="form-control" id="api-key" disabled value="b5815DE8A7224438932eb296Z5">
+        <div class="mb-3">
+          <label for="api-key-name" class="form-label">API Token</label>
+          <input type="text" class="form-control" id="api-key-name" placeholder="Enter api token">
         </div>
       </b-form>
       <div class="hstack gap-2 justify-content-end mt-3">
         <b-button type="button" variant="secondary" @click="createApiModal = false" id="close-modal">Close</b-button>
-        <button type="button" class="btn btn-primary" id="createApimodal-btn"
-          @click="(e) => handleApikeydetails(e)">Create API</button>
-        <b-button type="button" variant="primary" id="add-btn" @click="handleApiKeys">Add</b-button>
         <b-button type="button" variant="primary" id="edit-btn" @click="handleApiKeys">Save Changes</b-button>
       </div>
     </b-modal>

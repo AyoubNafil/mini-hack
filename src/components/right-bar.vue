@@ -21,6 +21,7 @@ export default {
   methods: {
     ...layoutMethods,
     hide() {
+      console.log("hide");
       this.$parent.toggleRightSidebar();
     },
     handleRightBarClick() {
@@ -1371,7 +1372,8 @@ export default {
             <b-button type="button" variant="light" class="w-100" id="reset-layout"> Reset </b-button>
           </b-col>
           <b-col cols="6">
-            <b-button type="button" variant="primary" class="w-100"> Preview </b-button>
+            <b-button type="button" variant="primary" class="w-100 ms-auto" data-bs-dismiss="offcanvas"
+          aria-label="Close"> Preview </b-button>
           </b-col>
         </b-row>
       </div>
