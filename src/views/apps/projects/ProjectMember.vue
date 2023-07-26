@@ -245,7 +245,7 @@ export default {
     </b-row>
     <b-modal v-model="modalShow" header-class="p-3 bg-soft-warning" content-class="border-0" hide-footer title="Add Member"
         class="v-modal-custom">
-        <b-form @submit.prevent="addMember">
+        <!-- <b-form @submit.prevent="addMember">
             <b-row class="g-3">
                 <b-col lg="6">
                     <label for="firstnameInput" class="form-label">First Name</label>
@@ -294,7 +294,7 @@ export default {
                     <b-button type="submit" variant="success" id="addNewMember">Add Member</b-button>
                 </div>
             </b-row>
-        </b-form>
-
+        </b-form> -->
+         
     </b-modal>
 </template>

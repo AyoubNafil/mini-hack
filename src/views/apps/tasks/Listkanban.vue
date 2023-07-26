@@ -1,5 +1,5 @@
 <script>
-import { executeQuery, updateSObjects, createSObject, createSObject2 } from "../../../api/utile.js";
+import { executeQuery, updateSObjects, createSObject, createSObject2,deleteSObject  } from "../../../api/utile.js";
 
 import TaskItem from "./TaskItem.vue"
 import flatPickr from "vue-flatpickr-component";
@@ -54,7 +54,8 @@ export default {
     },
     methods: {
         async uploadImage(recordId) {
-            const fileInput = document.getElementById('fileInput');
+            const fileInput = document.getElementById('fileInput-'+this.item.Id);
+            console.log(fileInput);
             const file = fileInput.files[0];
 
             if (!file) {
@@ -79,15 +80,15 @@ export default {
                 console.log('Attachment', attachment);
 
                 createSObject2('Attachment', attachment).then((newAttachmentId) => {
-                    
-                console.log('Image uploaded successfully.', 'success');
-                return attachment;
+                    attachment.Id=newAttachmentId;
+                    console.log('Image uploaded successfully.', 'success',attachment);
+                    return attachment;
                 })
                 .catch((error) => {
                     // Handle any errors that occurred
                     console.error(error);
                 });
-                
+
             } catch (error) {
                 console.log('Error uploading image: ' + error.message, 'error');
                 return null;
@@ -133,27 +134,26 @@ export default {
                 //console.log({Name:name, Type__c:this.item.Id});
                 //await createSObject("Task__c",{Name:this.taskTitle, Type__c:this.item.Id});
                 const data = { Name: this.taskTitle, Type__c: this.item.Id }
-                createSObject2("Task__c", data).then((newTaskId) => {
+                createSObject2("Task__c", data).then(async (newTaskId) => {
                     // Handle the query result
 
                     // Callback function called on success
                     //window.location.reload();
-                     this.uploadImage(newTaskId).then(async() => {
+                    await this.uploadImage(newTaskId).then(async (attachments) => {
 
+                        console.log("attachments: ", [attachments]);
                         //console.log({ Id: newTaskId, ...data });
                         this.newTaskData = { Id: newTaskId, ...data };
-                        const attachments = await executeQuery(`SELECT Id, Name, ContentType, Body, ParentId FROM Attachment WHERE ParentId = '${newTaskId}'`);
-                        console.log("attachments: ",[attachments]);
-                        this.newTaskData.attachments=[attachments];
-
-                        console.log("newTaskData: ",this.newTaskData);
-
-
-
+                        //const aaa = await executeQuery(`SELECT Id, Name, ContentType, Body, ParentId FROM Attachment WHERE ParentId = '${newTaskId}'`);
+                        //console.log("aaa",aaa);
+                        this.newTaskData.attachments = [attachments];
+                        console.log("newTaskData: ", this.newTaskData);
                         this.task.push(this.newTaskData);
-
-
                         this.modalShow2 = false;
+
+                        const element = document.getElementById(this.item.Id);
+                        element.classList.remove('noTask');
+                        
                     })
                         .catch((error) => {
                             // Handle any errors that occurred
@@ -162,10 +162,10 @@ export default {
 
 
                 })
-                    .catch((error) => {
-                        // Handle any errors that occurred
-                        console.error(error);
-                    });
+                .catch((error) => {
+                    // Handle any errors that occurred
+                    console.error(error);
+                });
                 //this.$emit("reloadListkanban");
             } catch (error) {
                 console.log("Error occurred while executing query:", error);
@@ -251,6 +251,12 @@ export default {
                 }
 
                 this.fetchAttachmentsForTasks();
+
+                if (this.task.length == 0) {
+
+                    const element = document.getElementById(this.item.Id);
+                    element.classList.add('noTask');
+                }
             } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
@@ -266,6 +272,14 @@ export default {
                 this.task.splice(indexToDelete, 1);
             }
             console.log("new", this.task);
+            if (this.task.length == 0) {
+
+                const element = document.getElementById(this.item.Id);
+                element.classList.add('noTask');
+            }
+
+
+
         }
     },
 
@@ -327,7 +341,7 @@ export default {
                 </b-col>
                 <b-col lg="12">
                     <label for="formFile" class="form-label">Tasks Images</label>
-                    <input class="form-control" type="file" id="fileInput">
+                    <input class="form-control" type="file" :id="'fileInput-'+item.Id">
                 </b-col>
                 <b-col lg="12">
                     <label for="tasks-progress" class="form-label">Add Team Member</label>

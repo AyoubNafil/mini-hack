@@ -204,6 +204,10 @@ export default {
                             drake.cancel(true);
                         }
 
+                        if (el.classList.contains("tasks-list") && container.classList.contains("tasks-board")) {
+                            drake.cancel(true);
+                        }
+
                         if (el.classList.contains("tasks-list")) {
                             const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
                             console.log(tasksLists);

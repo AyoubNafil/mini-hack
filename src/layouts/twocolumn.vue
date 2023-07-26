@@ -259,13 +259,13 @@ export default {
                 <li class="nav-item">
                   <div class="collapse menu-dropdown" id="sidebarDashboards">
                     <ul class="nav nav-sm flex-column">
-
+                     
                       <li class="nav-item">
                         <router-link to="/dashboard/projects" class="nav-link" data-key="t-projects">
                           {{ $t("t-projects") }}
                         </router-link>
                       </li>
-
+                     
                     </ul>
                   </div>
                 </li>
@@ -293,11 +293,6 @@ export default {
                             <li class="nav-item">
                               <router-link to="/apps/projects-create" class="nav-link" data-key="t-create-project">
                                 {{ $t("t-create-project") }}
-                              </router-link>
-                            </li>
-                            <li class="nav-item">
-                              <router-link to="/chat" class="nav-link" data-key="t-chat">
-                                {{ $t("t-chat") }}
                               </router-link>
                             </li>
                           </ul>
@@ -349,30 +344,41 @@ export default {
                         </div>
                       </li>
 
+                      <li class="nav-item">
+                      <router-link to="/chat" class="nav-link" data-key="t-chat">
+                        {{ $t("t-chat") }}
+                      </router-link>
+                    </li>
 
+                      <li class="nav-item">
+                        <router-link to="/apps-api-key" class="nav-link" data-key="t-api-key">
+                          {{ $t("t-api-key") }}
+                        </router-link>
+                      </li>
+                      
                     </ul>
                   </div>
                 </li>
 
+                
 
+                
+               
+                
 
+                
 
+                
 
+                
 
+              
 
+                
 
+                
 
-
-
-
-
-
-
-
-
-
-
-
+                
               </SimpleBar>
             </template>
           </b-container>

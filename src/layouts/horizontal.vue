@@ -154,11 +154,6 @@ export default {
                               {{ $t("t-create-project") }}
                             </router-link>
                           </li>
-                          <li class="nav-item">
-                            <router-link to="/chat" class="nav-link" data-key="t-chat">
-                              {{ $t("t-chat") }}
-                            </router-link>
-                          </li>
                         </ul>
                       </div>
                     </li>
@@ -187,26 +182,20 @@ export default {
                         </ul>
                       </div>
                     </li>
+
                     <li class="nav-item">
-                      <b-link href="#sidebarTickets" class="nav-link" data-bs-toggle="collapse" role="button"
-                        aria-expanded="false" aria-controls="sidebarTickets" data-key="t-supprt-tickets">
-                        {{ $t("t-supprt-tickets") }}
-                      </b-link>
-                      <div class="collapse menu-dropdown" id="sidebarTickets">
-                        <ul class="nav nav-sm flex-column">
-                          <li class="nav-item">
-                            <router-link to="/apps/tickets-list" class="nav-link" data-key="t-list-view">
-                              {{ $t("t-list-view") }}
-                            </router-link>
-                          </li>
-                          <li class="nav-item">
-                            <router-link to="/apps/tickets-details" class="nav-link" data-key="t-ticket-details">
-                              {{ $t("t-ticket-details") }}
-                            </router-link>
-                          </li>
-                        </ul>
-                      </div>
+                      <router-link to="/chat" class="nav-link" data-key="t-chat">
+                        {{ $t("t-chat") }}
+                      </router-link>
                     </li>
+
+                    
+                    <li class="nav-item">
+                        <router-link to="/apps-api-key" class="nav-link" data-key="t-api-key">
+                          {{ $t("t-api-key") }}
+                        </router-link>
+                      </li>
+                    
 
                   </ul>
                 </div>

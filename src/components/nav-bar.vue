@@ -13,6 +13,7 @@ import { executeQuery } from "../api/utile";
 export default {
   data() {
     return {
+      profile: [],
       languages: [{
         flag: require("@/assets/images/flags/us.svg"),
         language: "en",
@@ -87,6 +88,8 @@ export default {
 
                 // Update the welcome message in the HTML
                 document.querySelector(".dropdown-header").textContent = `Welcome ${name}!`;
+
+                this.profile = result[0];
               } else {
                 console.log("No matching user found.");
               }
@@ -829,8 +832,8 @@ export default {
               </span>
             </button>
             <div class="dropdown-menu dropdown-menu-end">
-              <h6 class="dropdown-header">Welcome {{ name }}!</h6>
-              <router-link class="dropdown-item" to="/pages/profile"><i
+              <h6 class="dropdown-header">Welcome {{ this.profile.Name }}!</h6>
+              <router-link class="dropdown-item" :to="`/pages/profile/${this.profile.Id}`"><i
                   class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Profile</span>
               </router-link>
