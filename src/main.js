@@ -36,12 +36,45 @@ import '@/assets/scss/mermaid.min.css';
 
 // initFirebaseBackend(firebaseConfig);
 
+//import VueGoodTablePlugin from 'vue-good-table';
+// import the styles
+//import 'vue-good-table/dist/vue-good-table.css'
+// Vuetify
+// import 'vuetify/styles'
+// import { createVuetify } from 'vuetify'
+// import * as components from 'vuetify/components'
+// import * as directives from 'vuetify/directives'
+// const vuetify = createVuetify({
+//     components,
+//     directives,
+//   })
+//import Vuetify from 'vuetify'; // Import Vuetify from the package
 
+// Use Vuetify as a plugin
+//createApp(App).use(Vuetify);
+
+
+// Vuetify
+// import 'vuetify/styles'
+// import { createVuetify } from 'vuetify'
+// import * as components from 'vuetify/components'
+// import * as directives from 'vuetify/directives'
+
+// const vuetify = createVuetify({
+//   components,
+//   directives,
+// })
+
+import Vue3EasyDataTable from 'vue3-easy-data-table';
+import 'vue3-easy-data-table/dist/style.css';
 
 AOS.init({
     easing: 'ease-out-back',
     duration: 1000
 });
+
+
+  
 
 createApp(App)
     .use(store)
@@ -49,6 +82,11 @@ createApp(App)
     .use(VueApexCharts)
     .use(BootstrapVue3)
     .component(VueFeather.type, VueFeather)
+    .component('EasyDataTable', Vue3EasyDataTable)
     .use(Maska)
     .use(i18n)
     .use(vClickOutside).mount('#app');
+    //.use(vuetify)
+
+    //.use(VueGoodTablePlugin)
+  

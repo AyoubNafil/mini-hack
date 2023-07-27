@@ -1,14 +1,21 @@
 <script>
-import { executeQuery, updateSObjects, createSObject, createSObject2,deleteSObject  } from "../../../api/utile.js";
+import { executeQuery, updateSObjects, createSObject, createSObject2, deleteSObject } from "../../../api/utile.js";
 
 import TaskItem from "./TaskItem.vue"
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css"
 
+import Multiselect from "@vueform/multiselect";
+import "@vueform/multiselect/themes/default.css";
+
 export default {
     props: {
         item: {
             type: Object,
+            required: true,
+        },
+        id: {
+            type: String,
             required: true,
         },
         // newCardData: Object,
@@ -34,13 +41,16 @@ export default {
             task: [],
             newTaskData: null,
             taskTitle: '',
+            teamMembers: [],
+            selectedIds: [],
+            skills: [],
 
         };
     },
 
 
 
-    mounted() {
+    async mounted() {
         this.fetchData();
 
         const element = document.getElementById(this.item.Id);
@@ -51,10 +61,11 @@ export default {
 
 
 
+
     },
     methods: {
         async uploadImage(recordId) {
-            const fileInput = document.getElementById('fileInput-'+this.item.Id);
+            const fileInput = document.getElementById('fileInput-' + this.item.Id);
             console.log(fileInput);
             const file = fileInput.files[0];
 
@@ -79,17 +90,17 @@ export default {
                 };
                 console.log('Attachment', attachment);
                 return new Promise((resolve, reject) => {
-                createSObject2('Attachment', attachment).then((newAttachmentId) => {
-                    attachment.Id=newAttachmentId;
-                    console.log('Image uploaded successfully.', 'success',attachment);
-                    resolve (attachment);
-                })
-                .catch((error) => {
-                    // Handle any errors that occurred
-                    reject(error);
-                    console.error(error);
+                    createSObject2('Attachment', attachment).then((newAttachmentId) => {
+                        attachment.Id = newAttachmentId;
+                        console.log('Image uploaded successfully.', 'success', attachment);
+                        resolve(attachment);
+                    })
+                        .catch((error) => {
+                            // Handle any errors that occurred
+                            reject(error);
+                            console.error(error);
+                        });
                 });
-            });
 
             } catch (error) {
                 console.log('Error uploading image: ' + error.message, 'error');
@@ -129,83 +140,66 @@ export default {
         },
         async addNewTask() {
 
-            //console.log(tasks);
-            //const name = document.getElementById("sub-tasks").value;
-            //console.log({Name:name, Type__c:this.item.Id});
+
             try {
-                //console.log({Name:name, Type__c:this.item.Id});
-                //await createSObject("Task__c",{Name:this.taskTitle, Type__c:this.item.Id});
+
                 const data = { Name: this.taskTitle, Type__c: this.item.Id }
                 createSObject2("Task__c", data).then(async (newTaskId) => {
-                    // Handle the query result
 
-                    // Callback function called on success
-                    //window.location.reload();
                     await this.uploadImage(newTaskId).then(async (attachments) => {
 
+
+
+
+                        for (const record of this.selectedIds) {
+                            const data = {
+                                Name: newTaskId,
+                                Task__c: newTaskId,
+                                User__c: record
+                            };
+
+                            try {
+                                const newMemberTaskId = await createSObject2('Member_Task__c', data);
+
+
+                            } catch (error) {
+                                console.error('Error inserting record:', error);
+                            }
+                        }
+
+
+
+
+
+
                         console.log("attachments: ", [attachments]);
-                        //console.log({ Id: newTaskId, ...data });
                         this.newTaskData = { Id: newTaskId, ...data };
-                        //const aaa = await executeQuery(`SELECT Id, Name, ContentType, Body, ParentId FROM Attachment WHERE ParentId = '${newTaskId}'`);
-                        //console.log("aaa",aaa);
                         this.newTaskData.attachments = [attachments];
                         console.log("newTaskData: ", this.newTaskData);
                         this.task.push(this.newTaskData);
                         this.modalShow2 = false;
-
                         const element = document.getElementById(this.item.Id);
                         element.classList.remove('noTask');
-                        
+
                     })
                         .catch((error) => {
-                            // Handle any errors that occurred
+
                             console.error(error);
                         });
 
 
                 })
-                .catch((error) => {
-                    // Handle any errors that occurred
-                    console.error(error);
-                });
-                //this.$emit("reloadListkanban");
+                    .catch((error) => {
+
+                        console.error(error);
+                    });
+
             } catch (error) {
                 console.log("Error occurred while executing query:", error);
 
             }
 
-            //console.log(document.getElementById("due-date").value);
-            // const inputDate = document.getElementById("due-date").value;
-            // const dateParts = inputDate.split("-"); // Split the input date into parts
-            // const year = dateParts[0];
-            // const month = new Date(dateParts[1] + " 01, 2000").toLocaleString("en-us", { month: "short" });
-            // const day = dateParts[2];
 
-            // const formattedDate = `${day} ${month} ${year}`;
-            // console.log(formattedDate); // Output: "25 Jul 2023"
-            ///////////////////////////////////////////////////////////////////////////////////////////////
-            // var projectName = document.getElementById("projectName").value;
-            // var sub_tasks = document.getElementById("sub-tasks").value;
-            // var task_description = document.getElementById("task-description").value;
-            // var formFile = document.getElementById("formFile").value;
-            // var due_date = document.getElementById("due-date").value;
-            // var categories = document.getElementById("categories").value;
-            // var tasks_progress = document.getElementById("tasks-progress").value;
-
-            // var list = document.querySelectorAll('.tasks-list');
-            // list.forEach(element => {
-            //     // var listName = element.childNodes[0].childNodes[0].children[0].childNodes[0].data;
-            //     // console.log(listName)
-            // })
-
-            // for (var k in list) {
-            //     if (list) {
-            //         var n = k;
-            //         var listName = list[k].childNodes[0].childNodes[0].children[k].childNodes[0];
-            //         console.log(listName)
-            //         console.log('n',n)
-            //     }
-            // }
         },
         async fetchAttachmentsForTasks() {
             try {
@@ -282,12 +276,68 @@ export default {
 
 
 
-        }
+        },
+
+        async fetchTeamMembersData() {
+            try {
+                // Use executeQuery or your API utility to fetch data from the API
+                // Replace the below query with your actual query to fetch team members' data
+                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
+                console.log("test: ", test);
+
+                // Format the data to return an array of objects with the required properties
+                // const teamMembersData = await Promise.all(test.map(async (record) => {
+                //     //const queryResult = await executeQuery("SELECT Id, Name, UserType FROM User");
+                //     const activeProjectsRecords = await executeQuery(`SELECT Id FROM Member_Board__c where User__c = '${record.User__r.Id}'`);
+                //     const newLeadsRecords = await executeQuery(`SELECT Id FROM Member_Task__c where User__c = '${record.User__r.Id}'`);
+                //     console.log("activeProjectsRecords:", activeProjectsRecords.length);
+                //     console.log("newLeadsRecords:", newLeadsRecords.length);
+
+                //     return {
+                //         Id: record.Id,
+                //         name: record.User__r.Name,
+                //         position: record.User__r.UserType,
+                //         projects: activeProjectsRecords.length,
+                //         tasks: newLeadsRecords.length,
+                //         img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                //         // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+                //     };
+                // }));
+
+                return test;
+            } catch (error) {
+                console.error("Error fetching team members data:", error);
+                return []; // Return an empty array in case of an error
+            }
+        },
+
+        async showCreateModal() {
+
+            this.modalShow2 = !this.modalShow2;
+            this.teamMembers = await this.fetchTeamMembersData();
+
+
+        },
+        handleCheckboxChange(MemberID) {
+            // Check if the ID of the team member is already in the selectedIds array
+            const index = this.selectedIds.indexOf(MemberID);
+
+            // If the ID is not found in the selectedIds array, add it; otherwise, remove it
+            if (index === -1) {
+                this.selectedIds.push(MemberID);
+            } else {
+                this.selectedIds.splice(index, 1);
+            }
+
+            console.log(this.selectedIds);
+        },
+
     },
 
     components: {
         TaskItem,
-        flatPickr
+        flatPickr,
+        Multiselect
     },
 
 }
@@ -324,7 +374,7 @@ export default {
             </div>
         </div>
         <div class="my-3">
-            <b-button variant="soft-info" class="w-100" @click="modalShow2 = !modalShow2">Add More</b-button>
+            <b-button variant="soft-info" class="w-100" @click="showCreateModal">Add More</b-button>
         </div>
     </div>
 
@@ -343,120 +393,24 @@ export default {
                 </b-col>
                 <b-col lg="12">
                     <label for="formFile" class="form-label">Tasks Images</label>
-                    <input class="form-control" type="file" :id="'fileInput-'+item.Id">
+                    <input class="form-control" type="file" :id="'fileInput-' + item.Id">
                 </b-col>
                 <b-col lg="12">
                     <label for="tasks-progress" class="form-label">Add Team Member</label>
                     <div data-simplebar style="height: 95px;">
                         <ul class="list-unstyled vstack gap-2 mb-0">
-                            <li>
+                            <!-- Loop through the team members data using v-for -->
+                            <li v-for="teamMember in teamMembers" :key="teamMember.User__r.Id">
                                 <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="anna-adame">
-                                    <label class="form-check-label d-flex align-items-center" for="anna-adame">
+                                    <input class="form-check-input me-3" type="checkbox" :value="teamMember.User__r.Id"
+                                        :id="teamMember.User__r.Id" @change="handleCheckboxChange(teamMember.User__r.Id)">
+                                    <label class="form-check-label d-flex align-items-center" :for="teamMember.User__r.Id">
                                         <span class="flex-shrink-0">
                                             <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
-                                            Anna Adame
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="frank-hook">
-                                    <label class="form-check-label d-flex align-items-center" for="frank-hook">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Frank Hook
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="alexis-clarke">
-                                    <label class="form-check-label d-flex align-items-center" for="alexis-clarke">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Alexis Clarke
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="herbert-stokes">
-                                    <label class="form-check-label d-flex align-items-center" for="herbert-stokes">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Herbert Stokes
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="michael-morris">
-                                    <label class="form-check-label d-flex align-items-center" for="michael-morris">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Michael Morris
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="nancy-martino">
-                                    <label class="form-check-label d-flex align-items-center" for="nancy-martino">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Nancy Martino
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="thomas-taylor">
-                                    <label class="form-check-label d-flex align-items-center" for="thomas-taylor">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Thomas Taylor
-                                        </span>
-                                    </label>
-                                </div>
-                            </li>
-                            <li>
-                                <div class="form-check d-flex align-items-center">
-                                    <input class="form-check-input me-3" type="checkbox" value="" id="tonya-noble">
-                                    <label class="form-check-label d-flex align-items-center" for="tonya-noble">
-                                        <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
-                                                class="avatar-xxs rounded-circle" />
-                                        </span>
-                                        <span class="flex-grow-1 ms-2">
-                                            Tonya Noble
+                                            {{ teamMember.User__r.Name }}
                                         </span>
                                     </label>
                                 </div>
@@ -472,11 +426,20 @@ export default {
                 </b-col>
                 <b-col lg="4">
                     <label for="categories" class="form-label">Tags</label>
-                    <input type="text" class="form-control" id="categories" placeholder="Enter tag">
+                    <Multiselect class="form-control" v-model="skills" mode="tags" :close-on-select="true"
+                        :searchable="true" :create-option="true" :options="[
+                            { value: 'UI/UX', label: 'UI/UX' },
+                            { value: 'Figma', label: 'Figma' },
+                            { value: 'HTML', label: 'HTML' },
+                            { value: 'CSS', label: 'CSS' },
+                            { value: 'Javascript', label: 'Javascript' },
+                            { value: 'C#', label: 'C#' },
+                            { value: 'Nodejs', label: 'Nodejs' },
+                        ]" />
                 </b-col>
                 <b-col lg="4">
-                    <label for="tasks-progress" class="form-label">Tasks Progress</label>
-                    <input type="text" class="form-control" maxlength="3" id="tasks-progress" placeholder="Enter progress">
+                    <label for="tasks-progress" class="form-label">Story points</label>
+                    <input type="text" class="form-control" maxlength="3" id="tasks-progress" placeholder="Enter points">
                 </b-col>
                 <div class="mt-4">
                     <div class="hstack gap-2 justify-content-end">

@@ -1,5 +1,5 @@
 <script>
-import { deleteSObject, requestSF,fetchAndDisplayImage,getImageUrl } from "../../../api/utile.js";
+import { deleteSObject, requestSF, fetchAndDisplayImage, getImageUrl, executeQuery } from "../../../api/utile.js";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 export default {
@@ -18,7 +18,8 @@ export default {
             date: " 07 Jan, 2022",
             modalShow3: false,
             defaultOptions: { animationData: animationData },
-            imageDataURL: ''
+            imageDataURL: '',
+            teamMembers: []
         };
     },
 
@@ -27,11 +28,13 @@ export default {
         lottie: Lottie,
 
     },
-    mounted() {
+    async mounted() {
         console.log("render");
         //fetchAndDisplayImage("00P8d00000F2qKVEAZ");
         //console.log(getImageUrl("00P8d00000F2qKVEAZ"));
         //this.getImageUrl(this.item.attachments);
+        this.teamMembers = await this.fetchTeamMembersData();
+        //console.log("fff: ", this.teamMembers)
     },
     methods: {
 
@@ -40,7 +43,7 @@ export default {
             if (attachment) {
                 console.log("dddddddddddd2");
                 if (attachment.length > 0) {
-                   console.log(attachment);
+                    console.log(attachment);
 
                     //console.log("dddddddddddd3");
                     try {
@@ -58,7 +61,7 @@ export default {
 
                     } catch (error) {
                         console.log("Error occurred while executing query:", error);
-                        
+
                     }
                 } else {
                     //this.imageDataURL = ''; // Reset the imageDataURL property if no attachment
@@ -83,6 +86,48 @@ export default {
 
             // Rest of your delete task logic...
         },
+        async fetchTeamMembersData() {
+            try {
+                // Use executeQuery or your API utility to fetch data from the API
+                // Replace the below query with your actual query to fetch team members' data
+                const test = await executeQuery(`SELECT Id,Task__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Task__c where Task__c = '${this.item.Id}'`);
+                console.log("test333: ", test, this.item.Id);
+
+                const formattedTeamMembers = test.map((record) => {
+                    return {
+                        Id:record.Id,
+                        name: record.User__r.Name,
+                        img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                    };
+                });
+
+                console.log("formattedTeamMembers: ",formattedTeamMembers);
+
+                // Format the data to return an array of objects with the required properties
+                // const teamMembersData = await Promise.all(test.map(async (record) => {
+                //     //const queryResult = await executeQuery("SELECT Id, Name, UserType FROM User");
+                //     const activeProjectsRecords = await executeQuery(`SELECT Id FROM Member_Board__c where User__c = '${record.User__r.Id}'`);
+                //     const newLeadsRecords = await executeQuery(`SELECT Id FROM Member_Task__c where User__c = '${record.User__r.Id}'`);
+                //     console.log("activeProjectsRecords:", activeProjectsRecords.length);
+                //     console.log("newLeadsRecords:", newLeadsRecords.length);
+
+                //     return {
+                //         Id: record.Id,
+                //         name: record.User__r.Name,
+                //         position: record.User__r.UserType,
+                //         projects: activeProjectsRecords.length,
+                //         tasks: newLeadsRecords.length,
+                //         img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                //         // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+                //     };
+                // }));
+
+                return formattedTeamMembers;
+            } catch (error) {
+                console.error("Error fetching team members data:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
     }
 
 
@@ -121,7 +166,7 @@ export default {
                 </div>
             </div>
             <p class="text-muted">Long Description of The Task</p>
-            
+
             <img :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
             <div class="mb-3">
                 <div class="d-flex mb-1">
@@ -145,9 +190,9 @@ export default {
                 </div>
                 <div class="flex-shrink-0">
                     <div class="avatar-group">
-                        <b-link href="javascript: void(0);" v-for="(item, index) of this.users" :key="index"
-                            class="avatar-group-item" v-b-tooltip.hover title="Alexis">
-                            <img :src="item" alt="" class="rounded-circle avatar-xxs">
+                        <b-link href="javascript: void(0);" v-for="(item, index) of teamMembers" :key="index" class="avatar-group-item" v-b-tooltip.hover :title="item.name">
+                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                                class="rounded-circle avatar-xxs">
                         </b-link>
                     </div>
                 </div>

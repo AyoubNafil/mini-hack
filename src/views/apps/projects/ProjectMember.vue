@@ -1,8 +1,47 @@
+<style>
+.p-paginator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.p-paginator button {
+    margin: 0 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.p-paginator button:hover {
+    background-color: #f2f2f2;
+}
+
+.p-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
+
 <script>
 import Layout from "../../../layouts/main.vue";
 import appConfig from "../../../../app.config";
-import { executeQuery, createSObject } from "../../.././api/utile.js";
+import { executeQuery, updateSObjects, createSObject, createSObject2, deleteSObject } from "../../../api/utile.js";
 import Swal from "sweetalert2";
+
+//import 'vue-good-table/dist/vue-good-table.css'
+//import { VueGoodTable } from 'vue-good-table';
+
+//import Vuetify from 'vuetify';
+//import 'vuetify/dist/vuetify.min.css';
+
+//import { VDataTable } from 'vuetify'; // Import the specific Vuetify component
+// import { DataTable, Column } from "primevue/datatable";
+// import "primevue/resources/themes/nova-light/theme.css";
+// import "primevue/resources/primevue.min.css";
+// import "primeicons/primeicons.css";
 
 export default {
     props: {
@@ -19,14 +58,52 @@ export default {
             modalShow: false,
             searchText: "",
             filteredMembers: [],
-            teamMembers: []
+            teamMembers: [],
 
+
+            //         currentPage: 1,
+            //         rows: 5,
+            //         paginatorTemplate: `
+            //   <div class="p-paginator p-component">
+            //     <span class="p-paginator-current">Page {currentPage} of {totalPages}</span>
+            //     <button :class="{'p-disabled': currentPage === 1}" @click="firstPage">«</button>
+            //     <button :class="{'p-disabled': currentPage === 1}" @click="prevPage">‹</button>
+            //     <button :class="{'p-disabled': currentPage === totalPages}" @click="nextPage">›</button>
+            //     <button :class="{'p-disabled': currentPage === totalPages}" @click="lastPage">»</button>
+            //   </div>
+            // `,
+            //         users :[
+            //             { id: 1, name: "John Doe", age: 30 },
+            //             { id: 2, name: "Jane Smith", age: 25 },
+            //             // Add more data rows as needed
+            //         ],
+
+
+            // headers: [
+            //     { text: 'ID', value: 'id' },
+            //     { text: 'Name', value: 'name' },
+            //     { text: 'Age', value: 'age' },
+            //     // Add more headers as needed
+            // ],
+            // data: [
+            //     { id: 1, name: 'John Doe', age: 30 },
+            //     { id: 2, name: 'Jane Smith', age: 25 },
+            //     // Add more data items as needed
+            // ],
+
+            headers: [
+                { text: "Name", value: "Name", sortable: true },
+                { text: "UserType", value: "UserType", sortable: true }
+            ],
+            items: [],
+            itemsSelected: [],
+            searchValue: "",
         }
     },
     async mounted() {
         try {
 
-
+            this.items = await executeQuery("SELECT Id, Name, UserType FROM User where IsActive = true");
             // Fetch team members' data from the API
             this.teamMembers = await this.fetchTeamMembersData();
             this.filteredMembers = this.teamMembers;
@@ -35,62 +112,119 @@ export default {
         }
     },
     methods: {
-        addMember() {
-            // Get the value of the board name from the input field
-            const firstnameInput = this.firstnameInput;
-            const lastnameInput = this.lastnameInput;
-            const emailInput = this.emailInput;
 
-            // Create the data object to pass to createSObject function
-            const data = {
-                FirstName: firstnameInput,
-                LastName: lastnameInput,
-                Email: emailInput,
-                Username: emailInput,
-                LanguageLocaleKey: 'fr',
-                EmailEncodingKey: 'UTF-8',
-                LocaleSidKey: 'ar_MA',
-                TimeZoneSidKey: 'Africa/Casablanca',
-                Alias: "in" + lastnameInput,
-                ProfileId: '00e8d000002aAYiAAM'
-            };
+        async addMemberProject() {
+            console.log(this.itemsSelected);
 
-            // Call the createSObject function from your utile.js file
-            createSObject("User", data, () => {
-                // Callback function called on success
-                window.location.reload();
-            });
-
-            // Clear the input field and close the modal
-            this.firstnameInput = "";
-            this.lastnameInput = "";
-            this.emailInput = "";
-            this.modalShow = false;
-            Swal.fire("Good job!", "Team member added Succesfly!", "success");
-        },
-        async fetchTeamMembersData() {
-            // Use executeQuery or your API utility to fetch data from the API
-            // Replace the below query with your actual query to fetch team members' data
-            const queryResult = await executeQuery("SELECT Id, Name, UserType FROM User");
-            const activeProjectsRecords = await executeQuery("SELECT Id FROM board__c");
-            const newLeadsRecords = await executeQuery("SELECT Id FROM task__c");
-
-            // Format the data to return an array of objects with the required properties
-            const teamMembersData = queryResult.map((record) => {
-
-                return {
-                    Id: record.Id,
-                    name: record.Name,
-                    position: record.UserType,
-                    projects: activeProjectsRecords.length,
-                    tasks: newLeadsRecords.length,
-                    img: require("@/assets/images/users/Trailblazer_avatar.png")
-                    // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+            for (const record of this.itemsSelected) {
+                const data = {
+                    Name: record.Id,
+                    Board__c: this.id,
+                    User__c: record.Id
                 };
-            });
 
-            return teamMembersData;
+                try {
+                    const newMemberBoardId = await createSObject2('Member_Board__c', data);
+                   
+                    // Fetch team members' data from the API
+                    this.teamMembers = await this.fetchTeamMembersData();
+                    this.filteredMembers = this.teamMembers;
+                    this.modalShow = false;
+
+                } catch (error) {
+                    console.error('Error inserting record:', error);
+                }
+            }
+
+            Swal.fire("Good job!", "Added Successfully!", "success");
+
         },
+
+        async deleteMemberProject(MemberBoardId) {
+            //console.log("ddddd");
+
+
+            try {
+                deleteSObject('Member_Board__c', MemberBoardId);
+                Swal.fire("Good job!", "Deleted Successfully!", "success");
+                // Fetch team members' data from the API
+                //this.teamMembers = await this.fetchTeamMembersData();
+                
+                const indexToDelete = this.teamMembers.findIndex(item => item.Id === MemberBoardId);
+                if (indexToDelete !== -1) {
+                    this.teamMembers.splice(indexToDelete, 1);
+                }
+                this.filteredMembers = this.teamMembers;
+            } catch (error) {
+                console.error('Error deleting record:', error);
+            }
+        },
+        // addMember() {
+        //     // Get the value of the board name from the input field
+        //     const firstnameInput = this.firstnameInput;
+        //     const lastnameInput = this.lastnameInput;
+        //     const emailInput = this.emailInput;
+
+        //     // Create the data object to pass to createSObject function
+        //     const data = {
+        //         FirstName: firstnameInput,
+        //         LastName: lastnameInput,
+        //         Email: emailInput,
+        //         Username: emailInput,
+        //         LanguageLocaleKey: 'fr',
+        //         EmailEncodingKey: 'UTF-8',
+        //         LocaleSidKey: 'ar_MA',
+        //         TimeZoneSidKey: 'Africa/Casablanca',
+        //         Alias: "in" + lastnameInput,
+        //         ProfileId: '00e8d000002aAYiAAM'
+        //     };
+
+        //     // Call the createSObject function from your utile.js file
+        //     createSObject("User", data, () => {
+        //         // Callback function called on success
+        //         window.location.reload();
+        //     });
+
+        //     // Clear the input field and close the modal
+        //     this.firstnameInput = "";
+        //     this.lastnameInput = "";
+        //     this.emailInput = "";
+        //     this.modalShow = false;
+        //     Swal.fire("Good job!", "Team member added Succesfly!", "success");
+        // },
+        async fetchTeamMembersData() {
+            try {
+                // Use executeQuery or your API utility to fetch data from the API
+                // Replace the below query with your actual query to fetch team members' data
+                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
+                console.log("test: ", test);
+
+                // Format the data to return an array of objects with the required properties
+                const teamMembersData = await Promise.all(test.map(async (record) => {
+                    //const queryResult = await executeQuery("SELECT Id, Name, UserType FROM User");
+                    const activeProjectsRecords = await executeQuery(`SELECT Id FROM Member_Board__c where User__c = '${record.User__r.Id}'`);
+                    const newLeadsRecords = await executeQuery(`SELECT Id FROM Member_Task__c where User__c = '${record.User__r.Id}'`);
+                    console.log("activeProjectsRecords:", activeProjectsRecords.length);
+                    console.log("newLeadsRecords:", newLeadsRecords.length);
+
+                    return {
+                        Id: record.Id,
+                        name: record.User__r.Name,
+                        position: record.User__r.UserType,
+                        projects: activeProjectsRecords.length,
+                        tasks: newLeadsRecords.length,
+                        img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                        // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+                    };
+                }));
+
+                return teamMembersData;
+            } catch (error) {
+                console.error("Error fetching team members data:", error);
+                return []; // Return an empty array in case of an error
+            }
+        },
+
         filterMembers() {
             const inputText = this.searchText.trim().toLowerCase();
             this.filteredMembers = this.teamMembers.filter(member => member.name.toLowerCase().includes(inputText));
@@ -99,7 +233,10 @@ export default {
         },
     },
     components: {
-
+        //VDataTable, // Register the Vuetify component locally in the component
+        //VueGoodTable
+        //DataTable,
+        //Column
     },
     computed: {
         displayedMembers() {
@@ -161,7 +298,8 @@ export default {
                                         </b-link>
                                     </li>
                                     <li>
-                                        <b-link class="dropdown-item" href="javascript:void(0);"><i
+                                        <b-link class="dropdown-item" href="javascript:void(0);"
+                                            @click="deleteMemberProject(member.Id)"><i
                                                 class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
                                         </b-link>
                                     </li>
@@ -295,6 +433,51 @@ export default {
                 </div>
             </b-row>
         </b-form> -->
-         
+
+        <!-- <vue-good-table :columns="columns" :rows="rows" /> -->
+        <!-- <v-data-table :headers="headers" :items="data" :item-key="itemKey" :show-select="true"
+            v-model:selected="selectedItems"></v-data-table> -->
+
+        <!-- <v-data-table :headers="headers" :items="data"></v-data-table> -->
+
+        <!-- <v-data-table :headers="headers" :items="data"></v-data-table> -->
+
+        <!-- <div>
+            <div class="p-mb-2">
+                <h3 class="p-mb-0">Users</h3>
+                <p class="p-mt-0">A simple data table with PrimeVue</p>
+            </div>
+
+            <DataTable :value="users" :paginator="true" :rows="5" :paginatorTemplate="paginatorTemplate"
+                :rowsPerPageOptions="[5, 10, 25]">
+                <Column field="id" header="ID" sortable></Column>
+                <Column field="name" header="Name" sortable></Column>
+                <Column field="age" header="Age" sortable></Column>
+            </DataTable>
+        </div> -->
+        <span>Search Value: </span>
+        <input type="text" v-model="searchValue" class="my-input form-control" />
+        <EasyDataTable v-model:items-selected="itemsSelected" :headers="headers" :items="items" :search-value="searchValue"
+            class="my-datatable" />
+        <div class="my-button-container">
+            <b-button variant="secondary" @click="addMemberProject">
+                <i class="ri-add-line align-bottom me-1"></i> Add
+            </b-button>
+        </div>
     </b-modal>
 </template>
+
+<style>
+.my-input {
+    margin-bottom: 10px;
+}
+
+.my-datatable {
+    margin-bottom: 20px;
+}
+
+.my-button-container {
+    display: flex;
+    justify-content: flex-end;
+}
+</style>

@@ -67,14 +67,16 @@ export default {
             cc: [],
             reloadKey: 0,
             newCardData: null,
+            teamMembers: []
             ///drake2,
             //drake
         };
     },
-    mounted() {
+    async mounted() {
         this.initializeDragula();
         //this.initializeDragulaKanbanBoard();
         this.fetchData();
+        this.teamMembers = await this.fetchTeamMembersData();
 
     },
     methods: {
@@ -90,11 +92,11 @@ export default {
                 LastName: lastnameInput,
                 Email: emailInput,
                 Username: emailInput,
-                LanguageLocaleKey : 'fr',
+                LanguageLocaleKey: 'fr',
                 EmailEncodingKey: 'UTF-8',
                 LocaleSidKey: 'ar_MA',
                 TimeZoneSidKey: 'Africa/Casablanca',
-                Alias: "in"+lastnameInput,
+                Alias: "in" + lastnameInput,
                 ProfileId: '00e8d000000u5huAAA'
             };
 
@@ -109,7 +111,7 @@ export default {
             this.lastnameInput = "";
             this.emailInput = "";
             this.modalShow = false;
-            
+
             Swal.fire("Good job!", "Team member added Succesfly!", "success");
         },
         addBoard() {
@@ -336,19 +338,51 @@ export default {
         // },
 
 
-        handleReloadList(idToDelete){
-            
-           
+        handleReloadList(idToDelete) {
+
+
             const indexToDelete = this.cc.findIndex(item => item.Id === idToDelete);
             if (indexToDelete !== -1) {
                 this.cc.splice(indexToDelete, 1);
             }
-            
+
         },
 
         log(event) {
             console.log(event);
         },
+        async fetchTeamMembersData() {
+            try {
+                // Use executeQuery or your API utility to fetch data from the API
+                // Replace the below query with your actual query to fetch team members' data
+                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
+                console.log("test: ", test);
+
+                // Format the data to return an array of objects with the required properties
+                // const teamMembersData = await Promise.all(test.map(async (record) => {
+                //     //const queryResult = await executeQuery("SELECT Id, Name, UserType FROM User");
+                //     const activeProjectsRecords = await executeQuery(`SELECT Id FROM Member_Board__c where User__c = '${record.User__r.Id}'`);
+                //     const newLeadsRecords = await executeQuery(`SELECT Id FROM Member_Task__c where User__c = '${record.User__r.Id}'`);
+                //     console.log("activeProjectsRecords:", activeProjectsRecords.length);
+                //     console.log("newLeadsRecords:", newLeadsRecords.length);
+
+                //     return {
+                //         Id: record.Id,
+                //         name: record.User__r.Name,
+                //         position: record.User__r.UserType,
+                //         projects: activeProjectsRecords.length,
+                //         tasks: newLeadsRecords.length,
+                //         img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                //         // Add other properties as needed (e.g., hours, tasks, chartsColor, etc.)
+                //     };
+                // }));
+
+                return test;
+            } catch (error) {
+                console.error("Error fetching team members data:", error);
+                return []; // Return an empty array in case of an error
+            }
+        }
 
 
     },
@@ -381,28 +415,19 @@ export default {
                 </b-col>
                 <div class="col-auto ms-sm-auto">
                     <div class="avatar-group" id="newMembar">
-                        <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Nancy">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
-                        </b-link>
-                        <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Frank">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
-                        </b-link>
-                        <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Tonya">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
-                        </b-link>
-                        <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Thomas">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
-                        </b-link>
-                        <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover title="Herbert">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
-                        </b-link>
-                        <div class="avatar-group-item" @click="modalShow = !modalShow">
+                        <div v-for="teamMember in teamMembers" :key="teamMember.Id">
+                            <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover
+                                :title="teamMember.User__r.Name">
+                                <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
+                            </b-link>
+                        </div>
+                        <!-- <div class="avatar-group-item" @click="modalShow = !modalShow">
                             <div class="avatar-xs">
                                 <div class="avatar-title bg-secondary rounded-circle">
                                     +
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </b-row>
@@ -412,7 +437,7 @@ export default {
     <div class="tasks-board mb-3" id="kanbanboard">
 
         <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}`" :item="item"
-            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" @reloadList="handleReloadList" />
+            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" @reloadList="handleReloadList" :id=this.$route.params.id />
 
 
     </div>

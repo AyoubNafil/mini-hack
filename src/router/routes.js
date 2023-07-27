@@ -91,4 +91,16 @@ export default [
     meta: { title: "Chat", authRequired: true },
     component: () => import("../views/apps/chat"),
   },
+  {
+    path: "/tables/basic",
+    name: "basic-table",
+    meta: { title: "Basic Table", authRequired: true },
+    component: () => import("../views/tables/basic"),
+  },
+  {
+    path: "/tables/gridjs",
+    name: "gridjs",
+    meta: { title: "Grid JS", authRequired: true },
+    component: () => import("../views/tables/grid/index"),
+  },
 ];
