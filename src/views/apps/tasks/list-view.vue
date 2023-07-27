@@ -1,7 +1,5 @@
 <script>
-import {
-  CountTo
-} from "vue3-count-to";
+import { CountTo } from "vue3-count-to";
 import Multiselect from "@vueform/multiselect";
 import "@vueform/multiselect/themes/default.css";
 import flatPickr from "vue-flatpickr-component";
@@ -11,33 +9,36 @@ import Layout from "../../../layouts/main.vue";
 import PageHeader from "@/components/page-header";
 import appConfig from "../../../../app.config";
 import Swal from "sweetalert2";
-import axios from 'axios';
+import axios from "axios";
+import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/msoeawqm.json";
 import animationData1 from "@/components/widgets/gsqxdxog.json";
-import Lottie from "@/components/widgets/lottie.vue";
+import { executeQuery } from "../../../api/utile.js";
 
 export default {
   page: {
-    title: "List View",
-    meta: [{
-      name: "description",
-      content: appConfig.description
-    }],
+    title: "List",
+    meta: [
+      {
+        name: "description",
+        content: appConfig.description,
+      },
+    ],
   },
   data() {
     return {
-      title: "List View",
-      items: [{
-        text: "Tasks",
-        href: "/",
-      },
-      {
-        text: "List View",
-        active: true,
-      },
+      title: "List",
+      items: [
+        {
+          text: "Tasks",
+          href: "/",
+        },
+        {
+          text: "List",
+          active: true,
+        },
       ],
-      taskListModal: false,
-      date3: null,
+      modalShow: false,
       rangeDateconfig: {
         wrap: true, // set wrap to true only when using 'input-group'
         altFormat: "M j, Y",
@@ -46,307 +47,54 @@ export default {
         mode: "range",
       },
       config: {
-        wrap: true, // set wrap to true only when using 'input-group'
-        altFormat: "M j, Y",
-        altInput: true,
-        dateFormat: "d M, Y",
-      },
-      timeConfig: {
         enableTime: false,
         dateFormat: "d M, Y",
       },
+      date: null,
+      date1: null,
+      date2: null,
       filterdate: null,
       filterdate1: null,
-      filtervalue: 'All',
-      filtervalue1: 'All',
+      filtervalue: "All",
+      filtervalue1: "All",
       filtersearchQuery1: null,
-      date: null,
-      allTask: [{
-        id: 1,
-        taskId: "#VLZ632",
-        project: "Velzon - v1.0.0",
-        task: "Error message when placing an orders?",
-        creater: "Robert McMahon",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-3.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-1.jpg")
-        },
-        ],
-        dueDate: "25 Jan, 2022",
-        status: "Inprogress",
-        statusClass: "secondary",
-        priority: "High",
-        priorityClass: "danger",
-      },
-      {
-        id: 2,
-        taskId: "#VLZ453",
-        project: "Skote - v1.0.0",
-        task: "Profile Page Satructure",
-        creater: "Mary Cousar",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-10.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-9.jpg")
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-5.jpg")
-        },
-        ],
-        dueDate: "20 Dec, 2021",
-        status: "New",
-        statusClass: "info",
-        priority: "Low",
-        priorityClass: "success",
-      },
-      {
-        id: 3,
-        taskId: "#VLZ454",
-        project: "Skote - v2.3.0",
-        task: "Apologize for shopping Error!",
-        creater: "Nathan Cole",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-5.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-6.jpg")
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-7.jpg")
-        },
-        {
-          id: 4,
-          img: require("@/assets/images/users/avatar-8.jpg")
-        },
-        ],
-        dueDate: "23 Oct, 2021",
-        status: "Completed",
-        statusClass: "success",
-        priority: "Medium",
-        priorityClass: "warning",
-      },
-      {
-        id: 4,
-        taskId: "#VLZ455",
-        project: "Minia - v1.4.0",
-        task: "Post launch reminder/ post list",
-        creater: "Joseph Parker",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-2.jpg")
-        },],
-        dueDate: "05 Oct, 2021",
-        status: "Pending",
-        statusClass: "warning",
-        priority: "High",
-        priorityClass: "danger",
-      },
-      {
-        id: 5,
-        taskId: "#VLZ456",
-        project: "Minia - v1.2.0",
-        task: "Make a creating an account profile",
-        creater: "Henry Baird",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-3.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-10.jpg")
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-9.jpg")
-        },
-        ],
-        dueDate: "17 Oct, 2021",
-        status: "Inprogress",
-        statusClass: "secondary",
-        priority: "Medium",
-        priorityClass: "warning",
-      },
-      {
-        id: 6,
-        taskId: "#VLZ657",
-        project: "Minimal - v2.1.0",
-        task: "Change email option process",
-        creater: "Tonya Noble",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-6.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-7.jpg")
-        },
-        ],
-        dueDate: "04 Dec, 2021",
-        status: "Completed",
-        statusClass: "success",
-        priority: "High",
-        priorityClass: "danger",
-      },
-      {
-        id: 7,
-        taskId: "#VLZ458",
-        project: "Dason - v1.1.0",
-        task: "User research",
-        creater: "Donald Palmer",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-10.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-9.jpg")
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-8.jpg")
-        },
-        {
-          id: 4,
-          img: require("@/assets/images/users/avatar-1.jpg")
-        },
-        ],
-        dueDate: "11 Oct, 2021",
-        status: "New",
-        statusClass: "info",
-        priority: "Low",
-        priorityClass: "success",
-      },
-      {
-        id: 8,
-        taskId: "#VLZ459",
-        project: "Dorsin - Landing Page",
-        task: "Benner design for FB & Twitter",
-        creater: "Carter",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-5.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-4.jpg")
-        },
-        ],
-        dueDate: "16 Dec, 2021",
-        status: "Pending",
-        statusClass: "warning",
-        priority: "Medium",
-        priorityClass: "warning",
-      },
-      {
-        id: 9,
-        taskId: "#VLZ460",
-        project: "Qexal - Landing Page",
-        task: "Brand logo design",
-        creater: "David Nichols",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-6.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-7.jpg")
-        },
-        {
-          id: 3,
-          img: require("@/assets/images/users/avatar-8.jpg")
-        },
-        ],
-        dueDate: "29 Dec, 2021",
-        status: "Pending",
-        statusClass: "warning",
-        priority: "High",
-        priorityClass: "danger",
-      },
-      {
-        id: 10,
-        taskId: "#VLZ461",
-        project: "Doot - Chat App Template",
-        task: "Additional Calendar",
-        creater: "Diana Kohler",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-4.jpg")
-        },],
-        dueDate: "13 Oct, 2021",
-        status: "New",
-        statusClass: "info",
-        priority: "Low",
-        priorityClass: "success",
-      },
-      {
-        id: 11,
-        taskId: "#VLZ462",
-        project: "Skote - v2.1.0",
-        task: "Edit customer testimonial",
-        creater: "Nathan Cole",
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-7.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-8.jpg")
-        },
-        ],
-        dueDate: "02 Jan, 2021",
-        status: "Inprogress",
-        statusClass: "secondary",
-        priority: "Medium",
-        priorityClass: "warning",
-      },
-      ],
       searchQuery: null,
       page: 1,
-      perPage: 8,
+      perPage: 9,
       pages: [],
+      tasksList: [],
+      tot: "",
+      pen: "",
+      clo: "",
       defaultOptions: {
-        animationData: animationData
+        animationData: animationData,
       },
       defaultOptions1: {
-        animationData: animationData1
+        animationData: animationData1,
       },
     };
   },
   components: {
-    CountTo,
     Layout,
     PageHeader,
+    CountTo,
     lottie: Lottie,
     Multiselect,
     flatPickr,
   },
   computed: {
     displayedPosts() {
-      return this.paginate(this.allTask);
+      return this.paginate(this.tasksList);
     },
     resultQuery() {
       if (this.searchQuery) {
         const search = this.searchQuery.toLowerCase();
         return this.displayedPosts.filter((data) => {
           return (
-            data.taskId.toLowerCase().includes(search) ||
-            data.task.toLowerCase().includes(search) ||
-            data.project.toLowerCase().includes(search) ||
-            data.creater.toLowerCase().includes(search) ||
-            data.dueDate.toLowerCase().includes(search) ||
-            data.status.toLowerCase().includes(search) ||
-            data.priority.toLowerCase().includes(search)
+            data.Name.toLowerCase().includes(search) ||
+            data.CreatedDate.toLowerCase().includes(search) ||
+            data.Type__r.Board__r.Name.toLowerCase().includes(search) ||
+            data.Type__r.Name.toLowerCase().includes(search)
           );
         });
       } else if (this.filterdate !== null) {
@@ -356,8 +104,8 @@ export default {
         }
         return this.displayedPosts.filter((data) => {
           if (
-            new Date(data.dueDate.slice(0, 12)) >= new Date(date1) &&
-            new Date(data.dueDate.slice(0, 12)) <= new Date(date2)
+            new Date(data.due.slice(0, 12)) >= new Date(date1) &&
+            new Date(data.due.slice(0, 12)) <= new Date(date2)
           ) {
             return data;
           } else {
@@ -366,7 +114,7 @@ export default {
         });
       } else if (this.filtervalue !== null) {
         return this.displayedPosts.filter((data) => {
-          if (data.status === this.filtervalue || this.filtervalue == 'All') {
+          if (data.status === this.filtervalue || this.filtervalue == "All") {
             return data;
           } else {
             return null;
@@ -378,7 +126,7 @@ export default {
     },
   },
   watch: {
-    allTask() {
+    posts() {
       this.setPages();
     },
   },
@@ -390,61 +138,80 @@ export default {
       return value.split(" ").splice(0, 20).join(" ") + "...";
     },
   },
-  beforeMount() {
-    axios.get('https://api-node.themesbrand.website/apps/task').then((data) => {
-      this.allTask = [];
-      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec"
-      ];
-      data.data.data.forEach(row => {
-        var dd = new Date(row.dueDate);
-        row.dueDate = dd.getDate() + " " + monthNames[dd.getMonth()] + ", " + dd.getFullYear();
-        row.subItem.forEach(imag => {
-          imag.image_src = 'https://api-node.themesbrand.website/images/users/' + imag.img;
-        });
-
-        // row.image_src = `@/assets/images/products/img-8.png`;
-        // row.image_src = 'https://api-node.themesbrand.website/fileupload/users_bucket/' + row.img;
-        this.allTask.push(row);
-      });
-    }).catch((er) => {
-      console.log(er);
-    });
-
-  },
-
   methods: {
     SearchData() {
       this.filterdate = this.filterdate1;
       this.filtervalue = this.filtervalue1;
     },
+
+    async getCaseDetail() {
+      try {
+        this.tot = await executeQuery("SELECT Id FROM Task__c");
+        if (this.tot && this.tot.length > 0) {
+          this.tot = this.tot.length;
+        }
+        this.pen = await executeQuery(
+          "SELECT Id FROM Task__c where  Type__r.Name!='done' and Type__r.Name!='completed'"
+        );
+        if (this.pen && this.pen.length > 0) {
+          this.pen = this.pen.length;
+        }
+        this.clo = await executeQuery(
+          "SELECT Id FROM Task__c where  Type__r.Name='done' or Type__r.Name='completed'"
+        );
+        if (this.clo && this.clo.length > 0) {
+          this.clo = this.clo.length;
+        }
+
+        this.tasksList = await executeQuery(
+          "SELECT Id, Name, Type__r.Board__r.Name, Type__r.Name, CreatedDate, CreatedBy.Name, Points__c FROM Task__c "
+        );
+        //this.tasksList.CreatedDate = this.tasksList.CreatedDate.substring(0, 10);
+        if (this.tasksList) {
+          console.log(this.tasksList);
+        } else {
+          console.log("Empty No task with this id");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+      }
+    },
+
     editdata(data) {
-      this.taskListModal = true;
-      document.querySelector('.taskModal').innerHTML = "<h5 class='fw-semibold mb-0'>Edit Task</h5>";
-      document.getElementById('id').value = data._id;
-      document.getElementById('projectName').value = data.project;
-      document.getElementById('tasksTitle').value = data.task;
-      document.getElementById('createName').value = data.creater;
-      document.getElementById('date').value = data.dueDate;
-      this.value1 = data.status;
-      this.value3 = data.priority;
-      document.getElementById('edit-btn').style.display = 'block';
-      document.getElementById('add-btn').style.display = 'none';
+      this.modalShow = true;
+      document.getElementById("modal-id").style.display = "block";
+      document.querySelector(".exampleModalLabel").innerHTML = "Edit task";
+      document.getElementById("orderId").value = data.id;
+      document.getElementById("tasksTitle").value = data.title;
+      document.getElementById("clientName").value = data.client;
+      document.getElementById("assignedtoName").value = data.assigned;
+      document.getElementById("cdate").value = data.create;
+      document.getElementById("ddate").value = data.due;
+      document.getElementById("taskstatus").value = data.status;
+      document.getElementById("priority").value = data.priority;
+
+      document.getElementById("edit-btn").style.display = "block";
+      document.getElementById("add-btn").style.display = "none";
     },
     updateorder() {
-      let result = this.allTask.findIndex(o => o._id == document.getElementById('id').value);
-
-      this.allTask[result].project = document.getElementById('projectName').value;
-      this.allTask[result].task = document.getElementById('tasksTitle').value;
-      this.allTask[result].creater = document.getElementById('createName').value;
-      this.allTask[result].dueDate = document.getElementById('date').value;
-      this.allTask[result].status = this.value1;
-      this.allTask[result].priority = this.value3;
-      document.getElementById('closemodal').click();
-      axios.patch(`https://api-node.themesbrand.website/apps/task/${this.allTask[result]._id}`, this.allTask[result])
-        .then(() => {
-
-        }).catch((er) => {
+      let result = this.tasksList.findIndex(
+        (o) => o.id == document.getElementById("orderId").value
+      );
+      this.tasksList[result].title = document.getElementById("tasksTitle").value;
+      this.tasksList[result].client = document.getElementById("clientName").value;
+      this.tasksList[result].assigned = document.getElementById("assignedtoName").value;
+      this.tasksList[result].create = document.getElementById("cdate").value;
+      this.tasksList[result].due = document.getElementById("ddate").value;
+      this.tasksList[result].status = document.getElementById("taskstatus").value;
+      this.tasksList[result].priority = document.getElementById("priority").value;
+      document.getElementById("closemodal").click();
+      axios
+        .patch(
+          `https://api-node.themesbrand.website/apps/task/${this.tasksList[result]._id}`,
+          this.tasksList[result]
+        )
+        .then(() => {})
+        .catch((er) => {
           console.log(er);
         });
     },
@@ -459,11 +226,11 @@ export default {
         confirmButtonText: "Yes, delete it!",
       }).then((result) => {
         if (result.value) {
-          this.allTask.splice(this.allTask.indexOf(event), 1);
-          axios.delete(`https://api-node.themesbrand.website/apps/task/${event._id}`)
-            .then(() => {
-
-            }).catch((er) => {
+          this.tasksList.splice(this.tasksList.indexOf(event), 1);
+          axios
+            .delete(`https://api-node.themesbrand.website/apps/task/${event._id}`)
+            .then(() => {})
+            .catch((er) => {
               console.log(er);
             });
           Swal.fire("Deleted!", "Your file has been deleted.", "success");
@@ -482,13 +249,13 @@ export default {
       });
       if (typeof ids_array !== "undefined" && ids_array.length > 0) {
         if (confirm("Are you sure you want to delete this?")) {
-          var cusList = this.allTask;
+          var cusList = this.tasksList;
           ids_array.forEach(function (id) {
-            cusList = cusList.filter(function (allTask) {
-              return allTask.taskId != id;
+            cusList = cusList.filter(function (orders) {
+              return orders.id != id;
             });
           });
-          this.allTask = cusList;
+          this.tasksList = cusList;
           document.getElementById("checkAll").checked = false;
           var itemss = document.getElementsByName("chk_child");
           itemss.forEach(function (ele) {
@@ -510,70 +277,61 @@ export default {
       }
     },
     addorder() {
-      var id = this.allTask.length + 1;
-      var project = document.getElementById('projectName').value;
-      var task = document.getElementById('tasksTitle').value;
-      var creater = document.getElementById('createName').value;
-      var dueDate = document.getElementById('date').value;
-      var status = 'Inprogress';
-      var priority = 'High';
-      var statusClass = 'secondary';
-      var priorityClass = 'danger';
+      var id = "#VLZ4" + this.tasksList.length + 1;
+      var title = document.getElementById("tasksTitle").value;
+      var client = document.getElementById("clientName").value;
+      var assigned = document.getElementById("assignedtoName").value;
+      var create = document.getElementById("cdate").value;
+      var due = document.getElementById("ddate").value;
+      var status = document.getElementById("taskstatus").value;
+      var priority = document.getElementById("priority").value;
 
       var data = {
         id: id,
-        taskId: '#VZ1D24',
-        project: project,
-        task: task,
-        creater: creater,
-        dueDate: dueDate,
+        title: title,
+        client: client,
+        assigned: assigned,
+        create: create,
+        due: due,
         status: status,
         priority: priority,
-        statusClass: statusClass,
-        priorityClass: priorityClass,
-        subItem: [{
-          id: 1,
-          img: require("@/assets/images/users/avatar-3.jpg")
-        },
-        {
-          id: 2,
-          img: require("@/assets/images/users/avatar-1.jpg")
-        },
-        ],
       };
-      this.allTask.unshift(data);
-      axios.post(`https://api-node.themesbrand.website/apps/task`, data)
-        .then(() => {
-
-        }).catch((er) => {
+      this.tasksList.push(data);
+      axios
+        .post(`https://api-node.themesbrand.website/apps/task`, data)
+        .then(() => {})
+        .catch((er) => {
           console.log(er);
         });
-      document.getElementById('closemodal').click();
+
+      document.getElementById("closemodal").click();
       document.getElementById("addform").reset();
     },
     addnew() {
-      this.taskListModal = true;
+      this.modalShow = true;
       document.getElementById("addform").reset();
-      document.querySelector('.taskModal').innerHTML = "<h5 class='fw-semibold mb-0'>Add Task</h5>";
-      document.getElementById('add-btn').style.display = 'block';
-      document.getElementById('edit-btn').style.display = 'none';
+      document.getElementById("modal-id").style.display = "none";
+      document.querySelector(".exampleModalLabel").innerHTML = "Add Task";
+      document.getElementById("add-btn").style.display = "block";
+      document.getElementById("edit-btn").style.display = "none";
+      // this.modalShow = !this.modalShow;
     },
     setPages() {
-      let numberOfPages = Math.ceil(this.allTask.length / this.perPage);
-      this.pages = [];
+      let numberOfPages = Math.ceil(this.tasksList.length / this.perPage);
       for (let index = 1; index <= numberOfPages; index++) {
         this.pages.push(index);
       }
     },
-    paginate(allTask) {
+    paginate(tasksList) {
       let page = this.page;
       let perPage = this.perPage;
       let from = page * perPage - perPage;
       let to = page * perPage;
-      return allTask.slice(from, to);
+      return tasksList.slice(from, to);
     },
   },
-  mounted() {
+  async mounted() {
+    this.getCaseDetail();
     var checkAll = document.getElementById("checkAll");
     if (checkAll) {
       checkAll.onclick = function () {
@@ -585,27 +343,33 @@ export default {
           checkboxes.forEach(function (checkbox) {
             checkbox.checked = true;
             checkbox.closest("tr").classList.add("table-active");
-            document.getElementById('remove-actions').style.display = 'block';
+            document.getElementById("remove-actions").style.display = "block";
           });
         } else {
           checkboxes.forEach(function (checkbox) {
             checkbox.checked = false;
             checkbox.closest("tr").classList.remove("table-active");
-            document.getElementById('remove-actions').style.display = 'none';
+            document.getElementById("remove-actions").style.display = "none";
           });
         }
       };
     }
 
-    var checkboxes = document.querySelectorAll('#tasksTable .form-check-input');
+    var checkboxes = document.querySelectorAll("#tasksList .form-check-input");
     Array.from(checkboxes).forEach(function (element) {
-      element.addEventListener('change', function (event) {
-        var checkedCount = document.querySelectorAll('#tasksTable .form-check-input:checked').length;
+      element.addEventListener("change", function (event) {
+        var checkedCount = document.querySelectorAll(
+          "#tasksList .form-check-input:checked"
+        ).length;
 
         if (event.target.closest("tr").classList.contains("table-active")) {
-          (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'block' : document.getElementById("remove-actions").style.display = 'none';
+          checkedCount > 0
+            ? (document.getElementById("remove-actions").style.display = "block")
+            : (document.getElementById("remove-actions").style.display = "none");
         } else {
-          (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'block' : document.getElementById("remove-actions").style.display = 'none';
+          checkedCount > 0
+            ? (document.getElementById("remove-actions").style.display = "block")
+            : (document.getElementById("remove-actions").style.display = "none");
         }
       });
     });
@@ -624,7 +388,11 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Total Tasks</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :startVal="0" :endVal="234" :duration="5000"></count-to>k
+                  <count-to
+                    :duration="1000"
+                    :startVal="0"
+                    :endVal="`${this.tot}`"
+                  ></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-success mb-0">
@@ -635,7 +403,9 @@ export default {
               </div>
               <div>
                 <div class="avatar-sm flex-shrink-0">
-                  <span class="avatar-title bg-soft-info text-info rounded-circle fs-4">
+                  <span
+                    class="avatar-title bg-soft-primary text-primary rounded-circle fs-4"
+                  >
                     <i class="ri-ticket-2-line"></i>
                   </span>
                 </div>
@@ -651,18 +421,24 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Pending Tasks</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :startVal="0" :endVal="64" :duration="5000"></count-to>k
+                  <count-to
+                    :duration="1000"
+                    :startVal="0"
+                    :endVal="`${this.pen}`"
+                  ></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-danger mb-0">
-                    <i class="ri-arrow-down-line align-middle"></i> 0.87 %
+                    <i class="ri-arrow-down-line align-middle"></i> 0.96 %
                   </b-badge>
                   vs. previous month
                 </p>
               </div>
               <div>
                 <div class="avatar-sm flex-shrink-0">
-                  <span class="avatar-title bg-soft-warning text-warning rounded-circle fs-4">
+                  <span
+                    class="avatar-title bg-soft-warning text-warning rounded-circle fs-4"
+                  >
                     <i class="mdi mdi-timer-sand"></i>
                   </span>
                 </div>
@@ -678,18 +454,24 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Completed Tasks</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :startVal="0" :endVal="116" :duration="5000"></count-to>K
+                  <count-to
+                    :duration="1000"
+                    :startVal="0"
+                    :endVal="`${this.clo}`"
+                  ></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-danger mb-0">
-                    <i class="ri-arrow-down-line align-middle"></i> 2.52 %
+                    <i class="ri-arrow-down-line align-middle"></i> 3.87 %
                   </b-badge>
                   vs. previous month
                 </p>
               </div>
               <div>
                 <div class="avatar-sm flex-shrink-0">
-                  <span class="avatar-title bg-soft-success text-success rounded-circle fs-4">
+                  <span
+                    class="avatar-title bg-soft-success text-success rounded-circle fs-4"
+                  >
                     <i class="ri-checkbox-circle-line"></i>
                   </span>
                 </div>
@@ -705,18 +487,20 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Deleted Tasks</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :startVal="0" :endVal="14" :duration="5000"></count-to>%
+                  <count-to :duration="1000" :startVal="0" :endVal="0"></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-success mb-0">
-                    <i class="ri-arrow-up-line align-middle"></i> 0.63 %
+                    <i class="ri-arrow-up-line align-middle"></i> 1.09 %
                   </b-badge>
                   vs. previous month
                 </p>
               </div>
               <div>
                 <div class="avatar-sm flex-shrink-0">
-                  <span class="avatar-title bg-soft-danger text-danger rounded-circle fs-4">
+                  <span
+                    class="avatar-title bg-soft-danger text-danger rounded-circle fs-4"
+                  >
                     <i class="ri-delete-bin-line"></i>
                   </span>
                 </div>
@@ -732,170 +516,226 @@ export default {
         <b-card no-body id="tasksList">
           <b-card-header class="border-0">
             <div class="d-flex align-items-center">
-              <h5 class="card-title mb-0 flex-grow-1">All Tasks</h5>
+              <h5 class="card-title mb-0 flex-grow-1">Tasks</h5>
               <div class="flex-shrink-0">
                 <div class="d-flex flex-wrap gap-2">
-                  <b-button variant="soft-danger" class="me-1" id="remove-actions" @click="deleteMultiple">
+                  <b-button
+                    variant="soft-danger"
+                    class="me-1"
+                    id="remove-actions"
+                    @click="deleteMultiple"
+                  >
                     <i class="ri-delete-bin-2-line"></i>
-                  </b-button>
-                  <b-button variant="secondary" class="add-btn" @click="addnew">
-                    <i class="ri-add-line align-bottom me-1"></i> Create Task
                   </b-button>
                 </div>
               </div>
             </div>
           </b-card-header>
           <b-card-body class="border border-dashed border-end-0 border-start-0">
-            <b-form>
+            <form>
               <b-row class="g-3">
                 <b-col xxl="5" sm="12">
                   <div class="search-box">
-                    <input type="text" class="form-control search bg-light border-light"
-                      placeholder="Search for tasks or something..." v-model="searchQuery" />
+                    <input
+                      type="text"
+                      class="form-control search bg-light border-light"
+                      placeholder="Search for task details or something..."
+                      v-model="searchQuery"
+                    />
                     <i class="ri-search-line search-icon"></i>
                   </div>
                 </b-col>
 
                 <b-col xxl="3" sm="4">
-                  <flat-pickr v-model="filterdate1" placeholder="Select date" :config="rangeDateconfig"
-                    class="form-control"></flat-pickr>
+                  <flat-pickr
+                    v-model="filterdate1"
+                    :config="rangeDateconfig"
+                    class="form-control bg-light border-light"
+                    placeholder="Select date"
+                  ></flat-pickr>
                 </b-col>
 
                 <b-col xxl="3" sm="4">
                   <div class="input-light">
-                    <Multiselect v-model="filtervalue1" :close-on-select="true" :searchable="true" :create-option="true"
+                    <Multiselect
+                      v-model="filtervalue1"
+                      :close-on-select="true"
+                      :searchable="true"
+                      :create-option="true"
                       :options="[
+                        { value: '', label: 'Status' },
                         { value: 'All', label: 'All' },
-                        { value: 'New', label: 'New' },
-                        { value: 'Pending', label: 'Pending' },
+                        { value: 'Open', label: 'Open' },
                         { value: 'Inprogress', label: 'Inprogress' },
-                        { value: 'Completed', label: 'Completed' },
-                      ]" />
+                        { value: 'Closed', label: 'Closed' },
+                        { value: 'New', label: 'New' },
+                      ]"
+                    />
                   </div>
                 </b-col>
                 <b-col xxl="1" sm="4">
-                  <b-button type="button" variant="primary" class="w-100" @click="SearchData">
+                  <b-button
+                    type="button"
+                    variant="secondary"
+                    class="w-100"
+                    @click="SearchData"
+                  >
                     <i class="ri-equalizer-fill me-1 align-bottom"></i>
                     Filters
                   </b-button>
                 </b-col>
               </b-row>
-            </b-form>
+            </form>
           </b-card-body>
           <b-card-body>
             <div class="table-responsive table-card mb-4">
-              <table class="table align-middle table-nowrap mb-0" id="tasksTable">
-                <thead class="table-light text-muted">
+              <table class="table align-middle table-nowrap mb-0" id="taskTable">
+                <thead>
                   <tr>
                     <th scope="col" style="width: 40px">
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="checkAll" value="option" />
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="checkAll"
+                          value="option"
+                        />
                       </div>
                     </th>
-                    <th class="sort" data-sort="id">ID</th>
-                    <th class="sort" data-sort="project_name">Project</th>
                     <th class="sort" data-sort="tasks_name">Task</th>
-                    <th class="sort" data-sort="client_name">Created By</th>
-                    <th class="sort" data-sort="assignedto">Assigned To</th>
-                    <th class="sort" data-sort="due_date">Due Date</th>
+                    <th class="sort" data-sort="id">Project</th>
+
                     <th class="sort" data-sort="status">Status</th>
-                    <th class="sort" data-sort="priority">Priority</th>
+                    <th class="sort" data-sort="assignedto">Points</th>
+                    <th class="sort" data-sort="create_date">Create Date</th>
+                    <th class="sort" data-sort="action">Action</th>
                   </tr>
                 </thead>
                 <tbody class="list form-check-all">
-                  <tr v-for="(task, index) of resultQuery" :key="index">
+                  <tr v-for="(data, index) of resultQuery" :key="index">
                     <th scope="row">
                       <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="chk_child" value="option1" />
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          name="chk_child"
+                          value="option1"
+                        />
                       </div>
                     </th>
-                    <td class="id">
-                      <router-link to="/apps/tasks-details" class="fw-medium link-primary">{{ task.taskId }}
-                      </router-link>
+                    <td class="tasks_name">
+                      <router-link
+                        :to="`/apps/tasks-details/${data.Id}`"
+                        class="fw-medium link-primary"
+                        >{{ data.Name }}</router-link
+                      >
                     </td>
-                    <td class="project_name">
-                      <router-link to="/apps/projects-overview" class="fw-medium link-primary">{{ task.project }}
-                      </router-link>
+                    <td class="tasks_name">
+                      {{ data.Type__r.Board__r.Name }}
                     </td>
-                    <td>
-                      <div class="d-flex">
-                        <div class="flex-grow-1 tasks_name">
-                          {{ task.task }}
-                        </div>
-                        <div class="flex-shrink-0 ms-4">
-                          <ul class="list-inline tasks-list-menu mb-0">
-                            <li class="list-inline-item">
-                              <router-link to="/apps/tasks-details"><i
-                                  class="ri-eye-fill align-bottom me-2 text-muted"></i></router-link>
-                            </li>
-                            <li class="list-inline-item" @click="editdata(task)">
-                              <b-link href="#"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i></b-link>
-                            </li>
-                            <li class="list-inline-item">
-                              <b-link class="remove-item-btn" @click="deletedata(task)">
-                                <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                              </b-link>
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="client_name">{{ task.creater }}</td>
-                    <td class="assignedto">
-                      <div class="avatar-group">
-                        <b-link href="javascript: void(0);" v-for="(task, index) of task.subItem" :key="index"
-                          class="avatar-group-item" data-bs-toggle="tooltip" v-b-tooltip.hover title="Frank">
-                          <img :src="task.image_src" alt="" class="rounded-circle avatar-xxs" />
-                        </b-link>
-                      </div>
-                    </td>
-                    <td class="due_date">{{ task.dueDate }}</td>
                     <td class="status">
-                      <span class="badge" :class="{
-                        'badge-soft-secondary': task.status == 'Inprogress',
-                        'badge-soft-info': task.status == 'New',
-                        'badge-soft-success': task.status == 'Completed',
-                        'badge-soft-warning': task.status == 'Pending',
-                      }">{{
-  task.status
-}}</span>
+                      <span
+                        class="badge text-uppercase"
+                        :class="{
+                          'badge-soft-success': data.Type__r.Name === 'Done',
+                          'badge-soft-info': data.Type__r.Name !== 'Done',
+                        }"
+                      >
+                        {{ data.Type__r.Name }}
+                      </span>
                     </td>
-                    <td class="priority">
-                      <span class="badge text-uppercase" :class="{
-                        'bg-danger': task.priority == 'High',
-                        'bg-success': task.priority == 'Low',
-                        'bg-warning': task.priority == 'Medium',
-                      }">{{ task.priority }}</span>
+                    <td class="assignedto">{{ data.Points__c }}</td>
+                    <td class="create_date">{{ data.CreatedDate.substring(0, 10) }}</td>
+
+                    <td>
+                      <div class="col text-end dropdown">
+                        <b-link
+                          href="javascript:void(0);"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          <i class="ri-more-fill fs-17"></i>
+                        </b-link>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                          <li>
+                            <router-link
+                              class="dropdown-item"
+                              :to="`/apps/tasks-details/${data.Id}`"
+                              ><i class="ri-eye-fill text-muted me-2 align-bottom"></i
+                              >View
+                            </router-link>
+                          </li>
+                          <li>
+                            <b-link class="dropdown-item" href="javascript:void(0);"
+                              ><i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                              Edit
+                            </b-link>
+                          </li>
+                          <li>
+                            <b-link class="dropdown-item" href="javascript:void(0);"
+                              ><i
+                                class="ri-delete-bin-5-fill text-muted me-2 align-bottom"
+                              ></i
+                              >Delete
+                            </b-link>
+                          </li>
+                        </ul>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <div class="noresult" style="display: none">
+              <div
+                class="noresult"
+                style="display: none"
+                :class="{ 'd-block': resultQuery.length == 0 }"
+              >
                 <div class="text-center">
-                  <lottie colors="primary:#121331,secondary:#08a88a" :options="defaultOptions" :height="75" :width="75" />
+                  <lottie
+                    class="avatar-xl"
+                    colors="primary:#121331,secondary:#08a88a"
+                    :options="defaultOptions"
+                    :height="90"
+                    :width="90"
+                  />
                   <h5 class="mt-2">Sorry! No Result Found</h5>
                   <p class="text-muted mb-0">
-                    We've searched more than 200k+ tasks We did not find any
-                    tasks for you search.
+                    We've searched more than 150+ Tasks We did not find any Tasks for you
+                    search.
                   </p>
                 </div>
               </div>
             </div>
             <div class="d-flex justify-content-end mt-3">
               <div class="pagination-wrap hstack gap-2">
-                <b-link class="page-item pagination-prev" href="#" v-if="page != 1" @click="page--">
+                <b-link
+                  class="page-item pagination-prev"
+                  href="#"
+                  v-if="page != 1"
+                  @click="page--"
+                >
                   Previous
                 </b-link>
                 <ul class="pagination listjs-pagination mb-0">
-                  <li :class="{
-                    active: pageNumber == page,
-                    disabled: pageNumber == '...',
-                  }" v-for="(pageNumber, index) in pages.slice(page - 1, page + 5)" :key="index"
-                    @click="page = pageNumber">
+                  <li
+                    :class="{
+                      active: pageNumber == page,
+                      disabled: pageNumber == '...',
+                    }"
+                    v-for="(pageNumber, index) in pages"
+                    :key="index"
+                    @click="page = pageNumber"
+                  >
                     <b-link class="page" href="#">{{ pageNumber }}</b-link>
                   </li>
                 </ul>
-                <b-link class="page-item pagination-next" href="#" @click="page++" v-if="page < pages.length"> Next
+                <b-link
+                  class="page-item pagination-next"
+                  href="#"
+                  @click="page++"
+                  v-if="page < pages.length"
+                >
+                  Next
                 </b-link>
               </div>
             </div>
@@ -904,187 +744,138 @@ export default {
       </b-col>
     </b-row>
 
-    <b-modal v-model="taskListModal" id="showmodal" modal-class="zoomIn" hide-footer
-      header-class="p-3 bg-soft-info taskModal" class="v-modal-custom" centered size="lg" title="Add Task">
+    <b-modal
+      v-model="modalShow"
+      id="showModal"
+      modal-class="zoomIn"
+      title-class="exampleModalLabel"
+      hide-footer
+      header-class="p-3 bg-soft-info"
+      class="v-modal-custom"
+      centered
+      no-close-on-backdrop
+      size="lg"
+    >
       <b-form id="addform" class="tablelist-form" autocomplete="off">
         <b-row class="g-3">
-          <input type="hidden" id="id" name="">
           <b-col lg="12">
-            <label for="projectName-field" class="form-label">Project Name</label>
-            <input type="text" id="projectName" class="form-control" placeholder="Project name" required />
+            <div id="modal-id">
+              <label for="orderId" class="form-label">ID</label>
+              <input
+                type="text"
+                id="orderId"
+                class="form-control"
+                placeholder="ID"
+                value="#VLZ462"
+                readonly
+              />
+            </div>
           </b-col>
           <b-col lg="12">
             <div>
               <label for="tasksTitle-field" class="form-label">Title</label>
-              <input type="text" id="tasksTitle" class="form-control" placeholder="Title" required />
+              <input
+                type="text"
+                id="tasksTitle"
+                class="form-control"
+                placeholder="Title"
+                required
+              />
             </div>
           </b-col>
-          <b-col lg="12">
-            <label for="createName-field" class="form-label">Client Name</label>
-            <input type="text" id="createName" class="form-control" placeholder="Client name" required />
-          </b-col>
-          <b-col lg="12">
-            <label class="form-label">Assigned To</label>
-            <div data-simplebar style="height: 95px">
-              <ul class="list-unstyled vstack gap-2 mb-0">
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="James Forbes" />
-                    <label class="form-check-label d-flex align-items-center" for="James Forbes">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-2.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2"> James Forbes </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="john-robles" />
-                    <label class="form-check-label d-flex align-items-center" for="john-robles">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-3.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2"> John Robles </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" name="assignedTo[]" value="avatar-4.jpg"
-                      id="mary-gant">
-                    <label class="form-check-label d-flex align-items-center" for="mary-gant">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-4.jpg" alt="" class="avatar-xxs rounded-circle">
-                      </span>
-                      <span class="flex-grow-1 ms-2">Mary Gant</span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="curtis-saenz" />
-                    <label class="form-check-label d-flex align-items-center" for="curtis-saenz">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-1.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2">
-                        Curtis Saenz
-                      </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" name="assignedTo[]" value="avatar-5.jpg"
-                      id="virgie-price">
-                    <label class="form-check-label d-flex align-items-center" for="virgie-price">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-5.jpg" alt="" class="avatar-xxs rounded-circle">
-                      </span>
-                      <span class="flex-grow-1 ms-2">Virgie Price</span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="anthony-mills" />
-                    <label class="form-check-label d-flex align-items-center" for="anthony-mills">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-2.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2">
-                        Anthony Mills
-                      </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="marian-angel" />
-                    <label class="form-check-label d-flex align-items-center" for="marian-angel">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-6.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2">
-                        Marian Angel
-                      </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="johnnie-walton" />
-                    <label class="form-check-label d-flex align-items-center" for="johnnie-walton">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-7.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2">
-                        Johnnie Walton
-                      </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="donna-weston" />
-                    <label class="form-check-label d-flex align-items-center" for="donna-weston">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-8.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2">
-                        Donna Weston
-                      </span>
-                    </label>
-                  </div>
-                </li>
-                <li>
-                  <div class="form-check d-flex align-items-center">
-                    <input class="form-check-input me-3" type="checkbox" value="" id="diego-norris" />
-                    <label class="form-check-label d-flex align-items-center" for="diego-norris">
-                      <span class="flex-shrink-0">
-                        <img src="@/assets/images/users/avatar-10.jpg" alt="" class="avatar-xxs rounded-circle" />
-                      </span>
-                      <span class="flex-grow-1 ms-2"> Diego Norris </span>
-                    </label>
-                  </div>
-                </li>
-              </ul>
+          <b-col lg="6">
+            <div>
+              <label for="clientName-field" class="form-label">Client</label>
+              <input
+                type="text"
+                id="clientName"
+                class="form-control"
+                placeholder="Client Name"
+                required
+              />
             </div>
+          </b-col>
+          <b-col lg="6">
+            <div>
+              <label for="assignedtoName-field" class="form-label">Assigned To</label>
+              <input
+                type="text"
+                id="assignedtoName"
+                class="form-control"
+                placeholder="Assigned to"
+                required
+              />
+            </div>
+          </b-col>
+          <b-col lg="6">
+            <label for="date-field" class="form-label">Create Date</label>
+
+            <flat-pickr
+              v-model="date1"
+              :config="config"
+              class="form-control bg-light border-light"
+              id="cdate"
+            >
+            </flat-pickr>
           </b-col>
           <b-col lg="6">
             <label for="duedate-field" class="form-label">Due Date</label>
-            <flat-pickr placeholder="Select date" v-model="date2" :config="timeConfig"
-              class="form-control flatpickr-input" id="date"></flat-pickr>
+
+            <flat-pickr
+              v-model="date2"
+              :config="config"
+              class="form-control bg-light border-light"
+              id="ddate"
+            >
+            </flat-pickr>
           </b-col>
           <b-col lg="6">
-            <label for="ticket-status" class="form-label">Status</label>
-            <Multiselect id="statusid" v-model="value1" :close-on-select="true" :searchable="true" :create-option="true"
-              :options="[
-                { value: '', label: 'Status' },
-                { value: 'New', label: 'New' },
-                { value: 'Inprogress', label: 'Inprogress' },
-                { value: 'Pending', label: 'Pending' },
-                { value: 'Completed', label: 'Completed' },
-              ]" />
+            <label for="task-status" class="form-label">Status</label>
+            <select
+              class="form-control"
+              data-plugin="choices"
+              name="task-status"
+              id="taskstatus"
+            >
+              <option value="">Status</option>
+              <option value="New">New</option>
+              <option value="Inprogress">Inprogress</option>
+              <option value="Closed">Closed</option>
+              <option value="Open">Open</option>
+            </select>
           </b-col>
-          <b-col lg="12">
+          <b-col lg="6">
             <label for="priority-field" class="form-label">Priority</label>
-
-            <Multiselect id="priority" v-model="value3" :close-on-select="true" :searchable="true" :create-option="true"
-              :options="[
-                { value: '', label: 'Priority' },
-                { value: 'High', label: 'High' },
-                { value: 'Medium', label: 'Medium' },
-                { value: 'Low', label: 'Low' },
-              ]" />
+            <select
+              class="form-control"
+              data-plugin="choices"
+              name="priority-field"
+              id="priority"
+            >
+              <option value="">Priority</option>
+              <option value="High">High</option>
+              <option value="Medium">Medium</option>
+              <option value="Low">Low</option>
+            </select>
           </b-col>
         </b-row>
-
-        <div class="hstack gap-2 justify-content-end mt-3">
-          <b-button type="button" variant="light" @click="taskListModal = false" id="closemodal"> Close </b-button>
-          <b-button type="submit" variant="success" id="add-btn" @click="addorder"> Add Task </b-button>
-          <b-button type="button" variant="success" id="edit-btn" @click="updateorder">Update</b-button>
+        <div class="modal-footer v-modal-footer mt-3">
+          <div class="hstack gap-2 justify-content-end">
+            <b-button
+              type="button"
+              variant="light"
+              @click="modalShow = false"
+              id="closemodal"
+            >
+              Close
+            </b-button>
+            <b-button type="submit" variant="success" id="add-btn" @click="addorder">
+              Add Task
+            </b-button>
+            <b-button type="button" variant="success" id="edit-btn" @click="updateorder">
+              Update
+            </b-button>
+          </div>
         </div>
       </b-form>
     </b-modal>

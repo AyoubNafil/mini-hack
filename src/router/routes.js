@@ -74,7 +74,7 @@ export default [
     component: () => import("../views/apps/apikey"),
   },
   {
-    path: "/apps/tickets-details",
+    path: "/apps/tickets-details/:id",
     name: "tickets-details",
     meta: { title: "Ticket Details", authRequired: true },
     component: () => import("../views/tickets/details"),

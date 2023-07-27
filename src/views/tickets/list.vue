@@ -15,6 +15,7 @@ import axios from 'axios';
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/msoeawqm.json";
 import animationData1 from "@/components/widgets/gsqxdxog.json";
+import { executeQuery } from "../../api/utile";
 
 export default {
   page: {
@@ -60,117 +61,10 @@ export default {
       page: 1,
       perPage: 9,
       pages: [],
-      ticketsList: [{
-        id: "#VLZ452",
-        title: "Error message when placing an orders?",
-        client: "Tonya Noble",
-        assigned: "James Morris",
-        create: "08 Dec, 2021",
-        due: "25 Jan, 2022",
-        status: "Inprogress",
-        priority: "High",
-      },
-      {
-        id: "#VLZ453",
-        title: "Issue with finding information about order ?",
-        client: "Mary Rucker",
-        assigned: "David Nichols",
-        create: "24 Oct, 2021",
-        due: "20 Dec, 2021",
-        status: "New",
-        priority: "Low",
-      },
-      {
-        id: "#VLZ454",
-        title: "Apologize for shopping Error!",
-        client: "Nathan Cole",
-        assigned: "Nancy Martino",
-        create: "17 Oct, 2021",
-        due: "23 Oct, 2021",
-        status: "Open",
-        priority: "Medium",
-      },
-      {
-        id: "#VLZ455",
-        title: "Post launch reminder/ post list",
-        client: "Joseph Parker",
-        assigned: "Alexis Clarke",
-        create: "03 Oct, 2021",
-        due: "05 Oct, 2021",
-        status: "Closed",
-        priority: "High",
-      },
-      {
-        id: "#VLZ456",
-        title: "Make a creating an account profile",
-        client: "Henry Baird",
-        assigned: "David Nichols",
-        create: "09 Oct, 2021",
-        due: "17 Oct, 2021",
-        status: "Inprogress",
-        priority: "Medium",
-      },
-      {
-        id: "#VLZ457",
-        title: "Change email option process",
-        client: "Tonya Noble",
-        assigned: "Nancy Martino",
-        create: "27 Oct, 2021",
-        due: "04 Dec, 2021",
-        status: "Open",
-        priority: "High",
-      },
-      {
-        id: "#VLZ458",
-        title: "User research",
-        client: "Donald Palmer",
-        assigned: "James Morris",
-        create: "05 Oct, 2021",
-        due: "11 Oct, 2021",
-        status: "New",
-        priority: "Low",
-      },
-      {
-        id: "#VLZ459",
-        title: "Banner design for FB & Twitter",
-        client: "Mary Rucker",
-        assigned: "Jennifer Carter",
-        create: "09 Dec, 2021",
-        due: "16 Dec, 2021",
-        status: "Closed",
-        priority: "Medium",
-      },
-      {
-        id: "#VLZ460",
-        title: "Brand logo design",
-        client: "Tonya Noble",
-        assigned: "Alexis Clarke",
-        create: "24 Dec, 2021",
-        due: "29 Dec, 2021",
-        status: "Closed",
-        priority: "High",
-      },
-      {
-        id: "#VLZ461",
-        title: "Additional Calendar",
-        client: "Diana Kohler",
-        assigned: "David Nichols",
-        create: "04 Oct, 2021",
-        due: "13 Oct, 2021",
-        status: "New",
-        priority: "Low",
-      },
-      {
-        id: "#VLZ462",
-        title: "Edit customer testimonial",
-        client: "Nathan Cole",
-        assigned: "Nancy Martino",
-        create: "21 Dec, 2021",
-        due: "02 Jan, 2021",
-        status: "Inprogress",
-        priority: "Medium",
-      },
-      ],
+      ticketsList: [],
+      tot:'',
+      pen:'',
+      clo:'',
       defaultOptions: {
         animationData: animationData
       },
@@ -196,13 +90,12 @@ export default {
         const search = this.searchQuery.toLowerCase();
         return this.displayedPosts.filter((data) => {
           return (
-            data.title.toLowerCase().includes(search) ||
-            data.client.toLowerCase().includes(search) ||
-            data.assigned.toLowerCase().includes(search) ||
-            data.create.toLowerCase().includes(search) ||
-            data.due.toLowerCase().includes(search) ||
-            data.status.toLowerCase().includes(search) ||
-            data.priority.toLowerCase().includes(search)
+            data.Name.toLowerCase().includes(search) ||
+            data.CreatedBy.Name.toLowerCase().includes(search) ||
+            data.CreatedDate.toLowerCase().includes(search) ||
+            data.Status__c.toLowerCase().includes(search) ||
+            data.Priority__c.toLowerCase().includes(search)||
+            data.Task__r.Name.toLowerCase().includes(search)
           );
         });
       } else if (this.filterdate !== null) {
@@ -246,28 +139,42 @@ export default {
       return value.split(" ").splice(0, 20).join(" ") + "...";
     },
   },
-  beforeMount() {
-    axios.get('https://api-node.themesbrand.website/apps/ticket').then((data) => {
-      this.ticketsList = [];
-      data.data.data.forEach((row) => {
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-          "Oct", "Nov", "Dec"
-        ];
-        var dd = new Date(row.create);
-        var due = new Date(row.due);
-        row.create = dd.getDate() + " " + monthNames[dd.getMonth()] + ", " + dd.getFullYear();
-        row.due = due.getDate() + " " + monthNames[due.getMonth()] + ", " + due.getFullYear();
-        this.ticketsList.push(row);
-      });
-    }).catch((er) => {
-      console.log(er);
-    });
-  },
   methods: {
     SearchData() {
       this.filterdate = this.filterdate1;
       this.filtervalue = this.filtervalue1;
     },
+
+    async getCaseDetail() {
+      try {
+
+        this.tot = await executeQuery("SELECT Id FROM Ticket__c");
+        if (this.tot && this.tot.length > 0) {
+          this.tot = this.tot.length;
+        }
+        this.pen = await executeQuery("SELECT Id FROM Ticket__c where status__c!='Closed'");
+        if (this.pen && this.pen.length > 0) {
+          this.pen = this.pen.length;
+        }
+        this.clo = await executeQuery("SELECT Id FROM Ticket__c where status__c='Closed'");
+        if (this.clo && this.clo.length > 0) {
+          this.clo = this.clo.length;
+        }
+
+        this.ticketsList = await executeQuery("SELECT Id, Name, Task__r.Name, Task__r.Type__r.Board__r.Name, Status__c, Priority__c, CreatedDate, CreatedBy.Name, DueDate__c, Assigned__r.Name FROM Ticket__c ");
+        //this.ticketsList.CreatedDate = this.ticketsList.CreatedDate.substring(0, 10);
+        if (this.ticketsList) {
+          console.log(this.ticketsList);
+
+        } else {
+          console.log("Empty No ticket with this id");
+        }
+      } catch (error) {
+        console.log("Error occurred while executing query:", error);
+
+      }
+    },
+
     editdata(data) {
       this.modalShow = true;
       document.getElementById("modal-id").style.display = "block";
@@ -416,7 +323,8 @@ export default {
       return ticketsList.slice(from, to);
     },
   },
-  mounted() {
+  async mounted() {
+    this.getCaseDetail();
     var checkAll = document.getElementById("checkAll");
     if (checkAll) {
       checkAll.onclick = function () {
@@ -467,7 +375,7 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Total Tickets</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :duration="1000" :startVal="0" :endVal="547"></count-to>k
+                  <count-to :duration="1000" :startVal="0" :endVal="`${this.tot}`"></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-success mb-0">
@@ -494,7 +402,7 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Pending Tickets</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :duration="1000" :startVal="0" :endVal="124"></count-to>k
+                  <count-to :duration="1000" :startVal="0" :endVal="`${this.pen}`"></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-danger mb-0">
@@ -521,7 +429,7 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Closed Tickets</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :duration="1000" :startVal="0" :endVal="107"></count-to>K
+                  <count-to :duration="1000" :startVal="0" :endVal="`${this.clo}`"></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-danger mb-0">
@@ -548,7 +456,7 @@ export default {
               <div>
                 <p class="fw-medium text-muted mb-0">Deleted Tickets</p>
                 <h4 class="mt-4 ff-secondary fw-semibold">
-                  <count-to :duration="1000" :startVal="0" :endVal="15"></count-to>%
+                  <count-to :duration="1000" :startVal="0" :endVal="0"></count-to>
                 </h4>
                 <p class="mb-0 text-muted">
                   <b-badge class="bg-light text-success mb-0">
@@ -580,9 +488,6 @@ export default {
                 <div class="d-flex flex-wrap gap-2">
                   <b-button variant="soft-danger" class="me-1" id="remove-actions" @click="deleteMultiple">
                     <i class="ri-delete-bin-2-line"></i>
-                  </b-button>
-                  <b-button variant="primary" class="add-btn" @click="addnew">
-                    <i class="ri-add-line align-bottom me-1"></i> Create Tickets
                   </b-button>
                 </div>
               </div>
@@ -636,9 +541,9 @@ export default {
                         <input class="form-check-input" type="checkbox" id="checkAll" value="option" />
                       </div>
                     </th>
-                    <th class="sort" data-sort="id">ID</th>
                     <th class="sort" data-sort="tasks_name">Title</th>
                     <th class="sort" data-sort="client_name">Client</th>
+                    <th class="sort" data-sort="id">Task/Project</th>
                     <th class="sort" data-sort="assignedto">Assigned To</th>
                     <th class="sort" data-sort="create_date">Create Date</th>
                     <th class="sort" data-sort="due_date">Due Date</th>
@@ -654,38 +559,54 @@ export default {
                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1" />
                       </div>
                     </th>
-                    <td class="id">
-                      <router-link to="/apps/tickets-details" class="fw-medium link-primary">{{ data.id }}</router-link>
-                    </td>
                     <td class="tasks_name">
-                      {{ data.title }}
+                      <router-link :to="`/apps/tickets-details/${data.Id}`" class="fw-medium link-primary">{{ data.Name }}</router-link>
                     </td>
-                    <td class="client_name">{{ data.client }}</td>
-                    <td class="assignedto">{{ data.assigned }}</td>
-                    <td class="create_date">{{ data.create }}</td>
-                    <td class="due_date">{{ data.due }}</td>
+                    <td class="client_name">{{ data.CreatedBy.Name }}</td>
+                    <td class="tasks_name">
+                      {{ data.Task__r.Name }}/{{data.Task__r.Type__r.Board__r.Name}}
+                    </td>
+                    <td class="assignedto">{{ data.Assigned__r.Name }}</td>
+                    <td class="create_date">{{ data.CreatedDate.substring(0, 10) }}</td>
+                    <td class="due_date">{{ data.DueDate__c }}</td>
                     <td class="status">
                       <span class="badge text-uppercase" :class="{
-                        'badge-soft-warning': data.status == 'Inprogress',
-                        'badge-soft-info': data.status == 'New',
-                        'badge-soft-success': data.status == 'Open',
-                        'badge-soft-danger': data.status == 'Closed',
-                      }">{{ data.status }}</span>
+                        'badge-soft-warning': data.Status__c == 'Inprogress',
+                        'badge-soft-info': data.Status__c == 'New',
+                        'badge-soft-success': data.Status__c == 'Open',
+                        'badge-soft-danger': data.Status__c == 'Closed',
+                      }">{{ data.Status__c }}</span>
                     </td>
-                    <td class="priority">
+                    <td class="Priority">
                       <span class="badge text-uppercase" :class="{
-                        'bg-danger': data.priority == 'High',
-                        'bg-success': data.priority == 'Low',
-                        'bg-warning': data.priority == 'Medium',
-                      }">{{ data.priority }}</span>
+                        'bg-danger': data.Priority__c == 'High',
+                        'bg-success': data.Priority__c == 'Low',
+                        'bg-warning': data.Priority__c == 'Medium',
+                      }">{{ data.Priority__c }}</span>
                     </td>
                     <td>
-                      <b-dropdown variant="soft-secondary" toggle-class="text-decoration-none arrow-none" size="sm" no-caret>
-                        <template #button-content> <i class="ri-more-fill align-middle"></i> </template>
-                        <b-dropdown-item href="/apps/tickets-details"><i class="ri-eye-fill align-bottom me-2 text-muted"></i>View</b-dropdown-item>
-                        <b-dropdown-item href="#" class="edit-item-btn"  @click="editdata(data)"><i class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit</b-dropdown-item>
-                        <b-dropdown-item href="#" class="remove-item-btn" @click="deletedata(data)"><i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i> Delete</b-dropdown-item>
-                      </b-dropdown>  
+                      <div class="col text-end dropdown">
+                                <b-link href="javascript:void(0);" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-more-fill fs-17"></i>
+                                </b-link>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <router-link class="dropdown-item" :to="`/apps/tickets-details/${data.Id}`"><i
+                                                class="ri-eye-fill text-muted me-2 align-bottom"></i>View
+                                        </router-link>
+                                    </li>
+                                    <li>
+                                        <b-link class="dropdown-item" href="javascript:void(0);"><i
+                                                class="ri-pencil-fill align-bottom me-2 text-muted"></i> Edit
+                                        </b-link>
+                                    </li>
+                                    <li>
+                                        <b-link class="dropdown-item" href="javascript:void(0);"><i
+                                                class="ri-delete-bin-5-fill text-muted me-2 align-bottom"></i>Delete
+                                        </b-link>
+                                    </li>
+                                </ul>
+                            </div>
                     </td>
                   </tr>
                 </tbody>
@@ -794,6 +715,5 @@ export default {
           </div>
         </div>
       </b-form>
-    </b-modal>
-  </Layout>
-</template>
+  </b-modal>
+</Layout></template>

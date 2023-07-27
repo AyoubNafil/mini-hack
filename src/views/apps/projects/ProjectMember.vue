@@ -351,7 +351,7 @@ export default {
     <b-row class="g-0 text-center text-sm-start align-items-center mb-3">
         <b-col sm="6">
             <div>
-                <p class="mb-sm-0">Showing 1 to 10 of 12 entries</p>
+                <p class="mb-sm-0">Showing 1 to {{displayedMembers.length}} of {{displayedMembers.length}} entries</p>
             </div>
         </b-col>
         <b-col sm="6">
@@ -359,10 +359,10 @@ export default {
                 <li class="page-item disabled">
                     <b-link href="#" class="page-link"><i class="mdi mdi-chevron-left"></i></b-link>
                 </li>
-                <li class="page-item">
+                <li class="page-item active">
                     <b-link href="#" class="page-link">1</b-link>
                 </li>
-                <li class="page-item active">
+                <li class="page-item ">
                     <b-link href="#" class="page-link">2</b-link>
                 </li>
                 <li class="page-item">

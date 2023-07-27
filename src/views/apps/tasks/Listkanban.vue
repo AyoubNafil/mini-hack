@@ -18,6 +18,10 @@ export default {
             type: String,
             required: true,
         },
+        tagValue: {
+            type: String,
+            required: true,
+        },
         // newCardData: Object,
     },
     //     watch: {
@@ -56,6 +60,8 @@ export default {
 
 
     async mounted() {
+
+        console.log(this.tagValue);
         this.fetchData();
 
         const element = document.getElementById(this.item.Id);
@@ -153,12 +159,20 @@ export default {
 
             try {
 
-                const data = { Name: this.taskTitle, Type__c: this.item.Id }
+                const data = { Name: this.taskTitle, Type__c: this.item.Id, Description__c: this.taskDescription, Points__c: this.points, Date__c: this.date1 }
                 createSObject2("Task__c", data).then(async (newTaskId) => {
 
                     await this.uploadImage(newTaskId).then(async (attachments) => {
 
+                        this.labels.forEach(async (label) => {
+                            const featureData = {
+                                Feature__c: label,
+                                Task__c: newTaskId
+                            };
 
+                            const idFeatureTask = await createSObject2("Feature_Task__c", featureData);
+                            console.log(idFeatureTask);
+                        });
 
 
                         for (const record of this.selectedIds) {
@@ -246,8 +260,24 @@ export default {
 
         async fetchData() {
             try {
+                if (this.tagValue == "All") {
+                    this.task = await executeQuery(`SELECT Id, Name, Placement__c,Description__c,Points__c ,Date__c FROM Task__c WHERE Type__c = '${this.item.Id}' `);
+                } else {
+                    // Fetch the Feature_Task__c records related to the Task__c using the second query
+                    const featureTaskIds = await executeQuery(
+                        `SELECT Id,Feature__r.Name,Task__c FROM Feature_Task__c where Feature__r.Id = '${this.tagValue}'`
+                    );
 
-                this.task = await executeQuery(`SELECT Id, Name, Placement__c FROM Task__c WHERE Type__c = '${this.item.Id}'`);
+                    // Extract the Ids of the related Feature_Task__c records into an array
+                    const featureTaskIdsArray = featureTaskIds.map((record) => record.Task__c);
+
+                    // Include the subquery in the main query to check if the Task__c Id exists in the related Feature_Task__c records
+                    const dynamicQuery = `SELECT Id, Name, Placement__c,Description__c,Points__c ,Date__c FROM Task__c WHERE Type__c = '${this.item.Id}' AND Id IN ('${featureTaskIdsArray.join("','")}')`;
+
+                    this.task = await executeQuery(dynamicQuery);
+
+                }
+
                 if (this.task) {
                     this.task.sort((a, b) => a.Placement__c - b.Placement__c);
                     //console.log(this.task);

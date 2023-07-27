@@ -4,6 +4,7 @@ import "@vueform/multiselect/themes/default.css";
 
 import Layout from "../../layouts/main.vue";
 import appConfig from "../../../app.config";
+import { executeQuery } from "../../api/utile";
 
 export default {
     page: {
@@ -12,12 +13,52 @@ export default {
     },
     data() {
         return {
+            ticket: [],
+            board:'',
+            task:'',
         };
     },
     components: {
         Layout,
         Multiselect,
     },
+  async mounted() {
+        try {
+
+            this.getTicketDetail();
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    },
+    methods: {
+
+async getTicketDetail() {
+    try {
+        const TicketId = this.$route.params.id;
+
+        this.ticket = await executeQuery("SELECT Id, Name, Task__r.Type__r.Board__r.Name, Task__r.Name, Status__c, Priority__c, LastModifiedDate,  CreatedDate, CreatedBy.Name, DueDate__c, Assigned__r.Name, Code__c, Description__c FROM Ticket__c where Id = " + "'" + TicketId + "'");
+        this.ticket = this.ticket[0];
+        this.ticket.CreatedDate = this.ticket.CreatedDate.substring(0, 10);
+        this.ticket.LastModifiedDate = this.ticket.LastModifiedDate.substring(0, 10);
+        this.board = this.ticket.Task__r.Type__r.Board__r.Name
+        this.ticket.Assigned__r = this.ticket.Assigned__r.Name
+        console.log(this.ticket);
+        
+        this.task = this.ticket.Task__r.Name
+        console.log(this.task);
+        
+        if (this.ticket) {
+            console.log(this.ticket.Name);
+
+        } else {
+            console.log("Empty No ticket with this id");
+        }
+    } catch (error) {
+        console.log("Error occurred while executing query:", error);
+
+    }
+},
+},
 };
 </script>
 
@@ -40,21 +81,19 @@ export default {
                                             </div>
                                         </b-col>
                                         <b-col md>
-                                            <h4 class="fw-semibold">#VLZ135 - Create an Excellent UI for a Dashboard
+                                            <h4 class="fw-semibold">{{this.ticket.Name}}
                                             </h4>
                                             <div class="hstack gap-3 flex-wrap">
                                                 <div class="text-muted"><i
-                                                        class="ri-building-line align-bottom me-1"></i> Themesbrand
+                                                        class="ri-building-line align-bottom me-1"></i> {{this.task}}
                                                 </div>
                                                 <div class="vr"></div>
-                                                <div class="text-muted">Create Date : <span class="fw-medium">20 Dec,
-                                                        2021</span></div>
+                                                <div class="text-muted">Create Date : <span class="fw-medium">{{this.ticket.CreatedDate}}</span></div>
                                                 <div class="vr"></div>
-                                                <div class="text-muted">Due Date : <span class="fw-medium">29 Dec,
-                                                        2021</span></div>
+                                                <div class="text-muted">Due Date : <span class="fw-medium">{{this.ticket.DueDate__c}}</span></div>
                                                 <div class="vr"></div>
-                                                <b-badge pill class="bg-info fs-12">New</b-badge>
-                                                <b-badge pill variant="danger" class="fs-12">High</b-badge>
+                                                <b-badge pill class="bg-info fs-12">{{this.ticket.Status__c}}</b-badge>
+                                                <b-badge pill variant="danger" class="fs-12">{{this.ticket.Priority__c}}</b-badge>
                                             </div>
                                         </b-col>
                                     </b-row>
@@ -97,40 +136,13 @@ export default {
             <b-col xxl="9">
                 <b-card no-body>
                     <b-card-body class="p-4">
-                        <h6 class="fw-semibold text-uppercase mb-3">Ticket Discripation</h6>
-                        <p class="text-muted">It would also help to know what the errors are - it could be something
-                            simple like a message saying delivery is not available which could be a problem with your
-                            shipping templates. Too much or too little spacing, as in the example below, can make things
-                            unpleasant for the reader. The goal is to make your text as comfortable to read as possible.
-                            On the note of consistency, color consistency is a MUST. If you’re not trying to create
-                            crazy contrast in your design, then a great idea would be for you to use a color palette
-                            throughout your entire design. It will subconsciously interest viewers and also is very
-                            pleasing to look at. <b-link href="javascript:void(0);"
-                                class="link-secondary text-decoration-underline">Example</b-link>
+                        <h6 class="fw-semibold text-uppercase mb-3">Ticket DESCRIPTION</h6>
+                        <p class="text-muted">{{this.ticket.Description__c}}
                         </p>
-                        <h6 class="fw-semibold text-uppercase mb-3">Create an Excellent UI for a Dashboard</h6>
-                        <ul class="text-muted vstack gap-2 mb-4">
-                            <li>Pick a Dashboard Type</li>
-                            <li>Categorize information when needed</li>
-                            <li>Provide Context</li>
-                            <li>On using colors</li>
-                            <li>On using the right graphs</li>
-                        </ul>
                         <div class="mt-4">
-                            <h6 class="fw-semibold text-uppercase mb-3">Here is the code you've requsted</h6>
+                            <h6 class="fw-semibold text-uppercase mb-3">Code</h6>
                             <div>
-                                <pre class="language-markup rounded-2"><code>var app = document.getElementById(&quot;app&quot;);
-var run = (model) =&gt; get(model, &quot;users&quot;, () =&gt;
-get(model, &quot;posts&quot;,
-() =&gt; {
-model.users.forEach(user =&gt; model.userIdx[user.id] = user);
-app.innerText = '';
-model.posts.forEach(post =&gt;
-app.appendChild(renderPost(post, model.userIdx[post.userId])));
-}));
-app.appendChild(Wrapper.generate(&quot;button&quot;, &quot;Load&quot;).click(() =&gt; run({
-userIdx: {}
-})).element);</code></pre>
+                                <pre class="language-markup rounded-2"><code>{{this.ticket.Code__c}}</code></pre>
                             </div>
                         </div>
                     </b-card-body>
@@ -247,43 +259,24 @@ userIdx: {}
                                 <tbody>
                                     <tr>
                                         <td class="fw-medium">Ticket</td>
-                                        <td>#VLZ135</td>
+                                        <td>{{this.ticket.Name}}</td>
                                     </tr>
                                     <tr>
-                                        <td class="fw-medium">Client</td>
-                                        <td>Themesbrand</td>
+                                        <td class="fw-medium">Task</td>
+                                        <td>{{this.task}}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Project</td>
-                                        <td>Velzon - Admin Dashboard</td>
+                                        <td> {{this.board}}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Assigned To:</td>
                                         <td>
                                             <div class="avatar-group">
                                                 <b-link href="javascript:void(0);" class="avatar-group-item"
-                                                    v-b-tooltip.hover title="Erica Kernan">
-                                                    <img src="@/assets/images/users/avatar-4.jpg" alt=""
+                                                    v-b-tooltip.hover :title="`${this.ticket.Assigned__r}`">
+                                                    <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
                                                         class="rounded-circle avatar-xs" />
-                                                </b-link>
-                                                <b-link href="javascript:void(0);" class="avatar-group-item"
-                                                    v-b-tooltip.hover title="Alexis Clarke">
-                                                    <img src="@/assets/images/users/avatar-10.jpg" alt=""
-                                                        class="rounded-circle avatar-xs" />
-                                                </b-link>
-                                                <b-link href="javascript:void(0);" class="avatar-group-item"
-                                                    v-b-tooltip.hover title="James Price">
-                                                    <img src="@/assets/images/users/avatar-3.jpg" alt=""
-                                                        class="rounded-circle avatar-xs" />
-                                                </b-link>
-                                                <b-link href="javascript: void(0);" class="avatar-group-item"
-                                                    v-b-tooltip.hover title="Add Members">
-                                                    <div class="avatar-xs">
-                                                        <div
-                                                            class="avatar-title fs-16 rounded-circle bg-light border-dashed border text-primary">
-                                                            +
-                                                        </div>
-                                                    </div>
                                                 </b-link>
                                             </div>
                                         </td>
@@ -291,41 +284,26 @@ userIdx: {}
                                     <tr>
                                         <td class="fw-medium">Status:</td>
                                         <td>
-                                            <Multiselect v-model="value" :close-on-select="true" :searchable="true"
-                                                :create-option="true" :options="[
-                                                    { value: 'new', label: 'New' },
-                                                    { value: 'open', label: 'Open' },
-                                                    { value: 'inprogress', label: 'Inprogress' },
-                                                    { value: 'closed', label: 'Closed' }
-                                                ]" />
+                                            <b-badge variant="info">{{this.ticket.Status__c}}</b-badge>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Priority</td>
                                         <td>
-                                            <b-badge variant="danger">High</b-badge>
+                                            <b-badge variant="danger">{{this.ticket.Priority__c}}</b-badge>
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Create Date</td>
-                                        <td>20 Dec, 2021</td>
+                                        <td>{{this.ticket.CreatedDate}}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Due Date</td>
-                                        <td>29 Dec, 2021</td>
+                                        <td>{{this.ticket.DueDate__c}}</td>
                                     </tr>
                                     <tr>
                                         <td class="fw-medium">Last Activity</td>
-                                        <td>14 min ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-medium">Labels</td>
-                                        <td class="hstack text-wrap gap-1">
-                                            <b-badge variant="soft-primary" class="badge-soft-primary">Admin</b-badge>
-                                            <b-badge variant="soft-primary" class="badge-soft-primary">UI</b-badge>
-                                            <b-badge variant="soft-primary" class="badge-soft-primary">Dashboard</b-badge>
-                                            <b-badge variant="soft-primary" class="badge-soft-primary">Design</b-badge>
-                                        </td>
+                                        <td>{{this.ticket.LastModifiedDate }}</td>
                                     </tr>
                                 </tbody>
                             </table>

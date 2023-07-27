@@ -17,6 +17,9 @@ import appConfig from "../../../../app.config";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
+import Multiselect from "@vueform/multiselect";
+import "@vueform/multiselect/themes/default.css";
+
 import { executeQuery, updateSObjects, createSObject, createSObject2 } from "../../../api/utile.js";
 
 import Listkanban from './Listkanban.vue'
@@ -67,16 +70,24 @@ export default {
             cc: [],
             reloadKey: 0,
             newCardData: null,
-            teamMembers: []
+            teamMembers: [],
+            tags :[],
+            tagValue :"All",
             ///drake2,
             //drake
         };
     },
     async mounted() {
+
         this.initializeDragula();
         //this.initializeDragulaKanbanBoard();
         this.fetchData();
         this.teamMembers = await this.fetchTeamMembersData();
+        const result = await executeQuery("SELECT Id, Name ,Board__c FROM Feature__c where Board__c = " + "'" + this.id + "'");
+        this.tags = result.map((item) => ({
+            value: item.Id,
+            label: item.Name,
+        }));
 
     },
     methods: {
@@ -206,9 +217,9 @@ export default {
                             drake.cancel(true);
                         }
 
-                        if (el.classList.contains("tasks-list") && container.classList.contains("tasks-board")) {
-                            drake.cancel(true);
-                        }
+                        // if (el.classList.contains("tasks-list") && container.classList.contains("tasks-board")) {
+                        //     drake.cancel(true);
+                        // }
 
                         if (el.classList.contains("tasks-list")) {
                             const tasksLists = document.querySelectorAll("div.tasks-list:not(.gu-mirror)");
@@ -392,7 +403,8 @@ export default {
         PageHeader,
         //draggable: VueDraggableNext,
         lottie: Lottie,
-        flatPickr
+        flatPickr,
+        Multiselect
     },
 };
 </script>
@@ -413,12 +425,16 @@ export default {
                         <i class="ri-search-line search-icon"></i>
                     </div>
                 </b-col>
+                <b-col lg="3" class="col-auto">
+                    <Multiselect v-model="tagValue" :options="this.tags" />
+                </b-col>
                 <div class="col-auto ms-sm-auto">
                     <div class="avatar-group" id="newMembar">
                         <div v-for="teamMember in teamMembers" :key="teamMember.Id">
                             <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover
                                 :title="teamMember.User__r.Name">
-                                <img src="@/assets/images/users/Trailblazer_avatar.png" alt="" class="rounded-circle avatar-xs">
+                                <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                                    class="rounded-circle avatar-xs">
                             </b-link>
                         </div>
                         <!-- <div class="avatar-group-item" @click="modalShow = !modalShow">
@@ -436,8 +452,9 @@ export default {
 
     <div class="tasks-board mb-3" id="kanbanboard">
 
-        <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}`" :item="item"
-            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" @reloadList="handleReloadList" :id=this.$route.params.id />
+        <Listkanban v-for="(item, index) in this.cc" :key="`listkanban-${index}-${reloadKey}-${tagValue}`" :item="item"
+            @registerTask="handleRegisterTask" :ref="`taskListComponent-${item.Id}`" @reloadList="handleReloadList"
+            :id=this.$route.params.id :tagValue="tagValue"/>
 
 
     </div>

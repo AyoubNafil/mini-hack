@@ -15,11 +15,12 @@ export default {
             features: ["Layout", "Admin", "Dashboard"],
             users: [require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png"), require("@/assets/images/users/Trailblazer_avatar.png")],
             id: "#TS0001",
-            date: " 07 Jan, 2022",
+            date: "",
             modalShow3: false,
             defaultOptions: { animationData: animationData },
             imageDataURL: '',
             teamMembers: [],
+            tags:[],
             isImageHidden: true,
         };
     },
@@ -31,10 +32,21 @@ export default {
     },
     async mounted() {
         console.log("render");
+
+        const dateParts = this.item.Date__c.split("-"); // Split the input date into parts
+        const year = dateParts[0];
+        const month = new Date(dateParts[1] + " 01, 2000").toLocaleString("en-us", { month: "short" });
+        const day = dateParts[2];
+
+        const formattedDate = `${day} ${month} ${year}`;
+        //console.log(formattedDate); // Output: "25 Jul 2023"
+
+        this.date=formattedDate;
         //fetchAndDisplayImage("00P8d00000F2qKVEAZ");
         //console.log(getImageUrl("00P8d00000F2qKVEAZ"));
         //this.getImageUrl(this.item.attachments);
         this.teamMembers = await this.fetchTeamMembersData();
+        this.tags = await executeQuery("SELECT Id, Feature__r.Name FROM Feature_Task__c where Task__c = " + "'" + this.item.Id + "'");
         //console.log("fff: ", this.teamMembers)
     },
     methods: {
@@ -165,7 +177,7 @@ export default {
                     </ul>
                 </div>
             </div>
-            <p class="text-muted">Long Description of The Task</p>
+            <p class="text-muted">{{item.Description__c}}</p>
 
             <img :hidden="isImageHidden" :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
             <div class="mb-3">
@@ -185,8 +197,8 @@ export default {
             </div>
             <div class="d-flex align-items-center">
                 <div class="flex-grow-1">
-                    <b-badge variant="soft-primary" class="badge-soft-primary me-1" v-for="(item, index) of this.features"
-                        :key="index">{{ item }}</b-badge>
+                    <b-badge variant="soft-primary" class="badge-soft-primary me-1" v-for="(item, index) of this.tags"
+                        :key="index">{{ item.Feature__r.Name }}</b-badge>
                 </div>
                 <div class="flex-shrink-0">
                     <div class="avatar-group">
