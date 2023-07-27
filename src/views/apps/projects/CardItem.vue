@@ -19,6 +19,9 @@ export default {
     return {
       listData: [],
       cardData: [],
+      api:[],
+      apiKey:'',
+      token:'',
       removeProjectModal: false,
     }
   },
@@ -62,43 +65,47 @@ export default {
     },
 
   
-    Export(boardId, boardName, boardDesc) {
-      const boardData = {
-        name: boardName,
-        desc: boardDesc
-      };
+async Export(boardId, boardName, boardDesc) {
+  const boardData = {
+    name: boardName,
+    desc: boardDesc
+  };
+
+  this.api =  await executeQuery("SELECT Id, Key__c, Token__c FROM api__c where Name='Trello'");
+  this.api = this.api[0];
+  this.apiKey = this.api.Key__c;
+  this.token = this.api.Token__c;
 
 
-      const query = "SELECT Name, Placement__c FROM Card__c WHERE Board__c ='" + boardId + "'";
+  const query = "SELECT Name, Placement__c FROM Card__c WHERE Board__c ='" + boardId + "'";
 executeQuery(query)
-  .then((result) => {
-    this.listData = result.map((card) => ({
-      name: card.Name,
-      pos: card.Placement__c
+.then((result) => {
+this.listData = result.map((card) => ({
+  name: card.Name,
+  pos: card.Placement__c
+}));
+const query2 = "SELECT Name FROM Task__c WHERE Type__r.Board__c = '" + boardId + "'";
+executeQuery(query2)
+  .then((result2) => {
+    this.cardData = result2.map((task) => ({ // Fix this line to use result2
+      name: task.Name,
+      listIndex: 0
     }));
-    const query2 = "SELECT Name FROM Task__c WHERE Type__r.Board__c = '" + boardId + "'";
-    executeQuery(query2)
-      .then((result2) => {
-        this.cardData = result2.map((task) => ({ // Fix this line to use result2
-          name: task.Name,
-          listIndex: 0
-        }));
-        exportToTrello(boardData, this.listData, this.cardData);
-        Swal.fire("Good job!", "Project Exported to trello Succesfly!", "success");
-      })
-      .catch((error) => {
-        console.error("Error fetching Task data:", error);
-      });
+    exportToTrello(boardData, this.listData, this.cardData, this.apiKey,this.token);
   })
   .catch((error) => {
-    console.error("Error fetching Card data:", error);
+    console.error("Error fetching Task data:", error);
   });
+})
+.catch((error) => {
+console.error("Error fetching Card data:", error);
+});
 
 
-      
+  
 
-      //exportToTrello(boardData, this.listData, cardData);
-    },
+  //exportToTrello(boardData, this.listData, cardData);
+},
 
     async deleteProject(id) {
       // Use the `id` parameter in your logic here
