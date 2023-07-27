@@ -259,13 +259,10 @@ export default {
             <label for="choices-text-input" class="form-label">Skills</label>
             <Multiselect class="form-control" v-model="skills" mode="tags" :close-on-select="true" :searchable="true"
               :create-option="true" :options="[
-                  { value: 'UI/UX', label: 'UI/UX' },
-                  { value: 'Figma', label: 'Figma' },
-                  { value: 'HTML', label: 'HTML' },
-                  { value: 'CSS', label: 'CSS' },
-                  { value: 'Javascript', label: 'Javascript' },
-                  { value: 'C#', label: 'C#' },
-                  { value: 'Nodejs', label: 'Nodejs' },
+                  { value: 'Sprint 1', label: 'Sprint 1' },
+                  { value: 'Sprint 2', label: 'Sprint 2' },
+                  { value: 'Sprint 3', label: 'Sprint 3' },
+                 
                 ]" />
           </div>
         </b-card-body>

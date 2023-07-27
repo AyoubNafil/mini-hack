@@ -85,16 +85,16 @@ export default [
     meta: { title: "Tickets List", authRequired: true },
     component: () => import("../views/tickets/list"),
   },
-  // {
-  //   path: "/ChatGPT",
-  //   name: "ChatGPT",
-  //   meta: { title: "ChatGPT", authRequired: true },
-  //   component: () => import("../views/apps/ChatGPT"),
-  // },
-  // {
-  //   path: "/AICorrecter",
-  //   name: "Correcter",
-  //   meta: { title: "ChatGPT", authRequired: true },
-  //   component: () => import("../views/apps/AICorrecter"),
-  // },
+  {
+    path: "/ChatGPT",
+    name: "ChatGPT",
+    meta: { title: "ChatGPT", authRequired: true },
+    component: () => import("../views/apps/ChatGPT"),
+  },
+  {
+    path: "/AICorrecter",
+    name: "Correcter",
+    meta: { title: "ChatGPT", authRequired: true },
+    component: () => import("../views/apps/AICorrecter"),
+  },
 ];

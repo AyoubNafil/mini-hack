@@ -19,7 +19,8 @@ export default {
             modalShow3: false,
             defaultOptions: { animationData: animationData },
             imageDataURL: '',
-            teamMembers: []
+            teamMembers: [],
+            isImageHidden: true,
         };
     },
 
@@ -44,7 +45,7 @@ export default {
                 console.log("dddddddddddd2");
                 if (attachment.length > 0) {
                     console.log(attachment);
-
+                    this.isImageHidden = false;
                     //console.log("dddddddddddd3");
                     try {
                         const hhh = getImageUrl(attachment[0].Id);
@@ -68,7 +69,6 @@ export default {
                     return '';
                 }
             }
-
         },
         async deleteTask(id) {
             // Use the `id` parameter in your logic here
@@ -167,11 +167,11 @@ export default {
             </div>
             <p class="text-muted">Long Description of The Task</p>
 
-            <img :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
+            <img :hidden="isImageHidden" :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
             <div class="mb-3">
                 <div class="d-flex mb-1">
                     <div class="flex-grow-1">
-                        <h6 class="text-muted mb-0"><span class="text-secondary">15%</span> of
+                        <h6 class="text-muted mb-0"><span class="text-secondary">0%</span> of
                             100%</h6>
                     </div>
                     <div class="flex-shrink-0">
@@ -179,7 +179,7 @@ export default {
                     </div>
                 </div>
                 <div class="progress rounded-3 progress-sm">
-                    <div class="progress-bar bg-danger" role="progressbar" style="width: 15%" aria-valuenow="15"
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0"
                         aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
             </div>

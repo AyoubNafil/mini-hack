@@ -39,11 +39,16 @@ export default {
             modalShow2: false,
             modalShow3: false,
             task: [],
-            newTaskData: null,
-            taskTitle: '',
             teamMembers: [],
             selectedIds: [],
-            skills: [],
+            newTaskData: null,
+            taskTitle: '',
+            points: '',
+            taskDescription: '',
+            date1: '',
+            labes: [],
+            Features: [],
+            labels: [],
 
         };
     },
@@ -56,8 +61,13 @@ export default {
         const element = document.getElementById(this.item.Id);
         if (element) { this.$emit("registerTask", element); }
 
+        const ProjectId = this.$route.params.id;
+        const result = await executeQuery("SELECT Id,Name FROM Feature__c where Board__c = " + "'" + ProjectId + "'");
 
-
+        this.Features = result.map((item) => ({
+            value: item.Id,
+            label: item.Name,
+        }));
 
 
 
@@ -389,7 +399,7 @@ export default {
                 </b-col>
                 <b-col lg="12">
                     <label for="task-description" class="form-label">Task Description</label>
-                    <textarea class="form-control" id="task-description" rows="3"></textarea>
+                    <textarea v-model="taskDescription" class="form-control" id="task-description" rows="3"></textarea>
                 </b-col>
                 <b-col lg="12">
                     <label for="formFile" class="form-label">Tasks Images</label>
@@ -426,20 +436,13 @@ export default {
                 </b-col>
                 <b-col lg="4">
                     <label for="categories" class="form-label">Tags</label>
-                    <Multiselect class="form-control" v-model="skills" mode="tags" :close-on-select="true"
-                        :searchable="true" :create-option="true" :options="[
-                            { value: 'UI/UX', label: 'UI/UX' },
-                            { value: 'Figma', label: 'Figma' },
-                            { value: 'HTML', label: 'HTML' },
-                            { value: 'CSS', label: 'CSS' },
-                            { value: 'Javascript', label: 'Javascript' },
-                            { value: 'C#', label: 'C#' },
-                            { value: 'Nodejs', label: 'Nodejs' },
-                        ]" />
+                    <Multiselect class="form-control" v-model="labels" mode="tags" :close-on-select="true"
+                        :searchable="true" :create-option="true" :options="Features" />
                 </b-col>
                 <b-col lg="4">
                     <label for="tasks-progress" class="form-label">Story points</label>
-                    <input type="text" class="form-control" maxlength="3" id="tasks-progress" placeholder="Enter points">
+                    <input v-model="points" type="text" class="form-control" maxlength="3" id="tasks-progress"
+                        placeholder="Enter points">
                 </b-col>
                 <div class="mt-4">
                     <div class="hstack gap-2 justify-content-end">
