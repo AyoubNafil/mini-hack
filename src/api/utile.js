@@ -2,6 +2,8 @@ import { getDomainCookies } from "./accessToken.js";
 import jsforce from "jsforce";
 import axios from 'axios';
 import throttle from 'lodash/throttle';
+
+import Swal from "sweetalert2";
 //const base64Img = require('base64-img');
 
 //import { URL, AccessToken, PackageName } from "../constants";
@@ -232,9 +234,7 @@ export async function getLastDebugLogUserId() {
 }
 
 
-export function exportToTrello(boardData, listData, cardData) {
-	const apiKey = '093fb7c15e6f37e30c5b5f1e4f743e3a';
-	const token = 'ATTA66ee805783e590f1d38a02c85b9e2ab3790b56864e5212601265d098db7c6f78465A868C';
+export function exportToTrello(boardData, listData, cardData, apiKey, token) {
 	const endpoint = 'https://api.trello.com/1';
 
 	axios.post(`${endpoint}/boards`, boardData, {
@@ -276,6 +276,8 @@ export function exportToTrello(boardData, listData, cardData) {
 						.then(cardResponses => {
 							// Handle success response
 							console.log('Board, lists, and cards created successfully:', boardResponse.data, listResponses.map(res => res.data), cardResponses.map(res => res.data));
+							
+							Swal.fire("Good job!", "Project Exported to trello Succesfly!", "success");
 						})
 						.catch(error => {
 							// Handle error response while creating cards
@@ -311,7 +313,7 @@ export function requestSF(url) {
 }
 
 export async function fetchAndDisplayImage(attachmentId) {
-    //console.log("1");
+	//console.log("1");
 	if (conn) {
 		try {
 			//console.log("2");
@@ -348,91 +350,90 @@ export async function fetchAndDisplayImage(attachmentId) {
 
 export function getImageUrl(attachmentId) {
 	try {
-	 
+
 		if (conn) {
-	  // Construct the image URL
-	  const imageUrl = `${conn.instanceUrl}/servlet/servlet.FileDownload?file=${attachmentId}`;
-	  return imageUrl;
-	} else {
-		reject(new Error("Connection not established."));
-	}
+			// Construct the image URL
+			const imageUrl = `${conn.instanceUrl}/servlet/servlet.FileDownload?file=${attachmentId}`;
+			return imageUrl;
+		} else {
+			reject(new Error("Connection not established."));
+		}
 	} catch (error) {
-	  console.error('Error fetching image URL:', error);
-	  return null;
+		console.error('Error fetching image URL:', error);
+		return null;
 	}
 
-  }
+}
 
 
-  export function ChatGpt(message) {
+export function ChatGpt(message) {
 	const openAiApiKey = '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';
 	const openAiEndpoint = 'https://api.openai.com/v1';
-  
+
 	// Throttle the ChatGPT API call to 1 request per 5 seconds (adjust as needed)
 	const throttledChatGptApiCall = throttle(chatGptApiCall, 5000);
-  
+
 	// Function to handle the ChatGPT API call
 	function chatGptApiCall(message) {
-	  return new Promise((resolve, reject) => {
-		// Make the API call to ChatGPT
-		axios.post(`${openAiEndpoint}/completions`, {
-		  model: "text-davinci-003",
-		  prompt: message,
-		  max_tokens: 150
-		}, {
-		  headers: {
-			'Authorization': `Bearer ${openAiApiKey}`,
-			'Content-Type': 'application/json'
-		  }
-		})
-		.then(response => {
-		  // Handle the API response here
-		  const chatGptResponse = response.data.choices[0].text;
-		  console.log('ChatGPT Response:', chatGptResponse);
-		  resolve(chatGptResponse);
-		})
-		.catch(error => {
-		  console.error('Error calling ChatGPT API:', error);
-		  reject("Error");
+		return new Promise((resolve, reject) => {
+			// Make the API call to ChatGPT
+			axios.post(`${openAiEndpoint}/completions`, {
+				model: "text-davinci-003",
+				prompt: message,
+				max_tokens: 150
+			}, {
+				headers: {
+					'Authorization': `Bearer ${openAiApiKey}`,
+					'Content-Type': 'application/json'
+				}
+			})
+				.then(response => {
+					// Handle the API response here
+					const chatGptResponse = response.data.choices[0].text;
+					console.log('ChatGPT Response:', chatGptResponse);
+					resolve(chatGptResponse);
+				})
+				.catch(error => {
+					console.error('Error calling ChatGPT API:', error);
+					reject("Error");
+				});
 		});
-	  });
 	}
-  
-	
+
+
 	// Call the throttled ChatGPT API function here with the message
 	return throttledChatGptApiCall(message);
-  }
-  export function callGpt35TurboAPI(message) {
-	console.log("callGpt35TurboAPI "+message)
+}
+export function callGpt35TurboAPI(message,openAiApiKey) {
+	console.log("callGpt35TurboAPI " + message)
 	return new Promise((resolve, reject) => {
-	  const openAiEndpoint = 'https://api.openai.com/v1/chat/completions'; // Endpoint for GPT-3.5-turbo model
-	  const openAiApiKey = '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'; // Replace this with your actual OpenAI API key
-  
-	  axios
-		.post(
-		  openAiEndpoint,
-		  {
-			
-			
-			"model": "gpt-3.5-turbo",
-			"messages": [{"role": "user", "content": message}]
-		  },
-		  {
-			headers: {
-			  Authorization: `Bearer ${openAiApiKey}`,
-			  'Content-Type': 'application/json',
-			},
-		  }
-		)
-		.then(response => {
-		  // Handle the API response here
-		  const chatGptResponse = response.data.choices[0].message.content;
-		  console.log('ChatGPT Response:', chatGptResponse);
-		  resolve(chatGptResponse);
-		})
-		.catch(error => {
-		  console.error('Error calling ChatGPT API:', error);
-		  reject("Error");
-		});
+		const openAiEndpoint = 'https://api.openai.com/v1/chat/completions'; // Endpoint for GPT-3.5-turbo model
+		
+		axios
+			.post(
+				openAiEndpoint,
+				{
+
+
+					"model": "gpt-3.5-turbo",
+					"messages": [{ "role": "user", "content": message }]
+				},
+				{
+					headers: {
+						Authorization: `Bearer ${openAiApiKey}`,
+						'Content-Type': 'application/json',
+					},
+				}
+			)
+			.then(response => {
+				// Handle the API response here
+				const chatGptResponse = response.data.choices[0].message.content;
+				console.log('ChatGPT Response:', chatGptResponse);
+				resolve(chatGptResponse);
+			})
+			.catch(error => {
+				console.error('Error calling ChatGPT API:', error);
+				reject("Error");
+			});
 	});
-  }
+}

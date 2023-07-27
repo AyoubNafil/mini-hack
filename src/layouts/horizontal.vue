@@ -184,8 +184,13 @@ export default {
                     </li>
 
                     <li class="nav-item">
-                      <router-link to="/chat" class="nav-link" data-key="t-chat">
+                      <router-link to="/ChatGPT" class="nav-link" data-key="t-chat">
                         {{ $t("t-chat") }}
+                      </router-link>
+                    </li>
+                    <li class="nav-item">
+                      <router-link to="/AICorrecter" class="nav-link" data-key="AICorrecter">
+                        AI Correcter
                       </router-link>
                     </li>
 

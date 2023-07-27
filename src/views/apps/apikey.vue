@@ -7,7 +7,7 @@ import { CountTo } from "vue3-count-to";
 import animationData from "@/components/widgets/msoeawqm.json";
 import Lottie from "@/components/widgets/lottie.vue";
 import Swal from "sweetalert2";
-import { executeQuery } from "../../api/utile";
+import { executeQuery,updateSObjects } from "../../api/utile";
 
 export default {
   page: {
@@ -32,6 +32,12 @@ export default {
       perPage: 8,
       pages: [],
       api: [],
+      //...
+    selectedRecord: null, // Store the selected record data
+    modalApiKey: "", // Store the API key value for the modal input
+    modalApiToken: "", // Store the API token value for the modal input
+    aId:"",
+    //...
       apikeydata: [],
       defaultOptions: {
         animationData: animationData
@@ -78,10 +84,44 @@ export default {
   },
   methods: {
 
+    // Method to set the modal data based on the selected record
+  setModalData(record) {
+    this.selectedRecord = record; // Create a data property to store the selected record
+    this.modalApiKey = record.Key__c;
+    this.modalApiToken = record.Token__c;
+    this.aId = record.Id;
+    // Open the modal
+    this.createApiModal = true;
+  },
+
+  save() {
+            // Get the value of the board name from the input field
+            const Id = this.aId;
+            const modalApiKey = this.modalApiKey;
+            const modalApiToken = this.modalApiToken;
+
+            // Create the data object to pass to createSObject function
+            const data = {
+                Id: Id,
+                Key__c: modalApiKey,
+                Token__c: modalApiToken
+            };
+
+            // Call the createSObject function from your utile.js file
+            updateSObjects("Api__c", data, () => {
+                // Callback function called on success
+                window.location.reload();
+            });
+
+            this.createApiModal = false;
+            
+            Swal.fire("Good job!", "Api updated Succesfly!", "success");
+        },
+
     async getApiDetail() {
       try {
 
-        this.api = await executeQuery("SELECT Id,Name,CreatedDate ,Key__c, Token__c FROM api__c");
+        this.api = await executeQuery("SELECT Id,Name,LastModifiedDate ,Key__c, Token__c FROM api__c");
         //this.api.CreatedDate = this.api.CreatedDate.substring(0, 10);
         if (this.api) {
           console.log(this.api);
@@ -269,23 +309,7 @@ export default {
   <Layout>
     <PageHeader :title="title" :items="items" />
     <b-row>
-      <b-col lg="4">
-        <b-card no-body class="card-height-100">
-          <b-card-body>
-            <h5 class="card-title mb-3">Developer Plan</h5>
-            <div class="progress animated-progress custom-progress mb-1">
-              <div class="progress-bar bg-info" role="progressbar" style="width: 38%" aria-valuenow="38" aria-valuemin="0"
-                aria-valuemax="100"></div>
-            </div>
-            <p class="text-muted mb-2">You used 215 of 2000 of your API</p>
-            <div class="text-end">
-              <b-link class="btn btn-secondary button create-btn btn-sm" type="button" id="createApi-btn"
-                @click="(e) => handleApikeydetails(e)">Create API Key</b-link>
-            </div>
-          </b-card-body>
-        </b-card>
-      </b-col>
-      <b-col lg="4">
+      <b-col lg="6">
         <b-card no-body class="card-animate card-height-100">
           <b-card-body>
             <div class="d-flex justify-content-between">
@@ -308,7 +332,7 @@ export default {
           </b-card-body>
         </b-card>
       </b-col>
-      <b-col lg="4">
+      <b-col lg="6">
         <b-card no-body class="card-animate card-height-100">
           <b-card-body>
             <div class="d-flex justify-content-between">
@@ -343,7 +367,7 @@ export default {
                   class="ri-delete-bin-2-line"></i>
               </b-button>
               <b-link class="btn btn-primary button create-btn" type="button" id="addApi-btn"
-                @click="(e) => handleApikeydetails(e)"><i class="ri-add-line align-bottom me-1"></i>
+                @click="(e) => handleApikeydetails(e)" :disabled=true><i class="ri-add-line align-bottom me-1"></i>
                 Add </b-link>
             </div>
           </b-card-header>
@@ -387,7 +411,7 @@ export default {
                       </td>
                       <td class="status"><b-badge variant="badge-soft-success" class="badge-soft-success">Active</b-badge>
                       </td>
-                      <td class="create_date">{{ data.CreatedDate.substring(0, 10) }}</td>
+                      <td class="create_date">{{ data.LastModifiedDate.substring(0, 10) }}</td>
                       <td class="expiry_date">{{ data.expiry_date }}</td>
                       <td>
                         <div class="dropdown">
@@ -397,8 +421,9 @@ export default {
                           </b-button>
                           <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                              <b-link class="dropdown-item regenerate-api-btn" id="regenerate-api-btn"  href="javascript:void(0);"
-                              @click="createApiModal = !createApiModal">Regenerate Key</b-link>
+                              <b-link class="dropdown-item" href="javascript:void(0);" @click="setModalData(data)">
+    <i class="ri-key-fill align-bottom me-2 text-muted"></i> Regenerate Key
+  </b-link>
                             </li>
                           </ul>
                         </div>
@@ -439,26 +464,27 @@ export default {
     </b-row>
 
     <!-- Modal -->
-    <b-modal v-model="createApiModal" id="showModal" title-class="exampleModalLabel" hide-footer class="v-modal-custom"
-      centered no-close-on-backdrop>
-      <b-form >
-        <div class="mb-3">
-          <label for="api-key" class="form-label">API Key Name</label>
-          <input type="text" class="form-control" id="api-key" disabled value="b5815DE8A7224438932eb296Z5">
-        </div>
-        <div class="mb-3">
-          <label for="api-key-name" class="form-label">API Key  <span class="text-danger">*</span></label>
-          <input type="text" class="form-control" id="api-key-name" placeholder="Enter api key name">
-        </div>
-        <div class="mb-3">
-          <label for="api-key-name" class="form-label">API Token</label>
-          <input type="text" class="form-control" id="api-key-name" placeholder="Enter api token">
-        </div>
-      </b-form>
-      <div class="hstack gap-2 justify-content-end mt-3">
-        <b-button type="button" variant="secondary" @click="createApiModal = false" id="close-modal">Close</b-button>
-        <b-button type="button" variant="primary" id="edit-btn" @click="handleApiKeys">Save Changes</b-button>
-      </div>
-    </b-modal>
+    <b-modal v-model="createApiModal" id="showModal" title-class="exampleModalLabel" hide-footer class="v-modal-custom" centered no-close-on-backdrop>
+  <b-form @submit.prevent="save">
+    <div class="mb-3">
+      <label for="api-key-name" class="form-label">API Key Name</label>
+      <input type="text" class="form-control" id="api-key-name" disabled :value="selectedRecord ? selectedRecord.Name : ''">
+    </div>
+    <div class="mb-3">
+      <label for="api-key" class="form-label">API Key <span class="text-danger">*</span></label>
+      <input type="text" class="form-control" id="api-key" placeholder="Enter api key name" v-model="modalApiKey">
+    </div>
+    <div class="mb-3">
+      <label for="api-key-token" class="form-label">API Token</label>
+      <input type="text" class="form-control" id="api-key-token" placeholder="Enter api token" v-model="modalApiToken">
+    </div>
+    
+  <div class="hstack gap-2 justify-content-end mt-3">
+    <b-button type="button" variant="secondary" @click="createApiModal = false" id="close-modal">Close</b-button>
+    <b-button type="submit" variant="primary" id="save">Save Changes</b-button>
+  </div>
+  </b-form>
+</b-modal>
+
   </Layout>
 </template>

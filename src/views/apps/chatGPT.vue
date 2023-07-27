@@ -15,7 +15,6 @@ import useVuelidate from "@vuelidate/core";
 
 import Layout from "../../layouts/main.vue";
 import appConfig from "../../../app.config";
-import { executeQuery } from "../../.././src/api/utile.js";
 
 import {
   chatData,
@@ -37,14 +36,11 @@ export default {
   data() {
     return {
       resp: '',
-      
-      api:[],
-      apiKey:'',
       message: '',
       chatData: chatData,
       // chatMessagesData: chatMessagesData,
       chatMessagesData: [],
-      title: "Chat",
+      title: "ChatGPT",
       items: [{
         text: "Velzon",
         href: "/",
@@ -58,8 +54,8 @@ export default {
       form: {
         message: "",
       },
-      username: "Steven Franklin",
-      profile: require("@/assets/images/users/avatar-2.jpg")
+      username: "INSANE BOT",
+      profile: require("@/assets/images/users/avatar-222.jpg")
     };
   },
   components: {
@@ -124,40 +120,55 @@ export default {
 //       console.error('Error:', error);
 //     });
 // },
-    async ExecuteChatGpt(msg) {
-      console.log(msg)
-      //now time
-      var now = new Date();
-      var hours = this.addLeadingZero(now.getHours());
-      var minutes = this.addLeadingZero(now.getMinutes());
-      // var timeNow = hours + ":" + minutes;
+ExecuteChatGpt(msg) {
 
-      this.api =  await executeQuery("SELECT Id, Key__c, Token__c FROM api__c where Name='GPT'");
-  this.api = this.api[0];
-  this.apiKey = this.api.Key__c;
-      
-      callGpt35TurboAPI(msg,this.apiKey).then(response => {
-        // Handle the response here
-        console.log('Received Response:', response);
-        var timeNow2 = hours + ":" + minutes;
 
-        this.chatMessagesData.push(
-         
-          {
-            align: 'left',
-            name: 'ChatGPT',
-            message: response,
-            time: timeNow2
-          }
-          
-        )
-      }).catch(error => {
-        // Handle errors here
-        console.error('Error:', error);
-      });
-      console.log(this.chatMessagesData);
-      
-    },
+// var timeNow = hours + ":" + minutes;
+if (msg == '') {
+  var nowEmptyResp = new Date();
+  var hoursEmptyResp = this.addLeadingZero(nowEmptyResp.getHours());
+  var minutesEmptyResp = this.addLeadingZero(nowEmptyResp.getMinutes());
+  var timeNow2 = hoursEmptyResp + ":" + minutesEmptyResp;
+  this.chatMessagesData.push(
+
+    {
+      align: 'left',
+      name: 'ChatGPT',
+      message: "How can I help you ,You just sent an Empty message",
+      time: timeNow2
+    }
+
+  )
+}else{
+  
+callGpt35TurboAPI(msg).then(response => {
+  var now = new Date();
+  var hours = this.addLeadingZero(now.getHours());
+  var minutes = this.addLeadingZero(now.getMinutes());
+  // Handle the response here
+  console.log('Received Response:', response);
+  var timeNow2 = hours + ":" + minutes;
+
+  this.chatMessagesData.push(
+
+    {
+      align: 'left',
+      name: 'ChatGPT',
+      message: response,
+      time: timeNow2
+    }
+
+  )
+}).catch(error => {
+  // Handle errors here
+  console.error('Error:', error);
+});
+}
+
+
+console.log(this.chatMessagesData);
+
+},
     /**
      * Get the name of user
      */
@@ -256,70 +267,7 @@ export default {
 <template>
   <Layout>
     <div class="chat-wrapper d-lg-flex gap-1 mt-n4 py-1">
-      <div class="chat-leftsidebar">
-        <div class="px-4 pt-4 mb-4">
-          <div class="d-flex align-items-start">
-            <div class="flex-grow-1">
-              <h5 class="mb-4">Chats</h5>
-            </div>
-            <div class="flex-shrink-0">
-              <div v-b-tooltip.hover title="Add Contact">
-                <b-button type="button" variant="soft-primary" size="sm">
-                  <i class="ri-add-line align-bottom"></i>
-                </b-button>
-              </div>
-            </div>
-          </div>
-          <div class="search-box">
-            <input type="text" class="form-control bg-light border-light" placeholder="Search here..." />
-            <i class="ri-search-2-line search-icon"></i>
-          </div>
-        </div>
-
-        <div class="chat-room-list" data-simplebar>
-          <div class="d-flex align-items-center px-4 mb-2">
-            <div class="flex-grow-1">
-              <h4 class="mb-0 fs-11 text-muted text-uppercase">Direct Messages</h4>
-            </div>
-            <div class="flex-shrink-0">
-              <div v-b-tooltip.hover title="New Message">
-                <b-button type="button" variant="soft-primary" size="sm">
-                  <i class="ri-add-line align-bottom"></i>
-                </b-button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="chat-message-list">
-            <SimpleBar class="list-unstyled chat-list chat-user-list">
-              <li v-for="data of chatData" :key="data.id" @click="chatUsername(data.name, data.image)"
-                :class="{ active: username == data.name }">
-                <b-link href="javascript: void(0);">
-                  <div class="d-flex align-items-center">
-                    <div class="flex-shrink-0 chat-user-img online align-self-center me-2 ms-0">
-                      <div class="avatar-xxs" v-if="data.image">
-                        <img :src="`${data.image}`" class="rounded-circle img-fluid userprofile" alt />
-                      </div>
-                      <div class="avatar-xxs" v-if="!data.image">
-                        <div class="avatar-title rounded-circle bg-danger userprofile">
-                          {{ data.name.charAt(0) }}
-                        </div>
-                      </div>
-                    </div>
-                    <div class="flex-grow-1 overflow-hidden">
-                      <p class="text-truncate mb-1">{{ data.name }}</p>
-                    </div>
-
-                    <div class="flex-shrink-0">
-                      <b-badge variant="soft-dark" class="badge-soft-dark rounded p-1">{{ data.time }}</b-badge>
-                    </div>
-                  </div>
-                </b-link>
-              </li>
-            </SimpleBar>
-          </div>
-        </div>
-      </div>
+      
       <div class="user-chat w-100 overflow-hidden">
         <div class="chat-content d-lg-flex">
           <div class="w-100 overflow-hidden position-relative">
@@ -460,9 +408,7 @@ export default {
                         placeholder="Enter Message..." :class="{
                           'is-invalid': submitted && v$.form.message.$error,
                         }" />
-                      <div v-if="submitted && v$.form.message.$error" class="invalid-feedback">
-                        <span v-if="v$.form.message.required.$message">{{ v$.form.message.required.$message }}</span>
-                      </div>
+                    
                     </b-col>
                     <b-col cols="auto">
                       <div class="chat-input-links ms-2">

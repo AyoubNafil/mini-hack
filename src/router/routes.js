@@ -1,3 +1,4 @@
+
 import store from "@/state/store";
 
 export default [
@@ -86,21 +87,15 @@ export default [
     component: () => import("../views/tickets/list"),
   },
   {
-    path: "/chat",
-    name: "chat",
-    meta: { title: "Chat", authRequired: true },
-    component: () => import("../views/apps/chat"),
+    path: "/ChatGPT",
+    name: "ChatGPT",
+    meta: { title: "ChatGPT", authRequired: true },
+    component: () => import("../views/apps/ChatGPT"),
   },
   {
-    path: "/tables/basic",
-    name: "basic-table",
-    meta: { title: "Basic Table", authRequired: true },
-    component: () => import("../views/tables/basic"),
-  },
-  {
-    path: "/tables/gridjs",
-    name: "gridjs",
-    meta: { title: "Grid JS", authRequired: true },
-    component: () => import("../views/tables/grid/index"),
+    path: "/AICorrecter",
+    name: "Correcter",
+    meta: { title: "ChatGPT", authRequired: true },
+    component: () => import("../views/apps/AICorrecter"),
   },
 ];
