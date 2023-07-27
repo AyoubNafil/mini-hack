@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
@@ -96,15 +96,14 @@
     "@vue/cli-service": "~5.0.8",
     "@vue/compiler-sfc": "^3.2.45",
     "eslint": "^8.31.0",
-    "eslint-plugin-vue": "^7.0.0"
-  },
-  "resolutions": {
-    "autoprefixer": "10.4.5"
+    "eslint-plugin-vue": "^7.0.0",
+    "vue-cli-plugin-browser-extension": "npm:@rhilip/vue-cli-plugin-browser-extension@^0.27.0"
   },
   "eslintConfig": {
     "root": true,
     "env": {
-      "node": true
+      "node": true,
+      "webextensions": true
     },
     "extends": [
       "plugin:vue/vue3-essential",
@@ -116,5 +115,8 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "resolutions": {
+    "autoprefixer": "10.4.5"
+  }
 }

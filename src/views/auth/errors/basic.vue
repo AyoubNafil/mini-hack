@@ -144,7 +144,7 @@ export default {
       <b-container>
         <b-row>
           <b-col lg="12">
-            <div class="text-center pt-4">
+            <div class="text-center">
               <div class="">
                 <img src="@/assets/images/error.svg" alt="" class="error-basic-img move-animation">
               </div>

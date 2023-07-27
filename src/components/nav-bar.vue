@@ -545,7 +545,7 @@ export default {
                       </h6>
                     </b-col>
                     <b-col cols="auto" class="dropdown-tabs">
-                      <b-badge variant="soft-light" class="badge-soft-light fs-13"> 4 New</b-badge>
+                      <b-badge variant="soft-light" class="badge-soft-light fs-13"> 0 New</b-badge>
                     </b-col>
                   </b-row>
                 </div>
@@ -556,7 +556,7 @@ export default {
                     <li class="nav-item">
                       <b-link class="nav-link active" data-bs-toggle="tab" href="#all-noti-tab" role="tab"
                         aria-selected="false" @click.capture.stop>
-                        All (4)
+                        All (0)
                       </b-link>
                     </li>
                     <li class="nav-item">
@@ -579,7 +579,7 @@ export default {
 
                 <div class="tab-pane fade py-2 ps-2 show active" id="all-noti-tab" role="tabpanel">
                   <SimpleBar data-simplebar style="max-height: 300px" class="pe-2">
-                    <div class="text-reset notification-item d-block dropdown-item position-relative">
+                    <!-- <div class="text-reset notification-item d-block dropdown-item position-relative">
                       <div class="d-flex">
                         <div class="avatar-xs me-3">
                           <span class="avatar-title bg-soft-info text-info rounded-circle fs-16">
@@ -677,7 +677,7 @@ export default {
                           <input class="form-check-input" type="checkbox" />
                         </div>
                       </div>
-                    </div>
+                    </div> -->
 
                     <div class="my-3 text-center">
                       <b-button type="button" variant="soft-success">
@@ -690,7 +690,7 @@ export default {
 
                 <div class="tab-pane fade py-2 ps-2" id="messages-tab" role="tabpanel" aria-labelledby="messages-tab">
                   <SimpleBar data-simplebar style="max-height: 300px" class="pe-2">
-                    <div class="text-reset notification-item d-block dropdown-item">
+                    <!-- <div class="text-reset notification-item d-block dropdown-item">
                       <div class="d-flex">
                         <img src="@/assets/images/users/avatar-3.jpg" class="me-3 rounded-circle avatar-xs"
                           alt="user-pic" />
@@ -793,7 +793,7 @@ export default {
                           <input class="form-check-input" type="checkbox" />
                         </div>
                       </div>
-                    </div>
+                    </div> -->
 
                     <div class="my-3 text-center">
                       <b-button type="button" variant="soft-success">

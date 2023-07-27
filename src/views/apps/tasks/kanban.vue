@@ -3,18 +3,18 @@
 </style>
 
 <script >
-import { toRaw } from "vue";
+//import { toRaw } from "vue";
 import autoScroll from 'dom-autoscroller';
 //import { VueDraggableNext } from 'vue-draggable-next';
 import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 import dragula from 'dragula';
 
-import Layout from "../../../layouts/main.vue";
-import PageHeader from "@/components/page-header";
+//import Layout from "../../../layouts/main.vue";
+//import PageHeader from "@/components/page-header";
 import appConfig from "../../../../app.config";
 
-import Lottie from "@/components/widgets/lottie.vue";
+//import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 
 import Multiselect from "@vueform/multiselect";
@@ -123,7 +123,7 @@ export default {
             this.emailInput = "";
             this.modalShow = false;
 
-            Swal.fire("Good job!", "Team member added Succesfly!", "success");
+            //Swal.fire("Good job!", "Team member added Succesfly!", "success");
         },
         addBoard() {
             // Get the value of the board name from the input field
@@ -194,7 +194,7 @@ export default {
             if (this.tasks_list) {
                 console.log("this.tasks_list", this.tasks_list);
                 this.drake = dragula(this.tasks_list)
-                    .on("drag", (el, container) => {
+                    .on("drag", (el) => {
 
 
                         el.classList.remove("ex-moved");
@@ -236,7 +236,7 @@ export default {
                             console.log(updatedCC);
                         } else if (el.classList.contains("tasks-box")) {
                             console.log("in");
-                            const parentCardId = el.closest(".tasks-list").id.split("-")[2];;
+                            const parentCardId = el.closest(".tasks-list").id.split("-")[2];
                             console.log(parentCardId);
                             const tasksBoxId = el.id;
                             console.log(tasksBoxId);
@@ -399,10 +399,10 @@ export default {
     },
     components: {
         Listkanban,
-        Layout,
-        PageHeader,
+        //Layout,
+        //PageHeader,
         //draggable: VueDraggableNext,
-        lottie: Lottie,
+        //lottie: Lottie,
         flatPickr,
         Multiselect
     },

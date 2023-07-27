@@ -1,5 +1,5 @@
 <script>
-import { executeQuery, updateSObjects, createSObject, createSObject2, deleteSObject } from "../../../api/utile.js";
+import { executeQuery, createSObject2, deleteSObject } from "../../../api/utile.js";
 
 import TaskItem from "./TaskItem.vue"
 import flatPickr from "vue-flatpickr-component";
@@ -183,7 +183,7 @@ export default {
                             };
 
                             try {
-                                const newMemberTaskId = await createSObject2('Member_Task__c', data);
+                               await createSObject2('Member_Task__c', data);
 
 
                             } catch (error) {
@@ -231,11 +231,7 @@ export default {
                 const taskIds = this.task.map((task) => `'${task.Id}'`).join(',');
 
                 // Query attachments related to the tasks
-                const attachments = await executeQuery(`
-                    SELECT Id, Name, ContentType, Body, ParentId
-                    FROM Attachment
-                    WHERE ParentId IN (${taskIds})
-                    `);
+                const attachments = await executeQuery(`SELECT Id, Name, ContentType, Body, ParentId FROM Attachment WHERE ParentId IN (${taskIds})`);
 
                 // Group attachments by their ParentId (Task__c Id)
                 const attachmentsByTaskId = {};

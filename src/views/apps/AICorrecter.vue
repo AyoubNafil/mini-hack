@@ -1,5 +1,5 @@
 <script>
-import { ChatGpt, callGpt35TurboAPI } from "../../.././src/api/utile.js"
+import {  callGpt35TurboAPI } from "../../.././src/api/utile.js"
 
 import {
   SearchIcon,

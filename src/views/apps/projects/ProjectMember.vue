@@ -26,9 +26,9 @@
 </style>
 
 <script>
-import Layout from "../../../layouts/main.vue";
-import appConfig from "../../../../app.config";
-import { executeQuery, updateSObjects, createSObject, createSObject2, deleteSObject } from "../../../api/utile.js";
+//import Layout from "../../../layouts/main.vue";
+//import appConfig from "../../../../app.config";
+import { executeQuery, createSObject2, deleteSObject } from "../../../api/utile.js";
 import Swal from "sweetalert2";
 
 //import 'vue-good-table/dist/vue-good-table.css'
@@ -124,7 +124,7 @@ export default {
                 };
 
                 try {
-                    const newMemberBoardId = await createSObject2('Member_Board__c', data);
+                    await createSObject2('Member_Board__c', data);
                    
                     // Fetch team members' data from the API
                     this.teamMembers = await this.fetchTeamMembersData();

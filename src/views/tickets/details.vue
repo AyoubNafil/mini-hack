@@ -1,6 +1,6 @@
 <script>
-import Multiselect from "@vueform/multiselect";
-import "@vueform/multiselect/themes/default.css";
+//import Multiselect from "@vueform/multiselect";
+//import "@vueform/multiselect/themes/default.css";
 
 import Layout from "../../layouts/main.vue";
 import appConfig from "../../../app.config";
@@ -20,7 +20,7 @@ export default {
     },
     components: {
         Layout,
-        Multiselect,
+       // Multiselect,
     },
   async mounted() {
         try {
@@ -318,12 +318,12 @@ async getTicketDetail() {
                         <div class="d-flex align-items-center border border-dashed p-2 rounded">
                             <div class="flex-shrink-0 avatar-sm">
                                 <div class="avatar-title bg-light rounded">
-                                    <i class="ri-file-zip-line fs-20 text-primary"></i>
+                                    <i class="ri-image-fill fs-20 text-primary"></i>
                                 </div>
                             </div>
                             <div class="flex-grow-1 ms-3">
                                 <h6 class="mb-1">
-                                    <b-link href="javascript:void(0);">Velzon-admin.zip</b-link>
+                                    <b-link href="javascript:void(0);">Screen.png</b-link>
                                 </h6>
                                 <small class="text-muted">3.2 MB</small>
                             </div>
@@ -334,25 +334,7 @@ async getTicketDetail() {
                                 </b-link>
                             </div>
                         </div>
-                        <div class="d-flex  align-items-center border border-dashed p-2 rounded mt-2">
-                            <div class="flex-shrink-0 avatar-sm">
-                                <div class="avatar-title bg-light rounded">
-                                    <i class="ri-file-ppt-2-line fs-20 text-danger"></i>
-                                </div>
-                            </div>
-                            <div class="flex-grow-1 ms-3">
-                                <h6 class="mb-1">
-                                    <b-link href="javascript:void(0);">Velzon-admin.ppt</b-link>
-                                </h6>
-                                <small class="text-muted">4.5 MB</small>
-                            </div>
-                            <div class="hstack gap-3 fs-16">
-                                <b-link href="javascript:void(0);" class="text-muted"><i class="ri-download-2-line"></i>
-                                </b-link>
-                                <b-link href="javascript:void(0);" class="text-muted"><i class="ri-delete-bin-line"></i>
-                                </b-link>
-                            </div>
-                        </div>
+                        
                     </b-card-body>
                 </b-card>
             </b-col>

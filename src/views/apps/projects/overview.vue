@@ -1,8 +1,8 @@
 <script>
 import Layout from "../../../layouts/main.vue";
 import appConfig from "../../../../app.config";
-import { executeQuery, createSObject } from "../../.././api/utile.js";
-import Swal from "sweetalert2";
+import { executeQuery } from "../../.././api/utile.js";
+//import Swal from "sweetalert2";
 import kanban from "../tasks/kanban.vue";
 import ProjectMember from "./ProjectMember.vue";
 import Backlog from "./Backlog.vue";

@@ -8,7 +8,7 @@ import Schedules from "./schedule.vue";
 import Project from "./projects.vue";
 import Task from "./tasks.vue";
 import Member from "./members.vue";
-import Chat from "./chat.vue";
+//import Chat from "./chat.vue";
 import Status from "./status.vue";
 import ActiveProjects from "./active-projects.vue";
 

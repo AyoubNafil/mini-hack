@@ -1,5 +1,5 @@
 <script>
-import { deleteSObject, requestSF, fetchAndDisplayImage, getImageUrl, executeQuery } from "../../../api/utile.js";
+import { deleteSObject,  getImageUrl, executeQuery } from "../../../api/utile.js";
 import Lottie from "@/components/widgets/lottie.vue";
 import animationData from "@/components/widgets/gsqxdxog.json";
 export default {
@@ -22,6 +22,8 @@ export default {
             teamMembers: [],
             tags:[],
             isImageHidden: true,
+            imageUrl: null,
+
         };
     },
 
@@ -51,16 +53,19 @@ export default {
     },
     methods: {
 
-        getImageUrl(attachment) {
+        async getImageUrl(attachment) {
             console.log("dddddddddddd1");
             if (attachment) {
                 console.log("dddddddddddd2");
                 if (attachment.length > 0) {
                     console.log(attachment);
-                    this.isImageHidden = false;
+                    
                     //console.log("dddddddddddd3");
                     try {
-                        const hhh = getImageUrl(attachment[0].Id);
+                        const hhh = await getImageUrl(attachment[0].Id);
+                        console.log("hhh:",hhh);
+                        this.imageUrl=hhh;
+                        this.isImageHidden = false;
                         // //console.log("dddddddddddd4");
                         // const attachmentData = await requestSF(attachment[0].Body);
                         // //console.log(base64_encode(attachmentData.toString('base64'))); // Fetch the attachment content
@@ -140,7 +145,8 @@ export default {
                 return []; // Return an empty array in case of an error
             }
         }
-    }
+    },
+    
 
 
 
@@ -179,7 +185,7 @@ export default {
             </div>
             <p class="text-muted">{{item.Description__c}}</p>
 
-            <img :hidden="isImageHidden" :src="this.getImageUrl(this.item.attachments)" alt="Attachment" class="tasks-img rounded" />
+            <img :hidden="isImageHidden" :id="this.getImageUrl(this.item.attachments)" :src="imageUrl"   alt="Attachment" class="tasks-img rounded" />
             <div class="mb-3">
                 <div class="d-flex mb-1">
                     <div class="flex-grow-1">

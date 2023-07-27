@@ -1,4 +1,4 @@
-import { getDomainCookies } from "./accessToken.js";
+//import { getDomainCookies } from "./accessToken.js";
 import jsforce from "jsforce";
 import axios from 'axios';
 import throttle from 'lodash/throttle';
@@ -9,18 +9,18 @@ import Swal from "sweetalert2";
 //import { URL, AccessToken, PackageName } from "../constants";
 
 
-async function ConnexionSFTest() {
-	const cc = await getDomainCookies();
-	//console.log(cc);
-	conn = new jsforce.Connection({
-		instanceUrl: 'https://' + process.env.VUE_APP_SALES_URL,
-		accessToken: process.env.VUE_APP_ACCESS_TOKEN
-	});
-	return conn;
+// async function ConnexionSFTest() {
+// 	//const cc = await getDomainCookies();
+// 	//console.log(cc);
+// 	conn = new jsforce.Connection({
+// 		instanceUrl: 'https://' + process.env.VUE_APP_SALES_URL,
+// 		accessToken: process.env.VUE_APP_ACCESS_TOKEN
+// 	});
+// 	return conn;
 
-}
+// }
 
-let conn = ConnexionSFTest();
+// let conn = ConnexionSFTest();
 
 
 // async function ConnexionSF() {
@@ -37,13 +37,46 @@ let conn = ConnexionSFTest();
 // let conn = ConnexionSF();
 
 
+export async function getDomainCookies() {
+	try {
+		const currentUrl = window.location.href;
+		const url = new URL(currentUrl);
+		const baseUrl = url.searchParams.get('url');
+		return new Promise((resolve, reject) => {
+			chrome.cookies.getAll({ url: baseUrl }, (cookies) => {
+				for (var i = 0; i < cookies.length; i++) {
+					if (cookies[i].name === "sid") {
+						var accessToken = cookies[i].value;
+						var domain = cookies[i].domain;
+						resolve([domain, accessToken]);
+					}
+				}
+				if (cookies.length === 0) {
+					reject('No cookies found');
+				}
+			});
+		});
+	} catch (error) {
+		throw new Error('Unexpected error: ' + error);
+	}
+}
 
+export async function ConnexionSFTest() {
+	const cc = await getDomainCookies();
+	console.log(cc);
+	const conn = new jsforce.Connection({
+		instanceUrl: 'https://' + cc[0],
+		accessToken: cc[1]
+	});
+	return conn;
+}
 
-
+//const conn = ConnexionSFTest();
 
 export function executeQuery(query) {
 	return new Promise((resolve, reject) => {
-		if (conn) {
+		ConnexionSFTest()
+			.then((conn) => {
 			conn.query(query, function (err, result) {
 				if (err) {
 					reject(err);
@@ -60,15 +93,17 @@ export function executeQuery(query) {
 					}
 				}
 			});
-		} else {
-			reject(new Error('Connection not established.'));
-		}
+		})
+		.catch((error) => {
+			reject(error);
+		});
 	});
 }
 
 export function createSObject2(name, data) {
 	return new Promise((resolve, reject) => {
-		if (conn) {
+		ConnexionSFTest()
+			.then((conn) => {
 			conn.sobject(name).create(data, function (err, ret) {
 				if (err || !ret.success) {
 					reject(err || new Error("Record creation failed."));
@@ -77,39 +112,45 @@ export function createSObject2(name, data) {
 					resolve(ret.id);
 				}
 			});
-		} else {
-			reject(new Error("Connection not established."));
-		}
+		})
+		.catch((error) => {
+			reject(error);
+		});
 	});
 }
 
 export function createSObject(name, data) {
 
-	if (conn) {
+	ConnexionSFTest()
+			.then((conn) => {
 		conn.sobject(name).create(data, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log("Created record id : " + ret.id);
 		});
 
-	} else {
-		reject(new Error('Connection not established.'));
-	}
+	})
+	.catch((error) => {
+		console.log(error);
+	});
 }
 
 export function deleteSObject(name, id) {
-	if (conn) {
+	ConnexionSFTest()
+			.then((conn) => {
 		conn.sobject(name).destroy(id, function (err, ret) {
 			if (err || !ret.success) { return console.error(err, ret); }
 			console.log('Deleted Successfully : ' + ret.id);
 		});
-	} else {
-		reject(new Error('Connection not established.'));
-	}
+	})
+	.catch((error) => {
+		console.log(error);
+	});
 }
 
 
 export function updateSObjects(name, data) {
-	if (conn) {
+	ConnexionSFTest()
+			.then((conn) => {
 		conn.sobject(name).update(data, function (err, rets) {
 			if (err) { return console.error(err); }
 			for (var i = 0; i < rets.length; i++) {
@@ -119,9 +160,10 @@ export function updateSObjects(name, data) {
 			}
 		});
 
-	} else {
-		reject(new Error('Connection not established.'));
-	}
+	})
+	.catch((error) => {
+		console.log(error);
+	});
 
 
 }
@@ -130,7 +172,8 @@ export function updateSObjects(name, data) {
 export function ToolingPackage() {
 	return new Promise((resolve, reject) => {
 
-		conn.then(() => {
+		ConnexionSFTest()
+			.then((conn) => {
 			conn.tooling.query("select Id ,SubscriberPackage.Name from InstalledSubscriberPackage", function (err, result) {
 				if (err) {
 					reject(err);
@@ -144,6 +187,9 @@ export function ToolingPackage() {
 					}
 				}
 			});
+		})
+		.catch((error) => {
+			reject(error);
 		});
 	});
 }
@@ -151,7 +197,8 @@ export function ToolingPackage() {
 
 export function toolingQuery(query) {
 	return new Promise((resolve, reject) => {
-		if (conn) {
+		ConnexionSFTest()
+		.then((conn) => {
 			conn.tooling.query(query, function (err, result) {
 				if (err) {
 					reject(err);
@@ -168,9 +215,10 @@ export function toolingQuery(query) {
 					}
 				}
 			});
-		} else {
-			reject(new Error('Connection not established.'));
-		}
+		})
+		.catch((error) => {
+			reject(error);
+		});
 	});
 }
 
@@ -300,70 +348,77 @@ export function exportToTrello(boardData, listData, cardData, apiKey, token) {
 
 export function requestSF(url) {
 	return new Promise((resolve, reject) => {
-		if (conn) {
+		ConnexionSFTest()
+		.then((conn) => {
 			conn.request(url, function (err, ret) {
 				console.log(ret);
 				resolve(ret);
 
 			});
-		} else {
-			reject(new Error("Connection not established."));
-		}
+		})
+		.catch((error) => {
+			reject(error);
+		});
 	});
 }
 
-export async function fetchAndDisplayImage(attachmentId) {
-	//console.log("1");
-	if (conn) {
-		try {
-			//console.log("2");
-			// Fetch the image attachment body from Salesforce
-			const attachment = await conn.sobject("Attachment").retrieve(attachmentId, ["Body", "ContentType"]);
-			if (attachment && attachment.Body) {
-				// Convert the binary image data to base64
-				const base64Data = Buffer.from(attachment.Body, 'base64').toString('base64');
-				// Display the base64 data in the console
-				console.log('Base64 Image Data: ', base64Data);
+// export async function fetchAndDisplayImage(attachmentId) {
+// 	//console.log("1");
+// 	if (conn) {
+// 		try {
+// 			//console.log("2");
+// 			// Fetch the image attachment body from Salesforce
+// 			const attachment = await conn.sobject("Attachment").retrieve(attachmentId, ["Body", "ContentType"]);
+// 			if (attachment && attachment.Body) {
+// 				// Convert the binary image data to base64
+// 				const base64Data = Buffer.from(attachment.Body, 'base64').toString('base64');
+// 				// Display the base64 data in the console
+// 				console.log('Base64 Image Data: ', base64Data);
 
-				// Display the image on the HTML page using the base64 data
-				base64Img.img(`data:${attachment.ContentType};base64,${base64Data}`, './', 'image', (err, filePath) => {
-					if (err) {
-						console.error('Error saving image:', err);
-					} else {
-						console.log('Image file path:', filePath);
-						// Now you can use the image file path (filePath) to display the image in your HTML page
-						// For example, you can set the image source attribute in the <img> tag.
-						// Example in Vue.js: this.imageSrc = filePath;
-					}
-				});
-			} else {
-				console.error('Attachment not found or empty.');
-			}
-		} catch (error) {
-			console.error('Error fetching image:', error);
-		}
-	} else {
-		reject(new Error('Connection not established.'));
-	}
+// 				// Display the image on the HTML page using the base64 data
+// 				base64Img.img(`data:${attachment.ContentType};base64,${base64Data}`, './', 'image', (err, filePath) => {
+// 					if (err) {
+// 						console.error('Error saving image:', err);
+// 					} else {
+// 						console.log('Image file path:', filePath);
+// 						// Now you can use the image file path (filePath) to display the image in your HTML page
+// 						// For example, you can set the image source attribute in the <img> tag.
+// 						// Example in Vue.js: this.imageSrc = filePath;
+// 					}
+// 				});
+// 			} else {
+// 				console.error('Attachment not found or empty.');
+// 			}
+// 		} catch (error) {
+// 			console.error('Error fetching image:', error);
+// 		}
+// 	} else {
+// 		reject(new Error('Connection not established.'));
+// 	}
 
-}
+// }
 
 export function getImageUrl(attachmentId) {
-	try {
-
-		if (conn) {
-			// Construct the image URL
-			const imageUrl = `${conn.instanceUrl}/servlet/servlet.FileDownload?file=${attachmentId}`;
-			return imageUrl;
-		} else {
-			reject(new Error("Connection not established."));
-		}
-	} catch (error) {
-		console.error('Error fetching image URL:', error);
-		return null;
-	}
-
+    return new Promise((resolve, reject) => {
+        try {
+            ConnexionSFTest()
+                .then((conn) => {
+                    // Construct the image URL
+                    const imageUrl = `${conn.instanceUrl}/servlet/servlet.FileDownload?file=${attachmentId}`;
+                    console.log(imageUrl);
+                    resolve(imageUrl); // Resolve the promise with the image URL
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error); // Reject the promise if there's an error in ConnexionSFTest
+                });
+        } catch (error) {
+            console.error('Error fetching image URL:', error);
+            reject(error); // Reject the promise if any other error occurs
+        }
+    });
 }
+
 
 
 export function ChatGpt(message) {

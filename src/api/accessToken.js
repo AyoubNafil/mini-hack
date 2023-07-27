@@ -1,5 +1,5 @@
 
-/*global chrome*/
+
 
 export async function getDomainCookies() {
   

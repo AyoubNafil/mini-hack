@@ -1,5 +1,5 @@
 <script>
-import Multiselect from "@vueform/multiselect";
+//import Multiselect from "@vueform/multiselect";
 import "@vueform/multiselect/themes/default.css";
 
 import Layout from "../../../layouts/main.vue";
@@ -14,7 +14,7 @@ import flatPickr from "vue-flatpickr-component";
 import "flatpickr/dist/flatpickr.css";
 
 import Swal from "sweetalert2";
-import { createSObject2 } from "../../../api/utile";
+import { createSObject } from "../../../api/utile";
 
 export default {
     page: {
@@ -57,7 +57,7 @@ export default {
         Layout,
         PageHeader,
         lottie: Lottie,
-        Multiselect,
+        //Multiselect,
 
         flatPickr,
     },
@@ -702,54 +702,7 @@ export default {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <th scope="row">
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="@/assets/images/users/avatar-8.jpg" alt=""
-                                                            class="rounded-circle avatar-xxs" />
-                                                        <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile"
-                                                                class="fw-medium text-reset">Thomas Taylor</router-link>
-                                                        </div>
-                                                    </div>
-                                                </th>
-                                                <td>02 Jan, 2022</td>
-                                                <td>3 hrs 12 min</td>
-                                                <td>05 min</td>
-                                                <td>Apps Pages</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="@/assets/images/users/avatar-10.jpg" alt=""
-                                                            class="rounded-circle avatar-xxs" />
-                                                        <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile"
-                                                                class="fw-medium text-reset">Tonya Noble</router-link>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>28 Dec, 2021</td>
-                                                <td>1 hrs 35 min</td>
-                                                <td>-</td>
-                                                <td>Profile Page Design</td>
-                                            </tr>
-                                            <tr>
-                                                <th scope="row">
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="@/assets/images/users/avatar-10.jpg" alt=""
-                                                            class="rounded-circle avatar-xxs" />
-                                                        <div class="flex-grow-1 ms-2">
-                                                            <router-link to="/pages/profile"
-                                                                class="fw-medium text-reset">Tonya Noble</router-link>
-                                                        </div>
-                                                    </div>
-                                                </th>
-                                                <td>27 Dec, 2021</td>
-                                                <td>4 hrs 26 min</td>
-                                                <td>03 min</td>
-                                                <td>Ecommerce Dashboard</td>
-                                            </tr>
+                                           
                                         </tbody>
                                     </table>
                                 </div>

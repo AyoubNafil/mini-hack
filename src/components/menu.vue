@@ -1,14 +1,10 @@
 <script>
-import {
-  layoutComputed
-} from "@/state/helpers";
-import {
-  SimpleBar
-} from "simplebar-vue3";
+import { layoutComputed } from "@/state/helpers";
+import { SimpleBar } from "simplebar-vue3";
 
 export default {
   components: {
-    SimpleBar
+    SimpleBar,
   },
   data() {
     return {
@@ -34,7 +30,6 @@ export default {
     },
   },
 
-
   mounted() {
     if (document.querySelectorAll(".navbar-nav .collapse")) {
       let collapses = document.querySelectorAll(".navbar-nav .collapse");
@@ -45,12 +40,14 @@ export default {
           e.stopPropagation();
           let closestCollapse = collapse.parentElement.closest(".collapse");
           if (closestCollapse) {
-            let siblingCollapses =
-              closestCollapse.querySelectorAll(".collapse");
+            let siblingCollapses = closestCollapse.querySelectorAll(".collapse");
             siblingCollapses.forEach((siblingCollapse) => {
               if (siblingCollapse.classList.contains("show")) {
                 siblingCollapse.classList.remove("show");
-                siblingCollapse.parentElement.firstChild.setAttribute("aria-expanded", "false");
+                siblingCollapse.parentElement.firstChild.setAttribute(
+                  "aria-expanded",
+                  "false"
+                );
               }
             });
           } else {
@@ -98,7 +95,10 @@ export default {
           childCollapses.forEach((childCollapse) => {
             let childCollapseInstance = childCollapse;
             childCollapseInstance.classList.remove("show");
-            childCollapseInstance.parentElement.firstChild.setAttribute("aria-expanded", "false");
+            childCollapseInstance.parentElement.firstChild.setAttribute(
+              "aria-expanded",
+              "false"
+            );
           });
         });
       });
@@ -112,26 +112,41 @@ export default {
         const currentPosition = document.getElementsByClassName("mm-active")[0].offsetTop;
         if (currentPosition > 500)
           if (this.$refs.isSimplebar)
-            this.$refs.isSimplebar.value.getScrollElement().scrollTop = currentPosition + 300;
+            this.$refs.isSimplebar.value.getScrollElement().scrollTop =
+              currentPosition + 300;
       }
     },
 
     initActiveMenu(ele) {
       setTimeout(() => {
         if (document.querySelector("#navbar-nav")) {
-          let a = document.querySelector("#navbar-nav").querySelector('[href="' + ele + '"]');
+          let a = document
+            .querySelector("#navbar-nav")
+            .querySelector('[href="' + ele + '"]');
           if (a) {
             a.classList.add("active");
             let parentCollapseDiv = a.closest(".collapse.menu-dropdown");
             if (parentCollapseDiv) {
               parentCollapseDiv.classList.add("show");
               parentCollapseDiv.parentElement.children[0].classList.add("active");
-              parentCollapseDiv.parentElement.children[0].setAttribute("aria-expanded", "true");
+              parentCollapseDiv.parentElement.children[0].setAttribute(
+                "aria-expanded",
+                "true"
+              );
               if (parentCollapseDiv.parentElement.closest(".collapse.menu-dropdown")) {
-                parentCollapseDiv.parentElement.closest(".collapse").classList.add("show");
-                if (parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling)
-                  parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling.classList.add("active");
-                const grandparent = parentCollapseDiv.parentElement.closest(".collapse").previousElementSibling.parentElement.closest(".collapse");
+                parentCollapseDiv.parentElement
+                  .closest(".collapse")
+                  .classList.add("show");
+                if (
+                  parentCollapseDiv.parentElement.closest(".collapse")
+                    .previousElementSibling
+                )
+                  parentCollapseDiv.parentElement
+                    .closest(".collapse")
+                    .previousElementSibling.classList.add("active");
+                const grandparent = parentCollapseDiv.parentElement
+                  .closest(".collapse")
+                  .previousElementSibling.parentElement.closest(".collapse");
                 if (grandparent && grandparent && grandparent.previousElementSibling) {
                   grandparent.previousElementSibling.classList.add("active");
                   grandparent.classList.add("show");
@@ -156,55 +171,75 @@ export default {
           <span data-key="t-menu"> {{ $t("t-menu") }}</span>
         </li>
         <li class="nav-item">
-          <b-link class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button"
-            aria-expanded="false" aria-controls="sidebarDashboards">
+          <b-link
+            class="nav-link menu-link"
+            href="#sidebarDashboards"
+            data-bs-toggle="collapse"
+            role="button"
+            aria-expanded="false"
+            aria-controls="sidebarDashboards"
+          >
             <i class="ri-dashboard-2-line"></i>
             <span data-key="t-dashboards"> {{ $t("t-dashboards") }}</span>
           </b-link>
           <div class="collapse menu-dropdown" id="sidebarDashboards">
             <ul class="nav nav-sm flex-column">
-             
-               
               <li class="nav-item">
-                <router-link to="/dashboard/projects" class="nav-link" data-key="t-projects">
+                <router-link
+                  to="/dashboard/projects"
+                  class="nav-link"
+                  data-key="t-projects"
+                >
                   {{ $t("t-projects") }}
                 </router-link>
               </li>
-             
             </ul>
           </div>
         </li>
         <!-- end Dashboard Menu -->
         <li class="nav-item">
-          <b-link class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
-            aria-expanded="false" aria-controls="sidebarApps">
+          <b-link
+            class="nav-link menu-link"
+            href="#sidebarApps"
+            data-bs-toggle="collapse"
+            role="button"
+            aria-expanded="false"
+            aria-controls="sidebarApps"
+          >
             <i class="ri-apps-2-line"></i>
             <span data-key="t-apps"> {{ $t("t-apps") }}</span>
           </b-link>
           <div class="collapse menu-dropdown" id="sidebarApps">
             <ul class="nav nav-sm flex-column">
-              
-              
-              
               <li class="nav-item">
-                <b-link href="#sidebarProjects" class="nav-link" data-bs-toggle="collapse" role="button"
-                  aria-expanded="false" aria-controls="sidebarProjects" data-key="t-projects">
+                <b-link
+                  href="#sidebarProjects"
+                  class="nav-link"
+                  data-bs-toggle="collapse"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarProjects"
+                  data-key="t-projects"
+                >
                   {{ $t("t-projects") }}
                 </b-link>
                 <div class="collapse menu-dropdown" id="sidebarProjects">
                   <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                      <router-link to="/apps/projects-list" class="nav-link" data-key="t-list">
+                      <router-link
+                        to="/apps/projects-list"
+                        class="nav-link"
+                        data-key="t-list"
+                      >
                         {{ $t("t-list") }}
                       </router-link>
                     </li>
                     <li class="nav-item">
-                      <router-link to="/apps/projects-overview" class="nav-link" data-key="t-overview">
-                        {{ $t("t-overview") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/projects-create" class="nav-link" data-key="t-create-project">
+                      <router-link
+                        to="/apps/projects-create"
+                        class="nav-link"
+                        data-key="t-create-project"
+                      >
                         {{ $t("t-create-project") }}
                       </router-link>
                     </li>
@@ -212,25 +247,26 @@ export default {
                 </div>
               </li>
               <li class="nav-item">
-                <b-link href="#sidebarTasks" class="nav-link" data-bs-toggle="collapse" role="button"
-                  aria-expanded="false" aria-controls="sidebarTasks" data-key="t-tasks">
+                <b-link
+                  href="#sidebarTasks"
+                  class="nav-link"
+                  data-bs-toggle="collapse"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarTasks"
+                  data-key="t-tasks"
+                >
                   {{ $t("t-tasks") }}
                 </b-link>
                 <div class="collapse menu-dropdown" id="sidebarTasks">
                   <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                      <router-link to="/apps/tasks-kanban" class="nav-link" data-key="t-kanbanboard">
-                        {{ $t("t-kanbanboard") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/tasks-list-view" class="nav-link" data-key="t-list-view">
+                      <router-link
+                        to="/apps/tasks-list-view"
+                        class="nav-link"
+                        data-key="t-list-view"
+                      >
                         {{ $t("t-list-view") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/tasks-details" class="nav-link" data-key="t-task-details">
-                        {{ $t("t-task-details") }}
                       </router-link>
                     </li>
                     <li class="nav-item">
@@ -239,24 +275,29 @@ export default {
                       </router-link>
                     </li>
                     <li class="nav-item">
-                      <router-link to="/AICorrecter" class="nav-link" data-key="AICorrecter">
+                      <router-link
+                        to="/AICorrecter"
+                        class="nav-link"
+                        data-key="AICorrecter"
+                      >
                         AICorrecter
                       </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link to="/apps-api-key" class="nav-link" data-key="t-api-key">
-                          {{ $t("t-api-key") }}
-                        </router-link>
-                      </li>
+                      <router-link
+                        to="/apps-api-key"
+                        class="nav-link"
+                        data-key="t-api-key"
+                      >
+                        {{ $t("t-api-key") }}
+                      </router-link>
+                    </li>
                   </ul>
                 </div>
               </li>
-              
             </ul>
           </div>
         </li>
-
-        
       </SimpleBar>
     </template>
 
@@ -266,53 +307,75 @@ export default {
           <span data-key="t-menu"> {{ $t("t-menu") }}</span>
         </li>
         <li class="nav-item">
-          <b-link class="nav-link menu-link" href="#sidebarDashboards" data-bs-toggle="collapse" role="button"
-            aria-expanded="false" aria-controls="sidebarDashboards">
+          <b-link
+            class="nav-link menu-link"
+            href="#sidebarDashboards"
+            data-bs-toggle="collapse"
+            role="button"
+            aria-expanded="false"
+            aria-controls="sidebarDashboards"
+          >
             <i class="ri-dashboard-2-line"></i>
             <span data-key="t-dashboards"> {{ $t("t-dashboards") }}</span>
           </b-link>
           <div class="collapse menu-dropdown" id="sidebarDashboards">
             <ul class="nav nav-sm flex-column">
-             
               <li class="nav-item">
-                <router-link to="/dashboard/projects" class="nav-link" data-key="t-projects">
+                <router-link
+                  to="/dashboard/projects"
+                  class="nav-link"
+                  data-key="t-projects"
+                >
                   {{ $t("t-projects") }}
                 </router-link>
               </li>
-              
             </ul>
           </div>
         </li>
         <!-- end Dashboard Menu -->
         <li class="nav-item">
-          <b-link class="nav-link menu-link" href="#sidebarApps" data-bs-toggle="collapse" role="button"
-            aria-expanded="false" aria-controls="sidebarApps">
+          <b-link
+            class="nav-link menu-link"
+            href="#sidebarApps"
+            data-bs-toggle="collapse"
+            role="button"
+            aria-expanded="false"
+            aria-controls="sidebarApps"
+          >
             <i class="ri-apps-2-line"></i>
             <span data-key="t-apps"> {{ $t("t-apps") }}</span>
           </b-link>
           <div class="collapse menu-dropdown" id="sidebarApps">
             <ul class="nav nav-sm flex-column">
-
-             
               <li class="nav-item">
-                <b-link href="#sidebarProjects" class="nav-link" data-bs-toggle="collapse" role="button"
-                  aria-expanded="false" aria-controls="sidebarProjects" data-key="t-projects">
+                <b-link
+                  href="#sidebarProjects"
+                  class="nav-link"
+                  data-bs-toggle="collapse"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarProjects"
+                  data-key="t-projects"
+                >
                   {{ $t("t-projects") }}
                 </b-link>
                 <div class="collapse menu-dropdown" id="sidebarProjects">
                   <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                      <router-link to="/apps/projects-list" class="nav-link" data-key="t-list">
+                      <router-link
+                        to="/apps/projects-list"
+                        class="nav-link"
+                        data-key="t-list"
+                      >
                         {{ $t("t-list") }}
                       </router-link>
                     </li>
                     <li class="nav-item">
-                      <router-link to="/apps/projects-overview" class="nav-link" data-key="t-overview">
-                        {{ $t("t-overview") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/projects-create" class="nav-link" data-key="t-create-project">
+                      <router-link
+                        to="/apps/projects-create"
+                        class="nav-link"
+                        data-key="t-create-project"
+                      >
                         {{ $t("t-create-project") }}
                       </router-link>
                     </li>
@@ -320,75 +383,78 @@ export default {
                 </div>
               </li>
               <li class="nav-item">
-                <b-link href="#sidebarTasks" class="nav-link" data-bs-toggle="collapse" role="button"
-                  aria-expanded="false" aria-controls="sidebarTasks" data-key="t-tasks">
+                <b-link
+                  href="#sidebarTasks"
+                  class="nav-link"
+                  data-bs-toggle="collapse"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarTasks"
+                  data-key="t-tasks"
+                >
                   {{ $t("t-tasks") }}
                 </b-link>
                 <div class="collapse menu-dropdown" id="sidebarTasks">
                   <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                      <router-link to="/apps/tasks-kanban" class="nav-link" data-key="t-kanbanboard">
-                        {{ $t("t-kanbanboard") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/tasks-list-view" class="nav-link" data-key="t-list-view">
+                      <router-link
+                        to="/apps/tasks-list-view"
+                        class="nav-link"
+                        data-key="t-list-view"
+                      >
                         {{ $t("t-list-view") }}
-                      </router-link>
-                    </li>
-                    <li class="nav-item">
-                      <router-link to="/apps/tasks-details" class="nav-link" data-key="t-task-details">
-                        {{ $t("t-task-details") }}
                       </router-link>
                     </li>
                   </ul>
                 </div>
               </li>
               <li class="nav-item">
-                        <b-link href="#sidebarTickets" class="nav-link" data-bs-toggle="collapse" role="button"
-                          aria-expanded="false" aria-controls="sidebarTickets" data-key="t-supprt-tickets">
-                          {{ $t("t-supprt-tickets") }}
-                        </b-link>
-                        <div class="collapse menu-dropdown" id="sidebarTickets">
-                          <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                              <router-link to="/apps/tickets-list" class="nav-link" data-key="t-list-view">
-                                {{ $t("t-list-view") }}
-                              </router-link>
-                            </li>
-                            <li class="nav-item">
-                              <router-link to="/apps/tickets-details" class="nav-link" data-key="t-ticket-details">
-                                {{ $t("t-ticket-details") }}
-                              </router-link>
-                            </li>
-                          </ul>
-                        </div>
-                      </li>
-
-                      <li class="nav-item">
-                      <router-link to="/ChatGPT" class="nav-link" data-key="t-chat">
-                        {{ $t("t-chat") }}
-                      </router-link>
-                    </li>
+                <b-link
+                  href="#sidebarTickets"
+                  class="nav-link"
+                  data-bs-toggle="collapse"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="sidebarTickets"
+                  data-key="t-supprt-tickets"
+                >
+                  {{ $t("t-supprt-tickets") }}
+                </b-link>
+                <div class="collapse menu-dropdown" id="sidebarTickets">
+                  <ul class="nav nav-sm flex-column">
                     <li class="nav-item">
-                      <router-link to="/AICorrecter" class="nav-link" data-key="AICorrecter">
-                        AI Correcter
+                      <router-link
+                        to="/apps/tickets-list"
+                        class="nav-link"
+                        data-key="t-list-view"
+                      >
+                        {{ $t("t-list-view") }}
                       </router-link>
                     </li>
+                  </ul>
+                </div>
+              </li>
 
-              
               <li class="nav-item">
-                        <router-link to="/apps-api-key" class="nav-link" data-key="t-api-key">
-                          {{ $t("t-api-key") }}
-                        </router-link>
-                      </li>
-              
+                <router-link to="/ChatGPT" class="nav-link" data-key="t-chat">
+                  {{ $t("t-chat") }}
+                </router-link>
+              </li>
+              <li class="nav-item">
+                <router-link to="/AICorrecter" class="nav-link" data-key="AICorrecter">
+                  AI Correcter
+                </router-link>
+              </li>
+
+              <li class="nav-item">
+                <router-link to="/apps-api-key" class="nav-link" data-key="t-api-key">
+                  {{ $t("t-api-key") }}
+                </router-link>
+              </li>
             </ul>
           </div>
         </li>
-
-        
       </ul>
     </template>
-</b-container>
+  </b-container>
 </template>

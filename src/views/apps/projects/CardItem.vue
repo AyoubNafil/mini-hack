@@ -23,6 +23,8 @@ export default {
       apiKey:'',
       token:'',
       removeProjectModal: false,
+      tasks:[],
+      taskLength:null
     }
   },
   methods: {
@@ -167,6 +169,17 @@ console.error("Error fetching Card data:", error);
     MoreHorizontalIcon,
 
   },
+
+  async mounted() {
+        try {
+            const ProjectId = this.item.Id;
+            this.tasks = await executeQuery(`SELECT Id FROM Task__c where Type__r.Board__c = '${ProjectId}'`);
+            this.taskLength = this.tasks.length;
+            console.log(this.taskLength);
+        } catch (error) {
+            console.error('Error fetching team members data:', error);
+        }
+    },
 };
 </script>
 
@@ -258,13 +271,13 @@ console.error("Error fetching Card data:", error);
             </div>
             <div class="flex-shrink-0">
               <div>
-                <i class="ri-list-check align-bottom me-1 text-muted"></i> {{ item.number }}
+                <i class="ri-list-check align-bottom me-1 text-muted"></i> {{ taskLength }}
               </div>
             </div>
           </div>
           <div class="progress progress-sm animated-progess">
             <div class="progress-bar bg-success" role="progressbar" aria-valuenow="71" aria-valuemin="0"
-              aria-valuemax="100" :style="`width: ${item.progressBar};`"></div>
+              aria-valuemax="100" :style="`width: ${taskLength}%`"></div>
           </div>
         </div>
       </b-card-body>

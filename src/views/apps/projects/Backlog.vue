@@ -26,10 +26,10 @@
 </style>
 
 <script>
-import Layout from "../../../layouts/main.vue";
-import appConfig from "../../../../app.config";
-import { executeQuery, updateSObjects, createSObject, createSObject2, deleteSObject } from "../../../api/utile.js";
-import Swal from "sweetalert2";
+//import Layout from "../../../layouts/main.vue";
+//import appConfig from "../../../../app.config";
+import { executeQuery } from "../../../api/utile.js";
+//import Swal from "sweetalert2";
 
 
 export default {

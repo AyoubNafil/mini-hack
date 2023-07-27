@@ -5,12 +5,12 @@ const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
 module.exports = defineConfig({
   transpileDependencies: ["@vueform"],
   lintOnSave: false,
+
   configureWebpack: (config) => {
     config.devtool = "source-map";
     config.resolve.symlinks = false;
     config.resolve.fallback = {
       fs: false,
-      os: false,
       path: false,
       crypto: false, // crypto-browserify can be polyfilled here if needed
       stream: require.resolve("stream-browserify"),
@@ -32,4 +32,40 @@ module.exports = defineConfig({
       })
     );
   },
+
+  pages: {
+    popup: {
+      template: 'public/browser-extension.html',
+      entry: './src/popup/main.js',
+      title: 'Popup'
+    },
+    options: {
+      template: 'public/browser-extension.html',
+      entry: './src/options/main.js',
+      title: 'Options'
+    },
+    
+    indexx: {
+      template: 'public/browser-extension.html',
+      entry: './src/main.js',
+      title: 'Indexx'
+    }
+  },
+
+  pluginOptions: {
+    browserExtension: {
+      componentOptions: {
+        background: {
+          entry: 'src/background.js'
+        },
+        contentScripts: {
+          entries: {
+            'content-script': [
+              'src/content-scripts/content-script.js'
+            ]
+          }
+        }
+      }
+    }
+  }
 });

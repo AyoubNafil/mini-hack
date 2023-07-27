@@ -1,5 +1,5 @@
 <script>
-import { ChatGpt,callGpt35TurboAPI } from "../../.././src/api/utile.js"
+import { callGpt35TurboAPI,executeQuery } from "../../.././src/api/utile.js"
 
 import {
   SearchIcon,
@@ -120,7 +120,7 @@ export default {
 //       console.error('Error:', error);
 //     });
 // },
-ExecuteChatGpt(msg) {
+async ExecuteChatGpt(msg) {
 
 
 // var timeNow = hours + ":" + minutes;
@@ -140,8 +140,11 @@ if (msg == '') {
 
   )
 }else{
-  
-callGpt35TurboAPI(msg).then(response => {
+  this.api =  await executeQuery("SELECT Id, Key__c, Token__c FROM api__c where Name='GPT'");
+  this.api = this.api[0];
+  this.apiKey = this.api.Key__c;
+      
+   callGpt35TurboAPI(msg,this.apiKey).then(response => {
   var now = new Date();
   var hours = this.addLeadingZero(now.getHours());
   var minutes = this.addLeadingZero(now.getMinutes());

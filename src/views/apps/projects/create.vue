@@ -257,7 +257,7 @@ export default {
             </div>
 
             <div>
-              <label for="choices-text-input" class="form-label">Skills</label>
+              <label for="choices-text-input" class="form-label">Tags</label>
               <Multiselect class="form-control" v-model="skills" mode="tags" :close-on-select="true" :searchable="true"
                 :create-option="true" :options="[
                  { value: 'Sprint 1', label: 'Sprint 1' },
@@ -268,7 +268,7 @@ export default {
           </b-card-body>
         </b-card>
 
-        <b-card no-body>
+        <!-- <b-card no-body>
           <b-card-header>
             <h5 class="card-title mb-0">Members</h5>
           </b-card-header>
@@ -315,7 +315,7 @@ export default {
               </div>
             </div>
           </b-card-body>
-        </b-card>
+        </b-card> -->
       </b-col>
     </b-row>
   </Layout>
