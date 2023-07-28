@@ -1,0 +1,51 @@
+{
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
+  "manifest_version": 2,
+  "name": "InnovaScrum",
+  "description": "Agile Plateforme for salesforce",
+  "homepage_url": "http://localhost:8080/",
+ 
+  "default_locale": "en",
+  
+  "icons": {
+    "128": "icons/128.png"
+  },
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ],
+    "persistent": false
+  },
+  "browser_action": {
+   
+    "default_title": "InnovaScrum",
+    "default_icon": {
+      "128": "icons/128.png"
+    }
+  },
+ 
+  "version": "2.4.0",
+
+
+  
+    
+  "permissions": [
+      "declarativeContent",
+      "tabs",
+      "bookmarks",
+      "storage",
+      "identity",
+      "cookies", "activeTab","tabs",
+      
+    "<all_urls>",
+    "*://*/*"
+     
+  ],
+
+  
+
+  "options_ui": {
+      "page": "indexx.html",
+      "open_in_tab": true
+  }
+}

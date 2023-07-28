@@ -1,0 +1,1 @@
+{"version":3,"file":"js/content-script.js","mappings":";;;;;AAAAA,OAAO,CAACC,GAAG,CAAC,+BAA+B,CAAC,C","sources":["webpack://inovascrum/./src/content-scripts/content-script.js"],"sourcesContent":["console.log('Hello from the content-script')\n"],"names":["console","log"],"sourceRoot":""}

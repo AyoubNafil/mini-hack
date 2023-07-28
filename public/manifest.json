@@ -1,28 +1,26 @@
 {
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self';",
   "manifest_version": 2,
-  "name": "gg",
+  "name": "InnovaScrum",
+  "description": "Agile Plateforme for salesforce",
   "homepage_url": "http://localhost:8080/",
-  "description": "A Vue Browser Extension",
-
+ 
+  "default_locale": "en",
   
   "icons": {
-    "16": "icons/16.png",
-    "48": "icons/48.png",
     "128": "icons/128.png"
   },
   "background": {
     "scripts": [
-      "background.js"
+      "js/background.js"
     ],
     "persistent": false
   },
   "browser_action": {
    
-    "default_title": "gg",
+    "default_title": "InnovaScrum",
     "default_icon": {
-      "19": "icons/19.png",
-      "38": "icons/38.png"
+      "128": "icons/128.png"
     }
   },
  
@@ -47,7 +45,7 @@
   
 
   "options_ui": {
-      "page": "index.html",
+      "page": "indexx.html",
       "open_in_tab": true
   }
 }
