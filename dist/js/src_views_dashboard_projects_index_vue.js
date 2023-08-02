@@ -241,7 +241,7 @@ __webpack_require__.r(__webpack_exports__);
       return this.teamMembersData.map(member => {
         return {
           id: member.Id,
-          img: __webpack_require__(/*! @/assets/images/users/Trailblazer_avatar.png */ "./src/assets/images/users/Trailblazer_avatar.png"),
+          img: member.FullPhotoUrl,
           // You can update this based on the actual member data
           name: member.Name,
           position: member.UserType,
@@ -257,7 +257,7 @@ __webpack_require__.r(__webpack_exports__);
     async fetchTeamMembersDataFromSalesforce() {
       // Use Salesforce REST API or SOQL query to fetch team members data
       // Replace the below query with your actual SOQL query to get team members data
-      const queryResult = await (0,_api_utile__WEBPACK_IMPORTED_MODULE_0__.executeQuery)("SELECT Id, Name, UserType FROM User");
+      const queryResult = await (0,_api_utile__WEBPACK_IMPORTED_MODULE_0__.executeQuery)("SELECT Id, Name, UserType, FullPhotoUrl FROM User");
 
       // You can format the data further if needed before returning
       return queryResult;

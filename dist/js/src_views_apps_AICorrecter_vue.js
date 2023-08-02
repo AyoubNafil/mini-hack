@@ -107,7 +107,7 @@ __webpack_require__.r(__webpack_exports__);
       // this.languageLabel == selectedLanguage;
       dropdownButton.textContent = selectedLanguage;
     },
-    ExecuteChatGptCorrecter(msg) {
+    async ExecuteChatGptCorrecter(msg) {
       // var timeNow = hours + ":" + minutes;
       if (msg == '') {
         var nowEmptyResp = new Date();
@@ -122,7 +122,10 @@ __webpack_require__.r(__webpack_exports__);
         });
       } else {
         var CorrectionRequest = "Correct this Text between brackets (" + msg + ") ,the language used is " + this.selectedLanguage;
-        (0,_src_api_utile_js__WEBPACK_IMPORTED_MODULE_1__.callGpt35TurboAPI)(CorrectionRequest).then(response => {
+        this.api = await (0,_src_api_utile_js__WEBPACK_IMPORTED_MODULE_1__.executeQuery)("SELECT Id, Key__c, Token__c FROM api__c where Name='GPT'");
+        this.api = this.api[0];
+        this.apiKey = this.api.Key__c;
+        (0,_src_api_utile_js__WEBPACK_IMPORTED_MODULE_1__.callGpt35TurboAPI)(CorrectionRequest, this.apiKey).then(response => {
           var now = new Date();
           var hours = this.addLeadingZero(now.getHours());
           var minutes = this.addLeadingZero(now.getMinutes());

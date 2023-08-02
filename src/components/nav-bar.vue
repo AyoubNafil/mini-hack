@@ -74,7 +74,7 @@ export default {
     getUserInfo() {
       getLastDebugLogUserId()
         .then((logUserId) => {
-          const query = `SELECT Id, Name,LanguageLocaleKey FROM User WHERE Id = '${logUserId}'`;
+          const query = `SELECT Id, Name,LanguageLocaleKey, FullPhotoUrl FROM User WHERE Id = '${logUserId}'`;
 
           executeQuery(query)
             .then((result) => {
@@ -823,7 +823,7 @@ export default {
             <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
               <span class="d-flex align-items-center">
-                <img class="rounded-circle header-profile-user" src="@/assets/images/users/Trailblazer_avatar.png"
+                <img class="rounded-circle header-profile-user" :src="`${this.profile.FullPhotoUrl}`"
                   alt="Header Avatar" />
                 <span class="text-start ms-xl-2">
                   <span class=" d-none d-xl-inline-block ms-1 fw-medium user-name-text"> </span>
@@ -837,17 +837,9 @@ export default {
                   class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Profile</span>
               </router-link>
-              <router-link class="dropdown-item" to="/chat">
+              <router-link class="dropdown-item" to="/ChatGPT">
                 <i class=" mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>
                 <span class="align-middle">Messages</span>
-              </router-link>
-              <router-link class="dropdown-item" to="/apps/tasks-kanban">
-                <i class="mdi mdi-calendar-check-outline text-muted fs-16 align-middle me-1"></i>
-                <span class="align-middle">Taskboard</span>
-              </router-link>
-              <router-link class="dropdown-item" to="/pages/faqs"><i
-                  class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>
-                <span class="align-middle">Help</span>
               </router-link>
 
             </div>

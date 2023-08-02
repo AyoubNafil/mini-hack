@@ -1,5 +1,5 @@
 <script>
-import {  callGpt35TurboAPI } from "../../.././src/api/utile.js"
+import {  callGpt35TurboAPI,executeQuery } from "../../.././src/api/utile.js"
 
 import {
   SearchIcon,
@@ -105,7 +105,7 @@ export default {
       dropdownButton.textContent = selectedLanguage
     }
     ,
-    ExecuteChatGptCorrecter(msg) {
+    async ExecuteChatGptCorrecter(msg) {
 
 
       // var timeNow = hours + ":" + minutes;
@@ -127,8 +127,10 @@ export default {
       } else {
 
         var CorrectionRequest = "Correct this Text between brackets (" + msg + ") ,the language used is " + this.selectedLanguage;
-
-        callGpt35TurboAPI(CorrectionRequest).then(response => {
+        this.api =  await executeQuery("SELECT Id, Key__c, Token__c FROM api__c where Name='GPT'");
+        this.api = this.api[0];
+        this.apiKey = this.api.Key__c;
+        callGpt35TurboAPI(CorrectionRequest,this.apiKey).then(response => {
           var now = new Date();
           var hours = this.addLeadingZero(now.getHours());
           var minutes = this.addLeadingZero(now.getMinutes());

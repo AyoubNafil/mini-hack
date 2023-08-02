@@ -52,7 +52,7 @@ export default {
             //this.teamMembers = await this.fetchTeamMembersData();
             //this.filteredMembers = this.teamMembers;
             const ProjectId = this.$route.params.id;
-            this.members = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${ProjectId}'`);
+            this.members = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType, User__r.FullPhotoUrl FROM Member_Board__c where Board__c = '${ProjectId}'`);
         } catch (error) {
             console.error('Error fetching team members data:', error);
         }
@@ -530,7 +530,7 @@ export default {
                                                 <div v-for="member in members" :key="member.Id"
                                                     class="d-flex align-items-center mb-3">
                                                     <div class="avatar-xs flex-shrink-0 me-3">
-                                                        <img src="@/assets/images/users/Trailblazer_avatar.png" alt="Avatar"
+                                                        <img :src="`${member.User__r.FullPhotoUrl}`" alt="Avatar"
                                                             class="img-fluid rounded-circle">
                                                     </div>
                                                     <div class="flex-grow-1">

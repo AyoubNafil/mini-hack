@@ -17,6 +17,8 @@ import '@/assets/scss/config/corporate/app.scss';
 import '@vueform/slider/themes/default.css';
 import '@/assets/scss/mermaid.min.css';
 
+import Particles from "vue3-particles";
+
 // FakeBackend authentication
 // import { configureFakeBackend } from './helpers/fake-backend';
 // configureFakeBackend();
@@ -85,6 +87,7 @@ createApp(App)
     .component('EasyDataTable', Vue3EasyDataTable)
     .use(Maska)
     .use(i18n)
+    .use(Particles)
     .use(vClickOutside).mount('#app');
     //.use(vuetify)
 

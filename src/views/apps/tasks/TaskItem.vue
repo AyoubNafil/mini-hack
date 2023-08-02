@@ -107,14 +107,14 @@ export default {
             try {
                 // Use executeQuery or your API utility to fetch data from the API
                 // Replace the below query with your actual query to fetch team members' data
-                const test = await executeQuery(`SELECT Id,Task__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Task__c where Task__c = '${this.item.Id}'`);
+                const test = await executeQuery(`SELECT Id,Task__r.Id, User__r.Id,User__r.Name,User__r.FullPhotoUrl, User__r.UserType FROM Member_Task__c where Task__c = '${this.item.Id}'`);
                 console.log("test333: ", test, this.item.Id);
 
                 const formattedTeamMembers = test.map((record) => {
                     return {
                         Id:record.Id,
                         name: record.User__r.Name,
-                        img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                        img: record.User__r.FullPhotoUrl,
                     };
                 });
 
@@ -209,7 +209,7 @@ export default {
                 <div class="flex-shrink-0">
                     <div class="avatar-group">
                         <b-link href="javascript: void(0);" v-for="(item, index) of teamMembers" :key="index" class="avatar-group-item" v-b-tooltip.hover :title="item.name">
-                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                            <img :src="`${item.img}`" alt=""
                                 class="rounded-circle avatar-xxs">
                         </b-link>
                     </div>

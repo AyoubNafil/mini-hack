@@ -159,7 +159,7 @@ export default {
                 // Use executeQuery or your API utility to fetch data from the API
                 // Replace the below query with your actual query to fetch team members' data
                 this.TaskId = this.$route.params.id;
-                const test = await executeQuery(`SELECT Id,Task__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Task__c where Task__c = '${this.TaskId}'`);
+                const test = await executeQuery(`SELECT Id,Task__r.Id, User__r.Id,User__r.Name, User__r.UserType , User__r.FullPhotoUrl FROM Member_Task__c where Task__c = '${this.TaskId}'`);
                 console.log("test333: ", test);
 
                 const formattedTeamMembers = test.map((record) => {
@@ -167,7 +167,7 @@ export default {
                     return {
                         Id: record.User__r.Id,
                         name: record.User__r.Name,
-                        img: require("@/assets/images/users/Trailblazer_avatar.png"),
+                        img: record.User__r.FullPhotoUrl,
                     };
                 });
 
@@ -316,7 +316,7 @@ export default {
                             <li v-for="(item, index) in teamMembers" :key="index">
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
-                                        <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                                        <img :src="`${item.img}`" alt=""
                                             class="avatar-xs rounded-circle" />
                                     </div>
                                     <div class="flex-grow-1 ms-2">
@@ -424,7 +424,7 @@ export default {
                                 <div v-for="(item, index) of this.teamMembers" :key="index"
                                     class="d-flex align-items-center mb-3">
                                     <div class="avatar-xs flex-shrink-0 me-3">
-                                        <img src="@/assets/images/users/Trailblazer_avatar.png" alt="Avatar"
+                                        <img :src="`${item.img}`" alt="Avatar"
                                             class="img-fluid rounded-circle">
                                     </div>
                                     <div class="flex-grow-1">

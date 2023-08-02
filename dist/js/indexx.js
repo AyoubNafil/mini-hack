@@ -1117,9 +1117,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _vueform_slider_themes_default_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_vueform_slider_themes_default_css__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var _assets_scss_mermaid_min_css__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! @/assets/scss/mermaid.min.css */ "./src/assets/scss/mermaid.min.css");
 /* harmony import */ var _assets_scss_mermaid_min_css__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_assets_scss_mermaid_min_css__WEBPACK_IMPORTED_MODULE_14__);
-/* harmony import */ var vue3_easy_data_table__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! vue3-easy-data-table */ "./node_modules/vue3-easy-data-table/dist/vue3-easy-data-table.es.js");
-/* harmony import */ var vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! vue3-easy-data-table/dist/style.css */ "./node_modules/vue3-easy-data-table/dist/style.css");
-/* harmony import */ var vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_16___default = /*#__PURE__*/__webpack_require__.n(vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_16__);
+/* harmony import */ var vue3_particles__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! vue3-particles */ "./node_modules/vue3-particles/dist/vue3-particles.es.js");
+/* harmony import */ var vue3_easy_data_table__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! vue3-easy-data-table */ "./node_modules/vue3-easy-data-table/dist/vue3-easy-data-table.es.js");
+/* harmony import */ var vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! vue3-easy-data-table/dist/style.css */ "./node_modules/vue3-easy-data-table/dist/style.css");
+/* harmony import */ var vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_17___default = /*#__PURE__*/__webpack_require__.n(vue3_easy_data_table_dist_style_css__WEBPACK_IMPORTED_MODULE_17__);
+
 
 
 
@@ -1188,7 +1190,7 @@ aos__WEBPACK_IMPORTED_MODULE_3___default().init({
   easing: 'ease-out-back',
   duration: 1000
 });
-(0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)(_App_vue__WEBPACK_IMPORTED_MODULE_1__["default"]).use(_state_store__WEBPACK_IMPORTED_MODULE_6__["default"]).use(_router__WEBPACK_IMPORTED_MODULE_2__["default"]).use((vue3_apexcharts__WEBPACK_IMPORTED_MODULE_9___default())).use(bootstrap_vue_3__WEBPACK_IMPORTED_MODULE_7__["default"]).component(vue_feather__WEBPACK_IMPORTED_MODULE_11__["default"].type, vue_feather__WEBPACK_IMPORTED_MODULE_11__["default"]).component('EasyDataTable', vue3_easy_data_table__WEBPACK_IMPORTED_MODULE_15__["default"]).use(maska__WEBPACK_IMPORTED_MODULE_10__["default"]).use(_i18n__WEBPACK_IMPORTED_MODULE_5__["default"]).use((click_outside_vue3__WEBPACK_IMPORTED_MODULE_8___default())).mount('#app');
+(0,vue__WEBPACK_IMPORTED_MODULE_0__.createApp)(_App_vue__WEBPACK_IMPORTED_MODULE_1__["default"]).use(_state_store__WEBPACK_IMPORTED_MODULE_6__["default"]).use(_router__WEBPACK_IMPORTED_MODULE_2__["default"]).use((vue3_apexcharts__WEBPACK_IMPORTED_MODULE_9___default())).use(bootstrap_vue_3__WEBPACK_IMPORTED_MODULE_7__["default"]).component(vue_feather__WEBPACK_IMPORTED_MODULE_11__["default"].type, vue_feather__WEBPACK_IMPORTED_MODULE_11__["default"]).component('EasyDataTable', vue3_easy_data_table__WEBPACK_IMPORTED_MODULE_16__["default"]).use(maska__WEBPACK_IMPORTED_MODULE_10__["default"]).use(_i18n__WEBPACK_IMPORTED_MODULE_5__["default"]).use(vue3_particles__WEBPACK_IMPORTED_MODULE_15__["default"]).use((click_outside_vue3__WEBPACK_IMPORTED_MODULE_8___default())).mount('#app');
 //.use(vuetify)
 
 //.use(VueGoodTablePlugin)

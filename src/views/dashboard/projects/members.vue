@@ -52,7 +52,7 @@ export default {
       return this.teamMembersData.map((member) => {
         return {
           id: member.Id,
-          img: require("@/assets/images/users/Trailblazer_avatar.png"), // You can update this based on the actual member data
+          img: member.FullPhotoUrl, // You can update this based on the actual member data
           name: member.Name,
           position: member.UserType,
           hours: "110",
@@ -68,7 +68,7 @@ export default {
       // Use Salesforce REST API or SOQL query to fetch team members data
       // Replace the below query with your actual SOQL query to get team members data
       const queryResult = await executeQuery(
-        "SELECT Id, Name, UserType FROM User"
+        "SELECT Id, Name, UserType, FullPhotoUrl FROM User"
       );
 
       // You can format the data further if needed before returning

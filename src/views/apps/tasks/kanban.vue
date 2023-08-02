@@ -24,6 +24,8 @@ import { executeQuery, updateSObjects, createSObject, createSObject2 } from "../
 
 import Listkanban from './Listkanban.vue'
 
+import ConfettiExplosion from "vue-confetti-explosion";
+
 export default {
     props: {
         id: {
@@ -73,6 +75,7 @@ export default {
             teamMembers: [],
             tags :[],
             tagValue :"All",
+            showParticles: false,
             ///drake2,
             //drake
         };
@@ -242,6 +245,17 @@ export default {
                             console.log(tasksBoxId);
                             updateSObjects("Task__c", { Id: tasksBoxId, Type__c: parentCardId });
 
+
+                            const lastIndex = this.cc.findIndex((obj) => obj.Id === parentCardId);
+
+                            if (lastIndex !== -1 && lastIndex === this.cc.length - 1) {
+                                this.showParticles = true;
+
+
+                            } else {
+                                this.showParticles = false;
+                            }
+
                             // const refName = `taskListComponent-${parentCardId}`;
                             // console.log("refName: ", refName);
                             // const childComponent = this.$refs[refName];
@@ -366,7 +380,7 @@ export default {
             try {
                 // Use executeQuery or your API utility to fetch data from the API
                 // Replace the below query with your actual query to fetch team members' data
-                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
+                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType, User__r.FullPhotoUrl FROM Member_Board__c where Board__c = '${this.id}'`);
                 console.log("test: ", test);
 
                 // Format the data to return an array of objects with the required properties
@@ -404,12 +418,17 @@ export default {
         //draggable: VueDraggableNext,
         //lottie: Lottie,
         flatPickr,
-        Multiselect
+        Multiselect,
+        ConfettiExplosion
     },
 };
 </script>
 
 <template>
+    <div class="centered-div" v-if="showParticles">
+        <ConfettiExplosion :particleCount="200" :force="0.3" :duration="3000" />
+        <!-- <vue-particles id="tsparticles" :particlesInit="particlesInit" :particlesLoaded="particlesLoaded" :options="this.conffeti" /> -->
+    </div>
     <b-card no-body>
         <b-card-body>
             <b-row class="g-2">
@@ -433,7 +452,7 @@ export default {
                         <div v-for="teamMember in teamMembers" :key="teamMember.Id">
                             <b-link href="javascript: void(0);" class="avatar-group-item" v-b-tooltip.hover
                                 :title="teamMember.User__r.Name">
-                                <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                                <img :src="`${teamMember.User__r.FullPhotoUrl}`" alt=""
                                     class="rounded-circle avatar-xs">
                             </b-link>
                         </div>
@@ -534,3 +553,13 @@ export default {
         </b-form>
     </b-modal>
 </template>
+<style>
+.centered-div {
+
+    display: flex;
+    justify-content: center;
+    /* Horizontally center the content */
+    align-items: center;
+    /* Vertically center the content */
+}
+</style>

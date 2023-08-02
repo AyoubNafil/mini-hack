@@ -318,7 +318,7 @@ export default {
             try {
                 // Use executeQuery or your API utility to fetch data from the API
                 // Replace the below query with your actual query to fetch team members' data
-                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
+                const test = await executeQuery(`SELECT Id,Board__r.Id, User__r.Id,User__r.Name, User__r.FullPhotoUrl, User__r.UserType FROM Member_Board__c where Board__c = '${this.id}'`);
                 console.log("test: ", test);
 
                 // Format the data to return an array of objects with the required properties
@@ -442,7 +442,7 @@ export default {
                                         :id="teamMember.User__r.Id" @change="handleCheckboxChange(teamMember.User__r.Id)">
                                     <label class="form-check-label d-flex align-items-center" :for="teamMember.User__r.Id">
                                         <span class="flex-shrink-0">
-                                            <img src="@/assets/images/users/Trailblazer_avatar.png" alt=""
+                                            <img :src="`${teamMember.User__r.FullPhotoUrl}`" alt=""
                                                 class="avatar-xxs rounded-circle" />
                                         </span>
                                         <span class="flex-grow-1 ms-2">
